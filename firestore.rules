@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /flashcard_sets/{id}              { allow read: if true; }
+    match /flashcards/{id}                  { allow read: if true; }
+    match /passages/{id}                    { allow read: if true; }
+    match /comprehension_questions/{id}     { allow read: if true; }
+
+    match /profiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /user_card_progress/{docId} {
+      allow read, write: if request.auth != null
+        && resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.user_id == request.auth.uid;
+    }
+
+    match /user_passage_progress/{docId} {
+      allow read, write: if request.auth != null
+        && resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.user_id == request.auth.uid;
+    }
+  }
+}
