@@ -265,7 +265,8 @@ export default function FlashcardSessionPage() {
               </button>
               <button
                 onClick={() => handleAnswer(true)}
-                className="flex-1 py-3.5 rounded-xl bg-green-500 text-white font-bold text-sm hover:opacity-90 transition-opacity"
+                className="flex-1 py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity text-white"
+                style={{ backgroundColor: '#22C55E' }}
               >
                 ✓ Know it
               </button>

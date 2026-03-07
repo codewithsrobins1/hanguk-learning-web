@@ -1,18 +1,28 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { hangulVowels } from '@/data/hangul';
+import { hangulVowels, hangulConsonants } from '@/data/hangul';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
 
+type Mode = 'vowels' | 'consonants' | 'all';
+
 export default function HangulSessionPage() {
   const router = useRouter();
-  const cards = hangulVowels.slice(0, 10);
-
+  const [mode, setMode] = useState<Mode | null>(null);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+
+  const cards =
+    mode === 'vowels'
+      ? hangulVowels
+      : mode === 'consonants'
+        ? hangulConsonants
+        : mode === 'all'
+          ? [...hangulVowels, ...hangulConsonants]
+          : [];
 
   const handleAnswer = (isKnown: boolean) => {
     if (isKnown) setKnown((k) => [...k, index]);
@@ -24,6 +34,85 @@ export default function HangulSessionPage() {
     setFlipped(false);
   };
 
+  const reset = (newMode?: Mode) => {
+    setIndex(0);
+    setFlipped(false);
+    setKnown([]);
+    setDone(false);
+    if (newMode) setMode(newMode);
+  };
+
+  // ── Mode selection ──────────────────────────────────────────
+  if (!mode)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-8 max-w-sm mx-auto">
+        <h2 className="text-2xl font-extrabold text-ink mb-2">Study Hangul</h2>
+        <p className="text-muted text-sm mb-10 text-center">
+          Choose what you'd like to practice
+        </p>
+        <div className="flex flex-col gap-3 w-full">
+          <button
+            onClick={() => setMode('vowels')}
+            className="w-full py-4 rounded-2xl bg-ink text-cream font-bold text-sm flex items-center justify-between px-5 hover:opacity-90 transition-opacity"
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className="text-2xl"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+              >
+                아
+              </span>
+              <span>Vowels</span>
+            </div>
+            <span className="text-muted text-xs font-semibold">
+              {hangulVowels.length} characters
+            </span>
+          </button>
+          <button
+            onClick={() => setMode('consonants')}
+            className="w-full py-4 rounded-2xl bg-ink text-cream font-bold text-sm flex items-center justify-between px-5 hover:opacity-90 transition-opacity"
+          >
+            <div className="flex items-center gap-3">
+              <span
+                className="text-2xl"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+              >
+                가
+              </span>
+              <span>Consonants</span>
+            </div>
+            <span className="text-muted text-xs font-semibold">
+              {hangulConsonants.length} characters
+            </span>
+          </button>
+          <button
+            onClick={() => setMode('all')}
+            className="w-full py-4 rounded-2xl border-2 border-border bg-white font-bold text-sm flex items-center justify-between px-5 hover:bg-cream transition-colors"
+          >
+            <div className="flex items-center gap-3 text-ink">
+              <span
+                className="text-2xl"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+              >
+                한
+              </span>
+              <span>All Characters</span>
+            </div>
+            <span className="text-muted text-xs font-semibold">
+              {hangulVowels.length + hangulConsonants.length} characters
+            </span>
+          </button>
+        </div>
+        <button
+          onClick={() => router.back()}
+          className="mt-8 text-sm text-muted hover:text-ink transition-colors"
+        >
+          ← Back
+        </button>
+      </div>
+    );
+
+  // ── Session complete ────────────────────────────────────────
   if (done)
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-8">
@@ -34,35 +123,31 @@ export default function HangulSessionPage() {
         <p className="text-muted mb-8 text-center">
           {known.length} / {cards.length} characters mastered
         </p>
-        <div className="flex gap-3 w-full max-w-xs">
+        <div className="flex flex-col gap-3 w-full max-w-xs">
           <button
-            onClick={() => {
-              setIndex(0);
-              setFlipped(false);
-              setKnown([]);
-              setDone(false);
-            }}
-            className="flex-1 py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
+            onClick={() => reset(mode)}
+            className="w-full py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
           >
             Try Again
           </button>
           <button
-            onClick={() => router.back()}
-            className="flex-1 py-3.5 rounded-xl bg-ink text-cream font-bold text-sm hover:bg-inkLight transition-colors"
+            onClick={() => reset()}
+            className="w-full py-3.5 rounded-xl bg-ink text-cream font-bold text-sm hover:opacity-90 transition-opacity"
           >
-            Back to Hangul
+            Choose Different Set
           </button>
         </div>
       </div>
     );
 
+  // ── Study session ───────────────────────────────────────────
   const card = cards[index];
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-8 max-w-xl mx-auto">
       <div className="flex items-center gap-3 mb-8">
         <button
-          onClick={() => router.back()}
+          onClick={() => reset()}
           className="text-2xl text-muted hover:text-ink transition-colors"
         >
           ←
@@ -124,7 +209,8 @@ export default function HangulSessionPage() {
             </button>
             <button
               onClick={() => handleAnswer(true)}
-              className="flex-1 py-3.5 rounded-xl bg-green-500 text-white font-bold text-sm hover:opacity-90 transition-opacity"
+              className="flex-1 py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity text-white"
+              style={{ backgroundColor: '#22C55E' }}
             >
               ✓ Know it
             </button>
