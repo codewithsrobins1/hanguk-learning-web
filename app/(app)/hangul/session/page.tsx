@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
+import { playCorrect, playIncorrect } from '@/lib/sounds';
 
 type Mode = 'vowels' | 'consonants' | 'all';
 
@@ -14,6 +15,7 @@ export default function HangulSessionPage() {
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const cards =
     mode === 'vowels'
@@ -25,7 +27,13 @@ export default function HangulSessionPage() {
           : [];
 
   const handleAnswer = (isKnown: boolean) => {
-    if (isKnown) setKnown((k) => [...k, index]);
+    if (isKnown) {
+      if (soundEnabled) playCorrect();
+      setKnown((k) => [...k, index]);
+    } else {
+      if (soundEnabled) playIncorrect();
+    }
+
     if (index + 1 >= cards.length) {
       setDone(true);
       return;
@@ -216,7 +224,18 @@ export default function HangulSessionPage() {
             </button>
           </div>
         ) : (
-          <p className="text-xs text-muted">Tap the card to see the answer</p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs text-muted">
+              Tap the card to see the translation
+            </p>
+            <button
+              onClick={() => setSoundEnabled((s) => !s)}
+              className="text-xs text-muted hover:text-ink transition-colors"
+              title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
+            >
+              {soundEnabled ? '🔊' : '🔇'}
+            </button>
+          </div>
         )}
       </div>
     </div>

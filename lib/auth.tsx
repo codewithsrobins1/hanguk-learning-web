@@ -125,8 +125,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return { error: null };
-    } catch (e: any) {
-      return { error: e.message ?? 'Sign in failed' };
+    } catch (err: any) {
+      const code = err?.code;
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/user-not-found'
+      ) {
+        return { error: 'Incorrect email or password. Please try again.' };
+      } else if (code === 'auth/too-many-requests') {
+        return {
+          error: 'Too many attempts. Please wait a moment and try again.',
+        };
+      } else if (code === 'auth/user-disabled') {
+        return { error: 'This account has been disabled.' };
+      } else {
+        return { error: 'Something went wrong. Please try again.' };
+      }
     }
   };
 
@@ -149,8 +164,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         created_at: serverTimestamp(),
       });
       return { error: null };
-    } catch (e: any) {
-      return { error: e.message ?? 'Sign up failed' };
+    } catch (err: any) {
+      const code = err?.code;
+      if (code === 'auth/email-already-in-use') {
+        return { error: 'An account with this email already exists.' };
+      } else if (code === 'auth/invalid-email') {
+        return { error: 'Please enter a valid email address.' };
+      } else {
+        return { error: 'Something went wrong. Please try again.' };
+      }
     }
   };
 
