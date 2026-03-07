@@ -10,48 +10,25 @@ export default function HangulPage() {
     ? allHangul.find((c) => c.char === selected)
     : hangulConsonants.find((c) => c.char === 'ㅎ');
 
-  const sets = [
-    {
-      id: 'vowels',
-      label: 'Vowels',
-      count: hangulVowels.length,
-      icon: 'ㅏ',
-      bg: '#EFF6FF',
-      color: '#3B82F6',
-    },
-    {
-      id: 'consonants',
-      label: 'Consonants',
-      count: hangulConsonants.length,
-      icon: 'ㄱ',
-      bg: '#F5F3FF',
-      color: '#8B5CF6',
-    },
-  ];
-
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <h1 className="text-3xl font-extrabold text-ink mb-6">Hangul</h1>
 
-      {/* Set cards */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        {sets.map((s) => (
-          <Link
-            key={s.id}
-            href="/hangul/session"
-            className="rounded-2xl p-5 hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: s.bg }}
-          >
-            <p
-              className="text-3xl mb-3"
-              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-            >
-              {s.icon}
-            </p>
-            <p className="font-extrabold text-ink mb-1">{s.label}</p>
-            <p className="text-xs text-muted">{s.count} characters →</p>
-          </Link>
-        ))}
+      {/* Study CTA */}
+      <div className="bg-navy rounded-2xl p-5 mb-6 flex items-center justify-between">
+        <div>
+          <p className="text-cream font-extrabold text-base mb-0.5">
+            Study Hangul
+          </p>
+          <p className="text-gray-400 text-xs">Vowels & Consonants</p>
+        </div>
+        <Link
+          href="/hangul/session"
+          className="px-5 py-2.5 rounded-xl font-bold text-sm transition-opacity hover:opacity-90 flex-shrink-0"
+          style={{ backgroundColor: '#E8412C', color: '#fff' }}
+        >
+          Study →
+        </Link>
       </div>
 
       {/* Focus character */}
