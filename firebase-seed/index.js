@@ -25,6 +25,7 @@ const { flashcardSets } = require('./flashcard-sets');
 const { flashcards }    = require('./flashcards');
 const { passages }      = require('./passages');
 const { questions }     = require('./questions');
+const { dialogues }     = require('./dialogues');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -33,41 +34,50 @@ admin.initializeApp({
 const db = admin.firestore();
 
 async function seed() {
-  const batch = db.batch();
 
-  // ── Flashcard Sets ──────────────────────────────────────────
+  // ── Batch 1: flashcard sets, cards, passages, questions ─────
+  const batch1 = db.batch();
+
   console.log(`📚 Seeding ${flashcardSets.length} flashcard sets...`);
   for (const set of flashcardSets) {
     const { id, ...data } = set;
-    batch.set(
+    batch1.set(
       db.collection('flashcard_sets').doc(id),
       { ...data, card_count: 0 },
       { merge: true }
     );
   }
 
-  // ── Flashcards ──────────────────────────────────────────────
   console.log(`🃏 Seeding ${flashcards.length} flashcards...`);
   for (const card of flashcards) {
     const { id, ...data } = card;
-    batch.set(db.collection('flashcards').doc(id), data, { merge: true });
+    batch1.set(db.collection('flashcards').doc(id), data, { merge: true });
   }
 
-  // ── Passages ────────────────────────────────────────────────
   console.log(`📖 Seeding ${passages.length} passages...`);
   for (const passage of passages) {
     const { id, ...data } = passage;
-    batch.set(db.collection('passages').doc(id), data, { merge: true });
+    batch1.set(db.collection('passages').doc(id), data, { merge: true });
   }
 
-  // ── Comprehension Questions ─────────────────────────────────
   console.log(`❓ Seeding ${questions.length} questions...`);
   for (const q of questions) {
     const { id, ...data } = q;
-    batch.set(db.collection('comprehension_questions').doc(id), data, { merge: true });
+    batch1.set(db.collection('comprehension_questions').doc(id), data, { merge: true });
   }
 
-  await batch.commit();
+  await batch1.commit();
+
+  // ── Batch 2: dialogues ──────────────────────────────────────
+  const batch2 = db.batch();
+
+  console.log(`💬 Seeding ${dialogues.length} dialogues...`);
+  for (const d of dialogues) {
+    const { id, ...data } = d;
+    batch2.set(db.collection('dialogues').doc(id), data, { merge: true });
+  }
+
+  await batch2.commit();
 
   // ── Update card counts per set ──────────────────────────────
   console.log('🔢 Updating card counts...');

@@ -70,3 +70,19 @@ export type HangulCharacter = {
   romanization: string;
   sound: string;
 };
+
+export type DialogueLine = {
+  speaker: 'A' | 'B';
+  korean: string;
+  translation: string;
+};
+
+export type Dialogue = {
+  id: string;
+  title: string;
+  title_ko: string;
+  category: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  sort_order: number;
+  lines: DialogueLine[];
+};
