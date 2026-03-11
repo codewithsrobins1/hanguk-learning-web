@@ -1,126 +1,422 @@
-// ─── DIALOGUES ─────────────────────────────────────────────────
-// Each dialogue is a short back-and-forth conversation for shadowing practice.
-//
-// Fields:
-//   id         → unique key, e.g. 'dialogue_greetings_1'
-//   title      → English title
-//   title_ko   → Korean title
-//   category   → filter group ('Greetings', 'Ordering Food', 'Directions', etc.)
-//   difficulty → 'Beginner' | 'Intermediate' | 'Advanced'
-//   sort_order → display order
-//   lines      → array of { speaker: 'A' | 'B', korean, translation }
-//
-// NOTE: Keep exactly 2 speakers (A and B). Add at least 4 lines per dialogue.
-
 const dialogues = [
-  {
-    id: 'dialogue_greetings_1',
-    title: 'Nice to Meet You',
-    title_ko: '처음 뵙겠습니다',
-    category: 'Greetings',
-    difficulty: 'Beginner',
-    sort_order: 1,
-    lines: [
-      { speaker: 'A', korean: '안녕하세요, 처음 뵙겠습니다. 저는 민준이에요.', translation: 'Hello, nice to meet you. My name is Minjun.' },
-      { speaker: 'B', korean: '안녕하세요! 저는 지우예요. 반갑습니다.', translation: 'Hello! I\'m Jiwoo. Nice to meet you.' },
-      { speaker: 'A', korean: '어디서 오셨어요?', translation: 'Where are you from?' },
-      { speaker: 'B', korean: '미국에서 왔어요. 민준 씨는요?', translation: 'I\'m from the United States. What about you, Minjun?' },
-      { speaker: 'A', korean: '저는 한국 사람이에요. 서울 출신이에요.', translation: 'I\'m Korean. I\'m from Seoul.' },
-      { speaker: 'B', korean: '와, 정말요? 한국 좋아해요!', translation: 'Wow, really? I love Korea!' },
-    ],
-  },
-  {
-    id: 'dialogue_greetings_2',
-    title: 'How Are You?',
-    title_ko: '잘 지냈어요?',
-    category: 'Greetings',
-    difficulty: 'Beginner',
-    sort_order: 2,
-    lines: [
-      { speaker: 'A', korean: '오랜만이에요! 잘 지냈어요?', translation: 'Long time no see! How have you been?' },
-      { speaker: 'B', korean: '네, 잘 지냈어요. 민준 씨는요?', translation: 'Yes, I\'ve been well. What about you, Minjun?' },
-      { speaker: 'A', korean: '저도 잘 지냈어요. 요즘 바빠요?', translation: 'I\'ve been well too. Are you busy these days?' },
-      { speaker: 'B', korean: '좀 바빠요. 일이 많아요.', translation: 'A little busy. There\'s a lot of work.' },
-      { speaker: 'A', korean: '힘내세요! 같이 커피 마실까요?', translation: 'Hang in there! Shall we grab coffee together?' },
-      { speaker: 'B', korean: '좋아요! 언제가 좋아요?', translation: 'Sure! When works for you?' },
-    ],
-  },
-  {
-    id: 'dialogue_food_1',
-    title: 'At a Korean Restaurant',
-    title_ko: '한식당에서',
-    category: 'Ordering Food',
-    difficulty: 'Beginner',
-    sort_order: 3,
-    lines: [
-      { speaker: 'A', korean: '어서오세요! 몇 분이세요?', translation: 'Welcome! How many people?' },
-      { speaker: 'B', korean: '두 명이에요.', translation: 'There are two of us.' },
-      { speaker: 'A', korean: '여기 메뉴판이에요. 뭐 드시겠어요?', translation: 'Here\'s the menu. What would you like?' },
-      { speaker: 'B', korean: '비빔밥 하나하고 된장찌개 하나 주세요.', translation: 'One bibimbap and one doenjang jjigae, please.' },
-      { speaker: 'A', korean: '네, 잠깐만요!', translation: 'Sure, one moment please!' },
-    ],
-  },
-  {
-    id: 'dialogue_food_2',
-    title: 'Ordering Coffee',
-    title_ko: '커피 주문하기',
-    category: 'Ordering Food',
-    difficulty: 'Beginner',
-    sort_order: 4,
-    lines: [
-      { speaker: 'A', korean: '안녕하세요! 주문하시겠어요?', translation: 'Hello! Are you ready to order?' },
-      { speaker: 'B', korean: '아이스 아메리카노 한 잔 주세요.', translation: 'One iced Americano, please.' },
-      { speaker: 'A', korean: '사이즈는요? 라지로 드릴까요?', translation: 'What size? Would you like a large?' },
-      { speaker: 'B', korean: '미디엄으로 주세요. 얼마예요?', translation: 'Medium, please. How much is it?' },
-      { speaker: 'A', korean: '사천오백 원이에요.', translation: 'It\'s 4,500 won.' },
-      { speaker: 'B', korean: '여기 있어요. 감사합니다!', translation: 'Here you go. Thank you!' },
-    ],
-  },
-  {
-    id: 'dialogue_directions_1',
-    title: 'Getting to the Subway',
-    title_ko: '지하철 가는 길',
-    category: 'Directions',
-    difficulty: 'Intermediate',
-    sort_order: 5,
-    lines: [
-      { speaker: 'A', korean: '저기요, 지하철역이 어디에 있어요?', translation: 'Excuse me, where is the subway station?' },
-      { speaker: 'B', korean: '어느 역을 찾으세요?', translation: 'Which station are you looking for?' },
-      { speaker: 'A', korean: '홍대입구역이요.', translation: 'Hongdae Station.' },
-      { speaker: 'B', korean: '이 길로 쭉 가다가 오른쪽으로 꺾으세요.', translation: 'Go straight down this road and turn right.' },
-      { speaker: 'A', korean: '얼마나 걸려요?', translation: 'How long does it take?' },
-      { speaker: 'B', korean: '걸어서 오 분쯤 걸려요.', translation: 'It\'s about a 5 minute walk.' },
-    ],
-  },
-  {
-    id: 'dialogue_shopping_1',
-    title: 'Buying Clothes',
-    title_ko: '옷 사기',
-    category: 'Shopping',
-    difficulty: 'Intermediate',
-    sort_order: 6,
-    lines: [
-      { speaker: 'A', korean: '이 옷 입어봐도 돼요?', translation: 'Can I try this on?' },
-      { speaker: 'B', korean: '네, 물론이죠! 탈의실은 저쪽이에요.', translation: 'Yes, of course! The fitting room is over there.' },
-      { speaker: 'A', korean: '이거 좀 더 큰 사이즈 있어요?', translation: 'Do you have this in a bigger size?' },
-      { speaker: 'B', korean: '잠깐만요, 확인해 볼게요.', translation: 'One moment, let me check.' },
-      { speaker: 'A', korean: '감사합니다!', translation: 'Thank you!' },
-    ],
-  },
-  {
-    id: 'dialogue_work_1',
-    title: 'Morning at the Office',
-    title_ko: '사무실 아침',
-    category: 'At Work',
-    difficulty: 'Advanced',
-    sort_order: 7,
-    lines: [
-      { speaker: 'A', korean: '좋은 아침이에요! 회의 준비됐어요?', translation: 'Good morning! Are you ready for the meeting?' },
-      { speaker: 'B', korean: '네, 자료 다 준비했어요.', translation: 'Yes, I\'ve prepared all the materials.' },
-      { speaker: 'A', korean: '보고서는요? 부장님이 아까 물어봤어요.', translation: 'What about the report? The manager asked earlier.' },
-      { speaker: 'B', korean: '이메일로 방금 보냈어요!', translation: 'I just sent it by email!' },
-    ],
-  },
+  // ── Greetings ──────────────────────────────────────────────
+  { id: 'dialogue_greetings_1', title: 'Nice to Meet You', title_ko: '처음 뵙겠습니다', category: 'Greetings', difficulty: 'Beginner', sort_order: 1, lines: [
+    { speaker: 'A', korean: '안녕하세요, 처음 뵙겠습니다. 저는 민준이에요.', translation: 'Hello, nice to meet you. My name is Minjun.' },
+    { speaker: 'B', korean: '안녕하세요! 저는 지우예요. 반갑습니다.', translation: "Hello! I'm Jiwoo. Nice to meet you." },
+    { speaker: 'A', korean: '어디서 오셨어요?', translation: 'Where are you from?' },
+    { speaker: 'B', korean: '미국에서 왔어요. 민준 씨는요?', translation: "I'm from the US. What about you, Minjun?" },
+    { speaker: 'A', korean: '저는 한국 사람이에요. 서울 출신이에요.', translation: "I'm Korean. I'm from Seoul." },
+    { speaker: 'B', korean: '와, 정말요? 한국 좋아해요!', translation: 'Wow, really? I love Korea!' },
+  ]},
+  { id: 'dialogue_greetings_2', title: 'How Are You?', title_ko: '잘 지냈어요?', category: 'Greetings', difficulty: 'Beginner', sort_order: 2, lines: [
+    { speaker: 'A', korean: '오랜만이에요! 잘 지냈어요?', translation: 'Long time no see! How have you been?' },
+    { speaker: 'B', korean: '네, 잘 지냈어요. 민준 씨는요?', translation: "Yes, I've been well. What about you?" },
+    { speaker: 'A', korean: '저도 잘 지냈어요. 요즘 바빠요?', translation: "I've been well too. Are you busy these days?" },
+    { speaker: 'B', korean: '좀 바빠요. 일이 많아요.', translation: "A little busy. There's a lot of work." },
+    { speaker: 'A', korean: '힘내세요! 같이 커피 마실까요?', translation: 'Hang in there! Shall we grab coffee together?' },
+    { speaker: 'B', korean: '좋아요! 언제가 좋아요?', translation: 'Sure! When works for you?' },
+  ]},
+  { id: 'dialogue_greetings_3', title: 'What Do You Do?', title_ko: '직업이 뭐예요?', category: 'Greetings', difficulty: 'Beginner', sort_order: 3, lines: [
+    { speaker: 'A', korean: '직업이 뭐예요?', translation: 'What do you do for work?' },
+    { speaker: 'B', korean: '저는 회사원이에요. 지우 씨는요?', translation: "I'm an office worker. What about you, Jiwoo?" },
+    { speaker: 'A', korean: '저는 학생이에요. 한국어를 공부하고 있어요.', translation: "I'm a student. I'm studying Korean." },
+    { speaker: 'B', korean: '오, 한국어 잘 하시네요!', translation: 'Oh, your Korean is really good!' },
+    { speaker: 'A', korean: '감사해요! 아직 많이 부족해요.', translation: "Thank you! I still have a lot to learn." },
+  ]},
+  { id: 'dialogue_greetings_4', title: 'Exchanging Contacts', title_ko: '연락처 교환', category: 'Greetings', difficulty: 'Beginner', sort_order: 4, lines: [
+    { speaker: 'A', korean: '카카오톡 있어요?', translation: 'Do you have KakaoTalk?' },
+    { speaker: 'B', korean: '네, 있어요! 아이디가 뭐예요?', translation: "Yes I do! What's your ID?" },
+    { speaker: 'A', korean: '제 아이디는 minjun123이에요.', translation: 'My ID is minjun123.' },
+    { speaker: 'B', korean: '알겠어요. 방금 친구 신청했어요!', translation: 'Got it. I just sent a friend request!' },
+    { speaker: 'A', korean: '받았어요. 나중에 연락해요!', translation: "Got it. Let's keep in touch!" },
+    { speaker: 'B', korean: '네, 꼭 연락할게요. 안녕히 가세요!', translation: "Yes, I will definitely reach out. Goodbye!" },
+  ]},
+  { id: 'dialogue_greetings_5', title: 'Asking About Age', title_ko: '나이 물어보기', category: 'Greetings', difficulty: 'Beginner', sort_order: 5, lines: [
+    { speaker: 'A', korean: '실례지만 나이가 어떻게 되세요?', translation: "Excuse me, may I ask how old you are?" },
+    { speaker: 'B', korean: '저는 스물다섯이에요. 민준 씨는요?', translation: "I'm 25. What about you, Minjun?" },
+    { speaker: 'A', korean: '저는 스물셋이에요. 그럼 선배님이시네요!', translation: "I'm 23. Then you're my senior!" },
+    { speaker: 'B', korean: '하하, 그냥 편하게 지내요!', translation: "Haha, let's just be comfortable with each other!" },
+  ]},
+
+  // ── Ordering Food ──────────────────────────────────────────
+  { id: 'dialogue_food_1', title: 'At a Korean Restaurant', title_ko: '한식당에서', category: 'Ordering Food', difficulty: 'Beginner', sort_order: 6, lines: [
+    { speaker: 'A', korean: '어서오세요! 몇 분이세요?', translation: 'Welcome! How many people?' },
+    { speaker: 'B', korean: '두 명이에요.', translation: 'There are two of us.' },
+    { speaker: 'A', korean: '여기 메뉴판이에요. 뭐 드시겠어요?', translation: "Here's the menu. What would you like?" },
+    { speaker: 'B', korean: '비빔밥 하나하고 된장찌개 하나 주세요.', translation: 'One bibimbap and one doenjang jjigae, please.' },
+    { speaker: 'A', korean: '네, 잠깐만요!', translation: 'Sure, one moment please!' },
+  ]},
+  { id: 'dialogue_food_2', title: 'Ordering Coffee', title_ko: '커피 주문하기', category: 'Ordering Food', difficulty: 'Beginner', sort_order: 7, lines: [
+    { speaker: 'A', korean: '안녕하세요! 주문하시겠어요?', translation: 'Hello! Are you ready to order?' },
+    { speaker: 'B', korean: '아이스 아메리카노 한 잔 주세요.', translation: 'One iced Americano, please.' },
+    { speaker: 'A', korean: '사이즈는요? 라지로 드릴까요?', translation: 'What size? Would you like a large?' },
+    { speaker: 'B', korean: '미디엄으로 주세요. 얼마예요?', translation: 'Medium, please. How much is it?' },
+    { speaker: 'A', korean: '사천오백 원이에요.', translation: "It's 4,500 won." },
+    { speaker: 'B', korean: '여기 있어요. 감사합니다!', translation: 'Here you go. Thank you!' },
+  ]},
+  { id: 'dialogue_food_3', title: 'Ordering Chicken Delivery', title_ko: '치킨 배달 주문', category: 'Ordering Food', difficulty: 'Beginner', sort_order: 8, lines: [
+    { speaker: 'A', korean: '여보세요, 주문할게요.', translation: 'Hello, I would like to order.' },
+    { speaker: 'B', korean: '네! 뭘 드릴까요?', translation: 'Sure! What would you like?' },
+    { speaker: 'A', korean: '후라이드 치킨 한 마리 주세요.', translation: 'One whole fried chicken, please.' },
+    { speaker: 'B', korean: '주소가 어떻게 되세요?', translation: "What's your address?" },
+    { speaker: 'A', korean: '서울시 마포구 홍대로 12번지예요.', translation: "It's 12 Hongdae-ro, Mapo-gu, Seoul." },
+    { speaker: 'B', korean: '삼십 분 후에 도착할 거예요!', translation: 'It will arrive in about 30 minutes!' },
+  ]},
+  { id: 'dialogue_food_4', title: 'Splitting the Bill', title_ko: '계산하기', category: 'Ordering Food', difficulty: 'Intermediate', sort_order: 9, lines: [
+    { speaker: 'A', korean: '저기요, 계산할게요.', translation: 'Excuse me, we would like to pay.' },
+    { speaker: 'B', korean: '네, 총 삼만오천 원이에요.', translation: 'Sure, the total is 35,000 won.' },
+    { speaker: 'A', korean: '더치페이 할게요. 카드 두 개로 나눠서 계산해 주세요.', translation: "We'll go Dutch. Please split it across two cards." },
+    { speaker: 'B', korean: '알겠어요. 각각 만칠천오백 원씩이에요.', translation: 'Understood. That is 17,500 won each.' },
+    { speaker: 'A', korean: '감사합니다. 맛있었어요!', translation: 'Thank you. The food was delicious!' },
+  ]},
+  { id: 'dialogue_food_5', title: 'Asking for Recommendations', title_ko: '메뉴 추천 받기', category: 'Ordering Food', difficulty: 'Intermediate', sort_order: 10, lines: [
+    { speaker: 'A', korean: '여기 뭐가 제일 맛있어요?', translation: "What's the most delicious thing here?" },
+    { speaker: 'B', korean: '오늘의 특선인 갈비찜을 추천해요.', translation: "I recommend today's special, braised galbi." },
+    { speaker: 'A', korean: '매워요?', translation: 'Is it spicy?' },
+    { speaker: 'B', korean: '아니요, 달콤하고 짭짤해요.', translation: "No, it's sweet and savory." },
+    { speaker: 'A', korean: '그럼 그걸로 할게요!', translation: "Then I'll go with that!" },
+  ]},
+  { id: 'dialogue_food_6', title: 'Vegetarian Order', title_ko: '채식 주문', category: 'Ordering Food', difficulty: 'Intermediate', sort_order: 11, lines: [
+    { speaker: 'A', korean: '저는 고기를 안 먹어요. 채식 메뉴가 있어요?', translation: "I don't eat meat. Do you have vegetarian options?" },
+    { speaker: 'B', korean: '네, 채소 비빔밥과 두부 찌개가 있어요.', translation: 'Yes, we have vegetable bibimbap and tofu jjigae.' },
+    { speaker: 'A', korean: '두부 찌개에 고기 육수는 안 들어가요?', translation: "The tofu jjigae doesn't use meat broth?" },
+    { speaker: 'B', korean: '다시마 육수로 만들어요. 걱정 마세요!', translation: "We make it with kelp broth. Don't worry!" },
+    { speaker: 'A', korean: '완벽해요! 두부 찌개로 주세요.', translation: "Perfect! I'll have the tofu jjigae." },
+  ]},
+
+  // ── Directions ─────────────────────────────────────────────
+  { id: 'dialogue_directions_1', title: 'Getting to the Subway', title_ko: '지하철 가는 길', category: 'Directions', difficulty: 'Intermediate', sort_order: 12, lines: [
+    { speaker: 'A', korean: '저기요, 지하철역이 어디에 있어요?', translation: 'Excuse me, where is the subway station?' },
+    { speaker: 'B', korean: '어느 역을 찾으세요?', translation: 'Which station are you looking for?' },
+    { speaker: 'A', korean: '홍대입구역이요.', translation: 'Hongdae Station.' },
+    { speaker: 'B', korean: '이 길로 쭉 가다가 오른쪽으로 꺾으세요.', translation: 'Go straight down this road and turn right.' },
+    { speaker: 'A', korean: '얼마나 걸려요?', translation: 'How long does it take?' },
+    { speaker: 'B', korean: '걸어서 오 분쯤 걸려요.', translation: "It's about a 5-minute walk." },
+  ]},
+  { id: 'dialogue_directions_2', title: 'Finding a Restaurant', title_ko: '식당 찾기', category: 'Directions', difficulty: 'Beginner', sort_order: 13, lines: [
+    { speaker: 'A', korean: '이 근처에 삼겹살 식당이 있어요?', translation: 'Is there a samgyeopsal restaurant near here?' },
+    { speaker: 'B', korean: '네, 저 골목 안에 있어요.', translation: "Yes, it's in that alley." },
+    { speaker: 'A', korean: '왼쪽이에요, 오른쪽이에요?', translation: 'Is it on the left or right?' },
+    { speaker: 'B', korean: '오른쪽으로 가면 바로 보여요.', translation: 'If you go right, you will see it right away.' },
+    { speaker: 'A', korean: '감사합니다!', translation: 'Thank you!' },
+  ]},
+  { id: 'dialogue_directions_3', title: 'Getting to the Hotel', title_ko: '호텔 찾아가기', category: 'Directions', difficulty: 'Intermediate', sort_order: 14, lines: [
+    { speaker: 'A', korean: '실례합니다. 롯데호텔이 어떻게 가요?', translation: 'Excuse me. How do I get to the Lotte Hotel?' },
+    { speaker: 'B', korean: '여기서 좀 멀어요. 버스를 타는 게 좋겠어요.', translation: "It's a bit far from here. You should take a bus." },
+    { speaker: 'A', korean: '몇 번 버스예요?', translation: 'Which bus number?' },
+    { speaker: 'B', korean: '472번을 타세요. 다섯 정거장이에요.', translation: 'Take number 472. It is five stops.' },
+    { speaker: 'A', korean: '어디서 타요?', translation: 'Where do I board?' },
+    { speaker: 'B', korean: '저쪽 횡단보도 건너면 버스 정류장이 있어요.', translation: 'Cross the crosswalk over there and the bus stop is there.' },
+  ]},
+  { id: 'dialogue_directions_4', title: 'Lost in the Subway', title_ko: '지하철에서 길을 잃었어요', category: 'Directions', difficulty: 'Intermediate', sort_order: 15, lines: [
+    { speaker: 'A', korean: '저 길을 잃었어요. 도와주실 수 있어요?', translation: "I'm lost. Can you help me?" },
+    { speaker: 'B', korean: '물론이죠! 어디 가세요?', translation: 'Of course! Where are you going?' },
+    { speaker: 'A', korean: '명동역으로 가고 싶어요.', translation: 'I want to go to Myeongdong Station.' },
+    { speaker: 'B', korean: '지금 4호선을 타고 계세요. 두 정거장 더 가세요.', translation: "You're currently on line 4. Go two more stops." },
+    { speaker: 'A', korean: '아, 감사해요! 너무 친절하시네요.', translation: "Ah, thank you! You're so kind." },
+  ]},
+
+  // ── Shopping ───────────────────────────────────────────────
+  { id: 'dialogue_shopping_1', title: 'Buying Clothes', title_ko: '옷 사기', category: 'Shopping', difficulty: 'Intermediate', sort_order: 16, lines: [
+    { speaker: 'A', korean: '이 옷 입어봐도 돼요?', translation: 'Can I try this on?' },
+    { speaker: 'B', korean: '네, 물론이죠! 탈의실은 저쪽이에요.', translation: 'Yes, of course! The fitting room is over there.' },
+    { speaker: 'A', korean: '이거 좀 더 큰 사이즈 있어요?', translation: 'Do you have this in a bigger size?' },
+    { speaker: 'B', korean: '잠깐만요, 확인해 볼게요.', translation: 'One moment, let me check.' },
+    { speaker: 'A', korean: '감사합니다!', translation: 'Thank you!' },
+  ]},
+  { id: 'dialogue_shopping_2', title: 'Bargaining at the Market', title_ko: '시장에서 흥정하기', category: 'Shopping', difficulty: 'Intermediate', sort_order: 17, lines: [
+    { speaker: 'A', korean: '이 가방 얼마예요?', translation: 'How much is this bag?' },
+    { speaker: 'B', korean: '오만 원이에요.', translation: "It's 50,000 won." },
+    { speaker: 'A', korean: '너무 비싸요. 깎아 주세요.', translation: "That's too expensive. Can you lower the price?" },
+    { speaker: 'B', korean: '에이, 사만 원에 드릴게요.', translation: 'Alright, I will give it to you for 40,000 won.' },
+    { speaker: 'A', korean: '삼만오천 원이면 살게요!', translation: "I'll buy it for 35,000 won!" },
+    { speaker: 'B', korean: '에휴, 알겠어요. 가져가세요~', translation: 'Fine, okay. Take it~' },
+  ]},
+  { id: 'dialogue_shopping_3', title: 'At the Convenience Store', title_ko: '편의점에서', category: 'Shopping', difficulty: 'Beginner', sort_order: 18, lines: [
+    { speaker: 'A', korean: '어서오세요!', translation: 'Welcome!' },
+    { speaker: 'B', korean: '삼각김밥 두 개랑 콜라 하나 주세요.', translation: 'Two triangle gimbap and one cola, please.' },
+    { speaker: 'A', korean: '포인트 카드 있으세요?', translation: 'Do you have a points card?' },
+    { speaker: 'B', korean: '아니요, 없어요.', translation: "No, I don't." },
+    { speaker: 'A', korean: '총 사천이백 원이에요.', translation: 'The total is 4,200 won.' },
+  ]},
+  { id: 'dialogue_shopping_4', title: 'Returning an Item', title_ko: '환불하기', category: 'Shopping', difficulty: 'Advanced', sort_order: 19, lines: [
+    { speaker: 'A', korean: '환불하고 싶어요.', translation: 'I would like a refund.' },
+    { speaker: 'B', korean: '영수증 있으세요?', translation: 'Do you have a receipt?' },
+    { speaker: 'A', korean: '네, 여기 있어요. 사이즈가 안 맞아서요.', translation: "Yes, here it is. The size doesn't fit." },
+    { speaker: 'B', korean: '다른 사이즈로 교환도 가능해요.', translation: 'We can also exchange it for a different size.' },
+    { speaker: 'A', korean: '그냥 환불 받을게요.', translation: "I'll just get a refund." },
+    { speaker: 'B', korean: '알겠어요. 카드로 환불해 드릴게요.', translation: 'Understood. I will refund it to your card.' },
+  ]},
+  { id: 'dialogue_shopping_5', title: 'Online Shopping Inquiry', title_ko: '온라인 쇼핑 문의', category: 'Shopping', difficulty: 'Advanced', sort_order: 20, lines: [
+    { speaker: 'A', korean: '주문한 상품이 아직 안 왔어요.', translation: 'The item I ordered still has not arrived.' },
+    { speaker: 'B', korean: '주문 번호가 어떻게 되세요?', translation: 'What is your order number?' },
+    { speaker: 'A', korean: '2025-04-1234예요.', translation: "It's 2025-04-1234." },
+    { speaker: 'B', korean: '확인해 보니까 오늘 배송 출발했어요.', translation: 'After checking, it shipped today.' },
+    { speaker: 'A', korean: '언제 도착해요?', translation: 'When will it arrive?' },
+    { speaker: 'B', korean: '내일 오후에 도착할 거예요.', translation: 'It should arrive tomorrow afternoon.' },
+  ]},
+
+  // ── At Work ────────────────────────────────────────────────
+  { id: 'dialogue_work_1', title: 'Morning at the Office', title_ko: '사무실 아침', category: 'At Work', difficulty: 'Advanced', sort_order: 21, lines: [
+    { speaker: 'A', korean: '좋은 아침이에요! 회의 준비됐어요?', translation: 'Good morning! Are you ready for the meeting?' },
+    { speaker: 'B', korean: '네, 자료 다 준비했어요.', translation: "Yes, I've prepared all the materials." },
+    { speaker: 'A', korean: '보고서는요? 부장님이 아까 물어봤어요.', translation: 'What about the report? The manager asked earlier.' },
+    { speaker: 'B', korean: '이메일로 방금 보냈어요!', translation: 'I just sent it by email!' },
+  ]},
+  { id: 'dialogue_work_2', title: 'Asking for a Day Off', title_ko: '휴가 신청', category: 'At Work', difficulty: 'Advanced', sort_order: 22, lines: [
+    { speaker: 'A', korean: '팀장님, 잠깐 말씀 드려도 될까요?', translation: 'Team lead, may I have a word?' },
+    { speaker: 'B', korean: '네, 말씀하세요.', translation: 'Yes, go ahead.' },
+    { speaker: 'A', korean: '이번 주 금요일에 휴가를 써도 될까요?', translation: 'Would it be okay to take a day off this Friday?' },
+    { speaker: 'B', korean: '중요한 일 있어요?', translation: 'Is there something important?' },
+    { speaker: 'A', korean: '가족 행사가 있어서요.', translation: 'There is a family event.' },
+    { speaker: 'B', korean: '알겠어요. 이번 한 번은 괜찮아요.', translation: 'Understood. This once is fine.' },
+  ]},
+  { id: 'dialogue_work_3', title: 'Job Interview', title_ko: '취업 면접', category: 'At Work', difficulty: 'Advanced', sort_order: 23, lines: [
+    { speaker: 'A', korean: '자기소개 부탁드립니다.', translation: 'Please introduce yourself.' },
+    { speaker: 'B', korean: '안녕하세요. 저는 이지우입니다. 마케팅을 전공했어요.', translation: 'Hello. My name is Lee Jiwoo. I majored in marketing.' },
+    { speaker: 'A', korean: '지원 동기가 뭐예요?', translation: 'What is your motivation for applying?' },
+    { speaker: 'B', korean: '이 회사의 글로벌 비전에 매력을 느꼈어요.', translation: "I was attracted to this company's global vision." },
+    { speaker: 'A', korean: '장점이 뭐예요?', translation: 'What is your strength?' },
+    { speaker: 'B', korean: '꼼꼼하고 팀워크를 중요하게 생각해요.', translation: 'I am meticulous and value teamwork.' },
+  ]},
+  { id: 'dialogue_work_4', title: 'After-Work Drinks', title_ko: '회식', category: 'At Work', difficulty: 'Intermediate', sort_order: 24, lines: [
+    { speaker: 'A', korean: '오늘 회식 있어요. 같이 가요!', translation: "There's a company dinner today. Let's go together!" },
+    { speaker: 'B', korean: '어디서 해요?', translation: 'Where is it?' },
+    { speaker: 'A', korean: '회사 근처 삼겹살 집이에요.', translation: "It's a samgyeopsal place near the office." },
+    { speaker: 'B', korean: '몇 시에 시작해요?', translation: 'What time does it start?' },
+    { speaker: 'A', korean: '여섯 시 반이요.', translation: '6:30.' },
+    { speaker: 'B', korean: '네, 갈게요! 일 빨리 끝내야겠다.', translation: "Okay, I'll go! I'd better finish work quickly." },
+  ]},
+
+  // ── Phone Calls ────────────────────────────────────────────
+  { id: 'dialogue_phone_1', title: 'Calling a Friend', title_ko: '친구에게 전화하기', category: 'Phone Calls', difficulty: 'Beginner', sort_order: 25, lines: [
+    { speaker: 'A', korean: '여보세요? 지금 통화 가능해요?', translation: 'Hello? Can you talk right now?' },
+    { speaker: 'B', korean: '네, 괜찮아요. 무슨 일이에요?', translation: "Yes, it's fine. What's up?" },
+    { speaker: 'A', korean: '오늘 저녁에 뭐 해요?', translation: 'What are you doing tonight?' },
+    { speaker: 'B', korean: '아직 계획 없어요. 왜요?', translation: "No plans yet. Why?" },
+    { speaker: 'A', korean: '같이 영화 볼까요?', translation: 'Want to watch a movie together?' },
+    { speaker: 'B', korean: '좋아요! 몇 시에 만나요?', translation: "Sounds good! What time shall we meet?" },
+  ]},
+  { id: 'dialogue_phone_2', title: 'Making a Reservation', title_ko: '예약 전화', category: 'Phone Calls', difficulty: 'Intermediate', sort_order: 26, lines: [
+    { speaker: 'A', korean: '안녕하세요. 예약하고 싶어요.', translation: 'Hello. I would like to make a reservation.' },
+    { speaker: 'B', korean: '네! 몇 분이세요?', translation: 'Sure! For how many people?' },
+    { speaker: 'A', korean: '두 명이요. 내일 저녁 일곱 시에요.', translation: 'Two people. Tomorrow evening at 7.' },
+    { speaker: 'B', korean: '성함이 어떻게 되세요?', translation: 'What is your name?' },
+    { speaker: 'A', korean: '이민준이요.', translation: 'Lee Minjun.' },
+    { speaker: 'B', korean: '네, 예약됐어요. 내일 뵐게요!', translation: "Got it, reservation is confirmed. See you tomorrow!" },
+  ]},
+  { id: 'dialogue_phone_3', title: 'Wrong Number', title_ko: '잘못 걸린 전화', category: 'Phone Calls', difficulty: 'Beginner', sort_order: 27, lines: [
+    { speaker: 'A', korean: '여보세요? 민준이에요?', translation: 'Hello? Is this Minjun?' },
+    { speaker: 'B', korean: '아니요, 잘못 거셨어요.', translation: "No, you have the wrong number." },
+    { speaker: 'A', korean: '아, 죄송합니다!', translation: 'Oh, I am so sorry!' },
+    { speaker: 'B', korean: '괜찮아요. 확인하고 다시 거세요.', translation: "It's okay. Check the number and call again." },
+  ]},
+  { id: 'dialogue_phone_4', title: 'Calling Customer Service', title_ko: '고객 센터 전화', category: 'Phone Calls', difficulty: 'Advanced', sort_order: 28, lines: [
+    { speaker: 'A', korean: '안녕하세요. 휴대폰 관련해서 문의드리려고요.', translation: 'Hello. I am calling about a phone-related inquiry.' },
+    { speaker: 'B', korean: '어떤 문제인지 말씀해 주세요.', translation: 'Please tell me what the problem is.' },
+    { speaker: 'A', korean: '인터넷이 갑자기 안 돼요.', translation: 'The internet suddenly stopped working.' },
+    { speaker: 'B', korean: '휴대폰을 껐다가 켜보셨어요?', translation: 'Have you tried turning the phone off and on?' },
+    { speaker: 'A', korean: '네, 했는데도 안 돼요.', translation: "Yes, I tried but it still doesn't work." },
+    { speaker: 'B', korean: '그럼 가까운 대리점을 방문해 주세요.', translation: 'Then please visit the nearest service center.' },
+  ]},
+
+  // ── Health ─────────────────────────────────────────────────
+  { id: 'dialogue_health_1', title: 'At the Doctor', title_ko: '병원에서', category: 'Health', difficulty: 'Intermediate', sort_order: 29, lines: [
+    { speaker: 'A', korean: '어디가 불편하세요?', translation: "Where does it hurt?" },
+    { speaker: 'B', korean: '어제부터 머리가 아프고 열이 나요.', translation: 'I have had a headache and fever since yesterday.' },
+    { speaker: 'A', korean: '목도 아파요?', translation: 'Does your throat hurt too?' },
+    { speaker: 'B', korean: '네, 좀 따가워요.', translation: 'Yes, it stings a little.' },
+    { speaker: 'A', korean: '독감 같아요. 약을 처방해 드릴게요.', translation: 'It looks like the flu. I will prescribe medicine for you.' },
+    { speaker: 'B', korean: '감사해요. 며칠 쉬어야 해요?', translation: 'Thank you. How many days should I rest?' },
+  ]},
+  { id: 'dialogue_health_2', title: 'At the Pharmacy', title_ko: '약국에서', category: 'Health', difficulty: 'Beginner', sort_order: 30, lines: [
+    { speaker: 'A', korean: '어디 아프세요?', translation: 'Where are you unwell?' },
+    { speaker: 'B', korean: '배가 아파요. 소화제 있어요?', translation: 'My stomach hurts. Do you have digestive medicine?' },
+    { speaker: 'A', korean: '네, 있어요. 식후에 드세요.', translation: 'Yes, we do. Take it after meals.' },
+    { speaker: 'B', korean: '하루에 몇 번이요?', translation: 'How many times a day?' },
+    { speaker: 'A', korean: '세 번이요. 물이랑 같이 드세요.', translation: 'Three times. Take it with water.' },
+  ]},
+  { id: 'dialogue_health_3', title: 'Feeling Tired', title_ko: '피곤해요', category: 'Health', difficulty: 'Beginner', sort_order: 31, lines: [
+    { speaker: 'A', korean: '얼굴이 안 좋아 보여요. 괜찮아요?', translation: 'You look pale. Are you okay?' },
+    { speaker: 'B', korean: '요즘 잠을 못 자서 너무 피곤해요.', translation: "I haven't been sleeping well lately so I'm very tired." },
+    { speaker: 'A', korean: '왜요? 걱정되는 게 있어요?', translation: 'Why? Is there something worrying you?' },
+    { speaker: 'B', korean: '일이 너무 많아요. 스트레스를 많이 받아요.', translation: "There's too much work. I'm very stressed." },
+    { speaker: 'A', korean: '쉬어야 해요. 건강이 제일 중요해요.', translation: 'You need to rest. Health is the most important thing.' },
+  ]},
+
+  // ── School & Study ─────────────────────────────────────────
+  { id: 'dialogue_study_1', title: 'Studying Together', title_ko: '같이 공부하기', category: 'Study', difficulty: 'Beginner', sort_order: 32, lines: [
+    { speaker: 'A', korean: '오늘 같이 공부할래요?', translation: 'Do you want to study together today?' },
+    { speaker: 'B', korean: '좋아요! 어디서 해요?', translation: 'Sure! Where should we do it?' },
+    { speaker: 'A', korean: '학교 도서관 어때요?', translation: "How about the school library?" },
+    { speaker: 'B', korean: '좋아요. 몇 시에 만나요?', translation: 'Sounds good. What time shall we meet?' },
+    { speaker: 'A', korean: '두 시 어때요?', translation: 'How about 2 o\'clock?' },
+    { speaker: 'B', korean: '완벽해요! 이따 봐요.', translation: "Perfect! See you later." },
+  ]},
+  { id: 'dialogue_study_2', title: 'TOPIK Preparation', title_ko: 'TOPIK 준비', category: 'Study', difficulty: 'Intermediate', sort_order: 33, lines: [
+    { speaker: 'A', korean: 'TOPIK 준비는 잘 돼가요?', translation: 'How is your TOPIK preparation going?' },
+    { speaker: 'B', korean: '열심히 하고 있는데 단어가 너무 많아요.', translation: "I'm working hard but there are too many words." },
+    { speaker: 'A', korean: '어떤 방법으로 외워요?', translation: 'What method do you use to memorize them?' },
+    { speaker: 'B', korean: '플래시카드를 만들어서 매일 외워요.', translation: 'I make flashcards and memorize them every day.' },
+    { speaker: 'A', korean: '좋은 방법이에요! 저도 그 방법 써볼게요.', translation: "That's a great method! I'll try that too." },
+  ]},
+  { id: 'dialogue_study_3', title: 'Asking a Professor', title_ko: '교수님께 질문하기', category: 'Study', difficulty: 'Advanced', sort_order: 34, lines: [
+    { speaker: 'A', korean: '교수님, 질문이 있어요.', translation: 'Professor, I have a question.' },
+    { speaker: 'B', korean: '네, 말해 보세요.', translation: 'Yes, go ahead.' },
+    { speaker: 'A', korean: '이번 과제를 혼자 해야 해요, 아니면 그룹으로 해도 돼요?', translation: 'Do I have to do this assignment alone, or can I do it in a group?' },
+    { speaker: 'B', korean: '그룹 과제예요. 세 명에서 네 명으로 팀을 만드세요.', translation: "It's a group assignment. Form a team of three to four people." },
+    { speaker: 'A', korean: '제출 기한이 언제예요?', translation: 'What is the submission deadline?' },
+    { speaker: 'B', korean: '다음 주 금요일까지예요.', translation: 'By next Friday.' },
+  ]},
+
+  // ── Travel ─────────────────────────────────────────────────
+  { id: 'dialogue_travel_1', title: 'At the Airport', title_ko: '공항에서', category: 'Travel', difficulty: 'Intermediate', sort_order: 35, lines: [
+    { speaker: 'A', korean: '여권과 탑승권을 보여 주세요.', translation: 'Please show your passport and boarding pass.' },
+    { speaker: 'B', korean: '네, 여기 있어요.', translation: 'Yes, here it is.' },
+    { speaker: 'A', korean: '위탁 수하물 있어요?', translation: 'Do you have checked luggage?' },
+    { speaker: 'B', korean: '네, 여행 가방 하나요.', translation: 'Yes, one suitcase.' },
+    { speaker: 'A', korean: '23킬로그램이에요. 탑승구는 37번이에요.', translation: "It's 23 kilograms. Your gate is number 37." },
+  ]},
+  { id: 'dialogue_travel_2', title: 'Booking a Hotel', title_ko: '호텔 예약', category: 'Travel', difficulty: 'Intermediate', sort_order: 36, lines: [
+    { speaker: 'A', korean: '안녕하세요, 방 예약하고 싶어요.', translation: 'Hello, I would like to book a room.' },
+    { speaker: 'B', korean: '몇 박이세요?', translation: 'How many nights?' },
+    { speaker: 'A', korean: '이박 삼일이요.', translation: 'Two nights and three days.' },
+    { speaker: 'B', korean: '싱글룸, 더블룸 중 어떤 거 원하세요?', translation: 'Would you like a single or double room?' },
+    { speaker: 'A', korean: '더블룸으로 주세요. 얼마예요?', translation: 'A double room please. How much is it?' },
+    { speaker: 'B', korean: '하루에 팔만 원이에요.', translation: "It's 80,000 won per night." },
+  ]},
+  { id: 'dialogue_travel_3', title: 'Asking About Tourist Spots', title_ko: '관광지 추천 받기', category: 'Travel', difficulty: 'Beginner', sort_order: 37, lines: [
+    { speaker: 'A', korean: '서울에서 꼭 가야 할 곳이 어디예요?', translation: 'Where must I go in Seoul?' },
+    { speaker: 'B', korean: '경복궁, 북촌 한옥마을, 명동을 추천해요.', translation: 'I recommend Gyeongbokgung, Bukchon Hanok Village, and Myeongdong.' },
+    { speaker: 'A', korean: '쇼핑하기 좋은 곳은요?', translation: 'What about good places for shopping?' },
+    { speaker: 'B', korean: '명동과 홍대가 인기가 많아요.', translation: 'Myeongdong and Hongdae are very popular.' },
+    { speaker: 'A', korean: '음식은 어디서 먹어야 해요?', translation: 'Where should I eat food?' },
+    { speaker: 'B', korean: '광장시장에 꼭 가보세요! 전통 음식이 많아요.', translation: 'You must go to Gwangjang Market! There is a lot of traditional food.' },
+  ]},
+
+  // ── Daily Conversation ─────────────────────────────────────
+  { id: 'dialogue_daily_1', title: 'Talking About the Weather', title_ko: '날씨 이야기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 38, lines: [
+    { speaker: 'A', korean: '오늘 날씨 정말 좋네요!', translation: "The weather is really nice today!" },
+    { speaker: 'B', korean: '맞아요. 봄 같은 느낌이에요.', translation: "You're right. It feels like spring." },
+    { speaker: 'A', korean: '내일도 이런 날씨일까요?', translation: 'Will tomorrow be like this too?' },
+    { speaker: 'B', korean: '일기예보에서 비 온다고 했어요.', translation: 'The weather forecast said it will rain.' },
+    { speaker: 'A', korean: '그럼 오늘 실컷 즐겨야겠네요!', translation: "Then we should enjoy today to the fullest!" },
+  ]},
+  { id: 'dialogue_daily_2', title: 'Making Weekend Plans', title_ko: '주말 약속', category: 'Daily Life', difficulty: 'Beginner', sort_order: 39, lines: [
+    { speaker: 'A', korean: '이번 주말에 뭐 해요?', translation: 'What are you doing this weekend?' },
+    { speaker: 'B', korean: '아직 계획 없어요. 왜요?', translation: 'No plans yet. Why?' },
+    { speaker: 'A', korean: '같이 영화 보러 갈까요?', translation: 'Shall we go watch a movie together?' },
+    { speaker: 'B', korean: '좋아요! 무슨 영화 볼까요?', translation: "Sounds good! What movie should we watch?" },
+    { speaker: 'A', korean: '새로 나온 한국 영화가 있어요. 그거 어때요?', translation: "There's a new Korean movie out. How about that?" },
+    { speaker: 'B', korean: '완벽해요. 토요일 오후 어때요?', translation: "Perfect. How about Saturday afternoon?" },
+  ]},
+  { id: 'dialogue_daily_3', title: 'Borrowing Something', title_ko: '물건 빌리기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 40, lines: [
+    { speaker: 'A', korean: '잠깐 펜 빌려도 될까요?', translation: 'Can I borrow a pen for a moment?' },
+    { speaker: 'B', korean: '물론이죠, 여기 있어요.', translation: 'Of course, here you go.' },
+    { speaker: 'A', korean: '감사해요! 금방 돌려줄게요.', translation: "Thank you! I'll give it back right away." },
+    { speaker: 'B', korean: '천천히 쓰세요.', translation: 'Take your time.' },
+  ]},
+  { id: 'dialogue_daily_4', title: 'Talking About Hobbies', title_ko: '취미 이야기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 41, lines: [
+    { speaker: 'A', korean: '취미가 뭐예요?', translation: 'What is your hobby?' },
+    { speaker: 'B', korean: '저는 요리하는 걸 좋아해요. 지우 씨는요?', translation: 'I like cooking. What about you, Jiwoo?' },
+    { speaker: 'A', korean: '저는 사진 찍는 거 좋아해요.', translation: 'I like taking photos.' },
+    { speaker: 'B', korean: '오, 멋지다! 어떤 사진 찍어요?', translation: "Oh, that's cool! What kind of photos do you take?" },
+    { speaker: 'A', korean: '주로 풍경이나 길거리 사진이요.', translation: 'Mainly landscapes or street photography.' },
+    { speaker: 'B', korean: '언젠가 같이 나가서 찍어요!', translation: "Let's go out together and take photos sometime!" },
+  ]},
+  { id: 'dialogue_daily_5', title: 'Complimenting Someone', title_ko: '칭찬하기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 42, lines: [
+    { speaker: 'A', korean: '오늘 옷 정말 예쁘다!', translation: "Your outfit is really pretty today!" },
+    { speaker: 'B', korean: '고마워요! 새로 산 거예요.', translation: "Thank you! It's new." },
+    { speaker: 'A', korean: '어디서 샀어요?', translation: 'Where did you buy it?' },
+    { speaker: 'B', korean: '홍대에 있는 작은 편집샵이에요.', translation: "It's a small boutique in Hongdae." },
+    { speaker: 'A', korean: '저도 한번 가봐야겠어요!', translation: "I should go there sometime!" },
+  ]},
+
+  // ── Technology & Social Media ──────────────────────────────
+  { id: 'dialogue_tech_1', title: 'Recommending a Drama', title_ko: '드라마 추천', category: 'Daily Life', difficulty: 'Beginner', sort_order: 43, lines: [
+    { speaker: 'A', korean: '요즘 볼 만한 드라마 있어요?', translation: "Is there a drama worth watching these days?" },
+    { speaker: 'B', korean: '네! 이번에 새로 나온 사극 있는데 정말 재밌어요.', translation: "Yes! There's a new historical drama that just came out and it's really fun." },
+    { speaker: 'A', korean: '어디서 볼 수 있어요?', translation: 'Where can I watch it?' },
+    { speaker: 'B', korean: '넷플릭스에 있어요.', translation: "It's on Netflix." },
+    { speaker: 'A', korean: '오늘 밤에 바로 볼게요!', translation: "I'll watch it tonight!" },
+  ]},
+  { id: 'dialogue_tech_2', title: 'Talking About Social Media', title_ko: 'SNS 이야기', category: 'Daily Life', difficulty: 'Intermediate', sort_order: 44, lines: [
+    { speaker: 'A', korean: '인스타그램 해요?', translation: 'Do you use Instagram?' },
+    { speaker: 'B', korean: '네, 자주 올려요. 팔로우해요!', translation: "Yes, I post often. Follow me!" },
+    { speaker: 'A', korean: '아이디가 뭐예요?', translation: "What's your ID?" },
+    { speaker: 'B', korean: '@jiwoo.kr이에요.', translation: "It's @jiwoo.kr." },
+    { speaker: 'A', korean: '방금 팔로우했어요!', translation: 'I just followed you!' },
+    { speaker: 'B', korean: '저도 맞팔 할게요!', translation: "I'll follow you back!" },
+  ]},
+  { id: 'dialogue_tech_3', title: 'Helping with a Phone Problem', title_ko: '휴대폰 도움 요청', category: 'Daily Life', difficulty: 'Intermediate', sort_order: 45, lines: [
+    { speaker: 'A', korean: '카카오톡이 갑자기 안 돼요.', translation: "KakaoTalk suddenly stopped working." },
+    { speaker: 'B', korean: '앱을 껐다가 다시 켜봤어요?', translation: 'Have you tried closing and reopening the app?' },
+    { speaker: 'A', korean: '네, 해봤는데 안 돼요.', translation: "Yes, I tried but it doesn't work." },
+    { speaker: 'B', korean: '앱을 삭제하고 다시 설치해 보세요.', translation: 'Try deleting and reinstalling the app.' },
+    { speaker: 'A', korean: '아 됐어요! 감사해요.', translation: "Oh it works! Thank you." },
+  ]},
+
+  // ── Miscellaneous ──────────────────────────────────────────
+  { id: 'dialogue_misc_1', title: 'Planning a Birthday Party', title_ko: '생일 파티 계획', category: 'Daily Life', difficulty: 'Intermediate', sort_order: 46, lines: [
+    { speaker: 'A', korean: '민준이 생일 파티 준비하고 있어요?', translation: "Are you preparing for Minjun's birthday party?" },
+    { speaker: 'B', korean: '네! 이번 토요일이잖아요.', translation: "Yes! It's this Saturday." },
+    { speaker: 'A', korean: '어디서 할 거예요?', translation: 'Where will you hold it?' },
+    { speaker: 'B', korean: '홍대 근처 파티룸을 예약했어요.', translation: "I booked a party room near Hongdae." },
+    { speaker: 'A', korean: '케이크는요?', translation: 'What about the cake?' },
+    { speaker: 'B', korean: '이미 주문했어요. 딸기 케이크로요!', translation: "Already ordered. A strawberry cake!" },
+  ]},
+  { id: 'dialogue_misc_2', title: 'Talking About K-Pop', title_ko: 'K-Pop 이야기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 47, lines: [
+    { speaker: 'A', korean: '요즘 어떤 K-Pop 좋아해요?', translation: 'What K-Pop do you like these days?' },
+    { speaker: 'B', korean: '저는 뉴진스를 좋아해요. 노래가 다 좋아요.', translation: 'I like NewJeans. All their songs are good.' },
+    { speaker: 'A', korean: '콘서트 간 적 있어요?', translation: 'Have you ever been to their concert?' },
+    { speaker: 'B', korean: '아직 못 갔어요. 언젠가 꼭 가고 싶어요.', translation: "Not yet. I really want to go someday." },
+    { speaker: 'A', korean: '같이 가요! 다음에 티켓팅 같이 해요.', translation: "Let's go together! Let's try to get tickets together next time." },
+  ]},
+  { id: 'dialogue_misc_3', title: 'Complaining About the Heat', title_ko: '더위 이야기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 48, lines: [
+    { speaker: 'A', korean: '오늘 너무 덥다!', translation: "It's so hot today!" },
+    { speaker: 'B', korean: '그러게요. 36도래요.', translation: "I know right. They say it's 36 degrees." },
+    { speaker: 'A', korean: '빨리 에어컨 있는 데 들어가고 싶어요.', translation: 'I want to quickly get somewhere with air conditioning.' },
+    { speaker: 'B', korean: '저기 카페 들어가요. 아이스 커피도 마시고요.', translation: "Let's go into that café. And have some iced coffee too." },
+    { speaker: 'A', korean: '완벽해요!', translation: "Perfect!" },
+  ]},
+  { id: 'dialogue_misc_4', title: 'Talking About Food Preferences', title_ko: '음식 취향 이야기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 49, lines: [
+    { speaker: 'A', korean: '매운 음식 좋아해요?', translation: 'Do you like spicy food?' },
+    { speaker: 'B', korean: '네, 너무 좋아요! 떡볶이를 매일 먹을 수 있어요.', translation: "Yes, I love it! I could eat tteokbokki every day." },
+    { speaker: 'A', korean: '저는 못 먹어요. 너무 매워서요.', translation: "I can't eat it. It's too spicy for me." },
+    { speaker: 'B', korean: '그럼 순한 맛으로 먹어요. 맛있어요!', translation: 'Then try the mild version. It is delicious!' },
+    { speaker: 'A', korean: '정말요? 한번 먹어볼게요.', translation: 'Really? I will try it once.' },
+  ]},
+  { id: 'dialogue_misc_5', title: 'Moving to a New City', title_ko: '새 도시로 이사', category: 'Daily Life', difficulty: 'Intermediate', sort_order: 50, lines: [
+    { speaker: 'A', korean: '서울로 이사 왔어요?', translation: 'Did you move to Seoul?' },
+    { speaker: 'B', korean: '네, 지난주에 왔어요. 아직 적응 중이에요.', translation: "Yes, I came last week. I'm still adjusting." },
+    { speaker: 'A', korean: '어떤 동네에 살아요?', translation: 'What neighborhood do you live in?' },
+    { speaker: 'B', korean: '홍대 근처요. 분위기가 좋더라고요.', translation: "Near Hongdae. The atmosphere is nice." },
+    { speaker: 'A', korean: '좋겠다! 근처 맛집 많이 알려줄게요.', translation: "Nice! I'll tell you about many good restaurants nearby." },
+    { speaker: 'B', korean: '정말요? 감사해요!', translation: 'Really? Thank you!' },
+  ]},
+  { id: 'dialogue_misc_6', title: 'Learning Hangul', title_ko: '한글 배우기', category: 'Study', difficulty: 'Beginner', sort_order: 51, lines: [
+    { speaker: 'A', korean: '한글을 배운 지 얼마나 됐어요?', translation: 'How long have you been learning Hangul?' },
+    { speaker: 'B', korean: '일주일 됐어요. 자음이랑 모음을 외우고 있어요.', translation: "It's been a week. I'm memorizing consonants and vowels." },
+    { speaker: 'A', korean: '벌써 잘 읽네요!', translation: "You can already read well!" },
+    { speaker: 'B', korean: '감사해요. 발음이 어렵더라고요.', translation: 'Thank you. The pronunciation is difficult.' },
+    { speaker: 'A', korean: '연습하면 금방 늘어요!', translation: "If you practice, it improves quickly!" },
+  ]},
+  { id: 'dialogue_misc_7', title: 'Congratulations', title_ko: '축하해요', category: 'Daily Life', difficulty: 'Beginner', sort_order: 52, lines: [
+    { speaker: 'A', korean: '취업했어요!', translation: 'I got a job!' },
+    { speaker: 'B', korean: '정말요?! 축하해요!', translation: 'Really?! Congratulations!' },
+    { speaker: 'A', korean: '네, 꿈꾸던 회사에 합격했어요!', translation: 'Yes, I got accepted to my dream company!' },
+    { speaker: 'B', korean: '대단해요! 오늘 저녁에 축하 파티 해요!', translation: "That's amazing! Let's have a celebration party tonight!" },
+    { speaker: 'A', korean: '좋아요. 제가 살게요!', translation: "Sounds good. It's on me!" },
+    { speaker: 'B', korean: '진짜요? 고마워요!', translation: 'Really? Thank you!' },
+  ]},
+  { id: 'dialogue_misc_8', title: 'Apologizing', title_ko: '사과하기', category: 'Daily Life', difficulty: 'Beginner', sort_order: 53, lines: [
+    { speaker: 'A', korean: '어제 약속에 못 가서 정말 미안해요.', translation: "I'm really sorry I couldn't make it to the appointment yesterday." },
+    { speaker: 'B', korean: '많이 기다렸어요. 왜 안 왔어요?', translation: "I waited a long time. Why didn't you come?" },
+    { speaker: 'A', korean: '갑자기 몸이 안 좋았어요.', translation: 'I suddenly felt unwell.' },
+    { speaker: 'B', korean: '많이 아팠어요? 지금은 괜찮아요?', translation: 'Were you very sick? Are you okay now?' },
+    { speaker: 'A', korean: '네, 이제 괜찮아요. 다시 한번 정말 미안해요.', translation: "Yes, I'm okay now. I'm really sorry once more." },
+    { speaker: 'B', korean: '괜찮아요. 건강이 더 중요하죠!', translation: "It's okay. Health is more important!" },
+  ]},
 ];
 
 module.exports = { dialogues };

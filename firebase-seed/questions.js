@@ -1,108 +1,147 @@
-// ─── COMPREHENSION QUESTIONS ───────────────────────────────────
-// Each question belongs to a passage via passage_id.
-// Users answer these after reading — results are saved to their profile.
-//
-// Fields:
-//   id                  → unique key, e.g. 'q_cafe_1'
-//   passage_id          → must match an id in passages.js
-//   question            → question text in Korean
-//   question_translated → question text in English
-//   options             → array of 4 Korean answer choices
-//   options_translated  → array of 4 English answer choices (same order)
-//   answer_index        → index (0–3) of the correct answer
-//   sort_order          → display order within the passage quiz
-//
-// NOTE: Keep exactly 4 options per question to match the 2x2 grid layout.
-//       Always add at least 2 questions per passage.
-
 const questions = [
-  // ── At the Café (passage_cafe) ─────────────────────────────
-  {
-    id: 'q_cafe_1',
-    passage_id: 'passage_cafe',
-    question: '매일 아침 어디에 가요?',
-    question_translated: 'Where do they go every morning?',
-    options: ['도서관', '카페', '학교', '공원'],
-    options_translated: ['Library', 'Café', 'School', 'Park'],
-    answer_index: 1,
-    sort_order: 1,
-  },
-  {
-    id: 'q_cafe_2',
-    passage_id: 'passage_cafe',
-    question: '무엇을 주문했어요?',
-    question_translated: 'What did they order?',
-    options: ['따뜻한 커피', '녹차', '아이스 아메리카노', '주스'],
-    options_translated: ['Hot coffee', 'Green tea', 'Iced Americano', 'Juice'],
-    answer_index: 2,
-    sort_order: 2,
-  },
+  // ── At the Café ────────────────────────────────────────────
+  { id: 'q_cafe_1', passage_id: 'passage_cafe', sort_order: 1, question: '매일 아침 어디에 가요?', question_translated: 'Where do they go every morning?', options: ['도서관', '카페', '학교', '공원'], options_translated: ['Library', 'Café', 'School', 'Park'], answer_index: 1 },
+  { id: 'q_cafe_2', passage_id: 'passage_cafe', sort_order: 2, question: '무엇을 주문했어요?', question_translated: 'What did they order?', options: ['따뜻한 커피', '녹차', '아이스 아메리카노', '주스'], options_translated: ['Hot coffee', 'Green tea', 'Iced Americano', 'Juice'], answer_index: 2 },
+  { id: 'q_cafe_3', passage_id: 'passage_cafe', sort_order: 3, question: '친구는 왜 늦었어요?', question_translated: 'Why was the friend late?', options: ['길이 막혔어요', '조금 늦었어요', '버스를 놓쳤어요', '잠을 잤어요'], options_translated: ['Traffic jam', 'A little late', 'Missed the bus', 'Was sleeping'], answer_index: 1 },
+  { id: 'q_cafe_4', passage_id: 'passage_cafe', sort_order: 4, question: '카페는 어때요?', question_translated: 'How is the café?', options: ['시끄러워요', '비싸요', '예뻐요', '작아요'], options_translated: ['Loud', 'Expensive', 'Pretty', 'Small'], answer_index: 2 },
 
-  // ── My Family (passage_family) ─────────────────────────────
-  {
-    id: 'q_family_1',
-    passage_id: 'passage_family',
-    question: '가족은 몇 명이에요?',
-    question_translated: 'How many family members?',
-    options: ['세 명', '네 명', '다섯 명', '여섯 명'],
-    options_translated: ['Three', 'Four', 'Five', 'Six'],
-    answer_index: 2,
-    sort_order: 1,
-  },
-  {
-    id: 'q_family_2',
-    passage_id: 'passage_family',
-    question: '아버지 직업은 뭐예요?',
-    question_translated: "What is the father's job?",
-    options: ['의사', '선생님', '요리사', '학생'],
-    options_translated: ['Doctor', 'Teacher', 'Chef', 'Student'],
-    answer_index: 1,
-    sort_order: 2,
-  },
+  // ── My Family ──────────────────────────────────────────────
+  { id: 'q_family_1', passage_id: 'passage_family', sort_order: 1, question: '가족은 몇 명이에요?', question_translated: 'How many family members are there?', options: ['세 명', '네 명', '다섯 명', '여섯 명'], options_translated: ['Three', 'Four', 'Five', 'Six'], answer_index: 2 },
+  { id: 'q_family_2', passage_id: 'passage_family', sort_order: 2, question: '아버지 직업은 뭐예요?', question_translated: "What is the father's job?", options: ['의사', '선생님', '요리사', '학생'], options_translated: ['Doctor', 'Teacher', 'Chef', 'Student'], answer_index: 1 },
+  { id: 'q_family_3', passage_id: 'passage_family', sort_order: 3, question: '어머니는 무엇을 잘해요?', question_translated: 'What does the mother do well?', options: ['노래', '운동', '요리', '그림'], options_translated: ['Singing', 'Exercise', 'Cooking', 'Drawing'], answer_index: 2 },
+  { id: 'q_family_4', passage_id: 'passage_family', sort_order: 4, question: '동생은 무슨 학생이에요?', question_translated: 'What kind of student is the sibling?', options: ['초등학생', '중학생', '고등학생', '대학생'], options_translated: ['Elementary', 'Middle school', 'High school', 'University'], answer_index: 3 },
 
-  // ── Korean BBQ (passage_bbq) ───────────────────────────────
-  {
-    id: 'q_bbq_1',
-    passage_id: 'passage_bbq',
-    question: '누구와 갔어요?',
-    question_translated: 'Who did they go with?',
-    options: ['혼자', '친구들', '가족', '선생님'],
-    options_translated: ['Alone', 'Friends', 'Family', 'Teacher'],
-    answer_index: 1,
-    sort_order: 1,
-  },
-  {
-    id: 'q_bbq_2',
-    passage_id: 'passage_bbq',
-    question: '무엇을 주문했어요?',
-    question_translated: 'What did they order?',
-    options: ['불고기', '삼겹살', '비빔밥', '김치찌개'],
-    options_translated: ['Bulgogi', 'Samgyeopsal', 'Bibimbap', 'Kimchi stew'],
-    answer_index: 1,
-    sort_order: 2,
-  },
+  // ── Morning Routine ────────────────────────────────────────
+  { id: 'q_morning_1', passage_id: 'passage_morning', sort_order: 1, question: '몇 시에 일어나요?', question_translated: 'What time do they wake up?', options: ['여섯 시', '일곱 시', '여덟 시', '아홉 시'], options_translated: ['6 AM', '7 AM', '8 AM', '9 AM'], answer_index: 1 },
+  { id: 'q_morning_2', passage_id: 'passage_morning', sort_order: 2, question: '아침에 뭘 먹어요?', question_translated: 'What do they eat in the morning?', options: ['밥과 국', '토스트와 계란', '라면', '과일'], options_translated: ['Rice and soup', 'Toast and eggs', 'Ramen', 'Fruit'], answer_index: 1 },
+  { id: 'q_morning_3', passage_id: 'passage_morning', sort_order: 3, question: '집을 몇 시에 나가요?', question_translated: 'What time do they leave the house?', options: ['일곱 시', '일곱 시 반', '여덟 시', '아홉 시'], options_translated: ['7 AM', '7:30 AM', '8 AM', '9 AM'], answer_index: 2 },
+  { id: 'q_morning_4', passage_id: 'passage_morning', sort_order: 4, question: '학교에 어떻게 가요?', question_translated: 'How do they get to school?', options: ['버스', '자전거', '지하철', '걸어서'], options_translated: ['Bus', 'Bicycle', 'Subway', 'Walking'], answer_index: 2 },
 
-  // ── K-Pop Concert (passage_concert) ───────────────────────
-  {
-    id: 'q_concert_1',
-    passage_id: 'passage_concert',
-    question: '콘서트에 언제 갔어요?',
-    question_translated: 'When did they go?',
-    options: ['오늘', '어제', '내일', '지난주'],
-    options_translated: ['Today', 'Yesterday', 'Tomorrow', 'Last week'],
-    answer_index: 1,
-    sort_order: 1,
-  },
-  {
-    id: 'q_concert_2',
-    passage_id: 'passage_concert',
-    question: '가수가 무엇을 잘했어요?',
-    question_translated: 'What did the singer do well?',
-    options: ['춤', '노래', '연기', '요리'],
-    options_translated: ['Dancing', 'Singing', 'Acting', 'Cooking'],
-    answer_index: 1,
-    sort_order: 2,
-  },
+  // ── Weekend Plans ──────────────────────────────────────────
+  { id: 'q_weekend_1', passage_id: 'passage_weekend', sort_order: 1, question: '이번 주말에 어디 가요?', question_translated: 'Where are they going this weekend?', options: ['산', '한강', '바다', '공원'], options_translated: ['Mountain', 'Han River', 'Sea', 'Park'], answer_index: 1 },
+  { id: 'q_weekend_2', passage_id: 'passage_weekend', sort_order: 2, question: '음식은 어디서 사요?', question_translated: 'Where do they buy food?', options: ['슈퍼마켓', '편의점', '시장', '식당'], options_translated: ['Supermarket', 'Convenience store', 'Market', 'Restaurant'], answer_index: 1 },
+  { id: 'q_weekend_3', passage_id: 'passage_weekend', sort_order: 3, question: '저녁에 뭘 먹을 거예요?', question_translated: 'What will they eat in the evening?', options: ['치킨', '피자', '삼겹살', '라면'], options_translated: ['Chicken', 'Pizza', 'Samgyeopsal', 'Ramen'], answer_index: 2 },
+  { id: 'q_weekend_4', passage_id: 'passage_weekend', sort_order: 4, question: '날씨가 좋으면 뭘 해요?', question_translated: 'What do they do if the weather is nice?', options: ['수영', '자전거', '배드민턴', '조깅'], options_translated: ['Swimming', 'Cycling', 'Badminton', 'Jogging'], answer_index: 1 },
+
+  // ── New Apartment ──────────────────────────────────────────
+  { id: 'q_apartment_1', passage_id: 'passage_apartment', sort_order: 1, question: '언제 이사했어요?', question_translated: 'When did they move?', options: ['이번 주', '지난달', '지난주', '작년'], options_translated: ['This week', 'Last month', 'Last week', 'Last year'], answer_index: 1 },
+  { id: 'q_apartment_2', passage_id: 'passage_apartment', sort_order: 2, question: '집에서 학교까지 얼마나 걸려요?', question_translated: 'How long does it take from home to school?', options: ['오 분', '십 분', '이십 분', '삼십 분'], options_translated: ['5 min', '10 min', '20 min', '30 min'], answer_index: 1 },
+  { id: 'q_apartment_3', passage_id: 'passage_apartment', sort_order: 3, question: '집 옆에 뭐가 있어요?', question_translated: 'What is next to the house?', options: ['병원과 학교', '편의점과 카페', '공원과 도서관', '식당과 슈퍼'], options_translated: ['Hospital and school', 'Convenience store and café', 'Park and library', 'Restaurant and supermarket'], answer_index: 1 },
+  { id: 'q_apartment_4', passage_id: 'passage_apartment', sort_order: 4, question: '집이 어때요?', question_translated: 'How is the house?', options: ['크고 비싸요', '작지만 깨끗해요', '오래됐어요', '불편해요'], options_translated: ['Big and expensive', 'Small but clean', 'Old', 'Uncomfortable'], answer_index: 1 },
+
+  // ── My Hobbies ─────────────────────────────────────────────
+  { id: 'q_hobby_1', passage_id: 'passage_hobby', sort_order: 1, question: '취미가 뭐예요?', question_translated: 'What is their hobby?', options: ['그림 그리기', '요리하기', '사진 찍기', '독서'], options_translated: ['Drawing', 'Cooking', 'Photography', 'Reading'], answer_index: 2 },
+  { id: 'q_hobby_2', passage_id: 'passage_hobby', sort_order: 2, question: '언제 사진을 찍어요?', question_translated: 'When do they take photos?', options: ['매일', '주말마다', '가끔', '평일에'], options_translated: ['Every day', 'Every weekend', 'Sometimes', 'Weekdays'], answer_index: 1 },
+  { id: 'q_hobby_3', passage_id: 'passage_hobby', sort_order: 3, question: '어디에서 사진을 자주 찍어요?', question_translated: 'Where do they often take photos?', options: ['한강', '남산', '경복궁이나 북촌', '코엑스'], options_translated: ['Han River', 'Namsan', 'Gyeongbokgung or Bukchon', 'COEX'], answer_index: 2 },
+  { id: 'q_hobby_4', passage_id: 'passage_hobby', sort_order: 4, question: '나중에 뭘 하고 싶어요?', question_translated: 'What do they want to do in the future?', options: ['사진 학교', '사진 전시회', '사진 대회', '사진 책'], options_translated: ['Photo school', 'Photo exhibition', 'Photo contest', 'Photo book'], answer_index: 1 },
+
+  // ── Korean BBQ ─────────────────────────────────────────────
+  { id: 'q_bbq_1', passage_id: 'passage_bbq', sort_order: 1, question: '누구와 갔어요?', question_translated: 'Who did they go with?', options: ['혼자', '친구들', '가족', '선생님'], options_translated: ['Alone', 'Friends', 'Family', 'Teacher'], answer_index: 1 },
+  { id: 'q_bbq_2', passage_id: 'passage_bbq', sort_order: 2, question: '무엇을 주문했어요?', question_translated: 'What did they order?', options: ['불고기', '삼겹살', '비빔밥', '김치찌개'], options_translated: ['Bulgogi', 'Samgyeopsal', 'Bibimbap', 'Kimchi jjigae'], answer_index: 1 },
+  { id: 'q_bbq_3', passage_id: 'passage_bbq', sort_order: 3, question: '고기를 어떻게 먹었어요?', question_translated: 'How did they eat the meat?', options: ['밥에 넣어서', '상추에 싸서', '국에 넣어서', '그냥'], options_translated: ['In rice', 'Wrapped in lettuce', 'In soup', 'Plain'], answer_index: 1 },
+  { id: 'q_bbq_4', passage_id: 'passage_bbq', sort_order: 4, question: '음식이 어땠어요?', question_translated: 'How was the food?', options: ['별로였어요', '그저 그랬어요', '정말 맛있었어요', '너무 매웠어요'], options_translated: ['Not great', 'So-so', 'Really delicious', 'Too spicy'], answer_index: 2 },
+
+  // ── Trip to the Market ─────────────────────────────────────
+  { id: 'q_market_1', passage_id: 'passage_market', sort_order: 1, question: '누구와 시장에 갔어요?', question_translated: 'Who did they go to the market with?', options: ['아버지', '친구', '어머니', '혼자'], options_translated: ['Father', 'Friend', 'Mother', 'Alone'], answer_index: 2 },
+  { id: 'q_market_2', passage_id: 'passage_market', sort_order: 2, question: '뭘 샀어요?', question_translated: 'What did they buy?', options: ['고기와 생선', '채소와 과일', '과자와 음료', '옷과 가방'], options_translated: ['Meat and fish', 'Vegetables and fruit', 'Snacks and drinks', 'Clothes and bags'], answer_index: 1 },
+  { id: 'q_market_3', passage_id: 'passage_market', sort_order: 3, question: '시장에서 뭘 먹었어요?', question_translated: 'What did they eat at the market?', options: ['김밥', '떡볶이와 순대', '라면', '삼겹살'], options_translated: ['Gimbap', 'Tteokbokki and sundae', 'Ramen', 'Samgyeopsal'], answer_index: 1 },
+  { id: 'q_market_4', passage_id: 'passage_market', sort_order: 4, question: '다음에 또 어떻게 하고 싶어요?', question_translated: 'What do they want to do next time?', options: ['더 오래 있고 싶어요', '다시 오고 싶어요', '안 오고 싶어요', '혼자 오고 싶어요'], options_translated: ['Stay longer', 'Come again', 'Not come again', 'Come alone'], answer_index: 1 },
+
+  // ── Learning to Cook ───────────────────────────────────────
+  { id: 'q_cooking_1', passage_id: 'passage_cooking', sort_order: 1, question: '요즘 뭘 배우고 있어요?', question_translated: 'What are they learning these days?', options: ['한국어', '한국 요리', '한국 춤', '한국 역사'], options_translated: ['Korean language', 'Korean cooking', 'Korean dance', 'Korean history'], answer_index: 1 },
+  { id: 'q_cooking_2', passage_id: 'passage_cooking', sort_order: 2, question: '처음 만든 음식이 뭐예요?', question_translated: 'What was the first food they made?', options: ['된장찌개', '비빔밥', '김치찌개', '삼겹살'], options_translated: ['Doenjang jjigae', 'Bibimbap', 'Kimchi jjigae', 'Samgyeopsal'], answer_index: 2 },
+  { id: 'q_cooking_3', passage_id: 'passage_cooking', sort_order: 3, question: '음식에 뭘 넣었어요?', question_translated: 'What did they put in the food?', options: ['닭고기, 야채, 두부', '돼지고기, 김치, 두부', '소고기, 파, 두부', '해산물, 김치, 야채'], options_translated: ['Chicken, vegetables, tofu', 'Pork, kimchi, tofu', 'Beef, green onion, tofu', 'Seafood, kimchi, vegetables'], answer_index: 1 },
+  { id: 'q_cooking_4', passage_id: 'passage_cooking', sort_order: 4, question: '다음엔 뭘 만들 거예요?', question_translated: 'What will they make next?', options: ['비빔밥', '된장찌개', '갈비', '냉면'], options_translated: ['Bibimbap', 'Doenjang jjigae', 'Galbi', 'Naengmyeon'], answer_index: 1 },
+
+  // ── Ramen ──────────────────────────────────────────────────
+  { id: 'q_ramyeon_1', passage_id: 'passage_ramyeon', sort_order: 1, question: '한국 사람들이 뭘 좋아해요?', question_translated: 'What do Korean people really like?', options: ['김치', '라면', '삼겹살', '비빔밥'], options_translated: ['Kimchi', 'Ramen', 'Samgyeopsal', 'Bibimbap'], answer_index: 1 },
+  { id: 'q_ramyeon_2', passage_id: 'passage_ramyeon', sort_order: 2, question: '어디서 라면을 먹는 게 유행이에요?', question_translated: 'Where is eating ramen popular?', options: ['식당', '집', '편의점', '학교'], options_translated: ['Restaurant', 'Home', 'Convenience store', 'School'], answer_index: 2 },
+  { id: 'q_ramyeon_3', passage_id: 'passage_ramyeon', sort_order: 3, question: '얼마나 기다려요?', question_translated: 'How long do you wait?', options: ['일 분', '삼 분', '오 분', '십 분'], options_translated: ['1 minute', '3 minutes', '5 minutes', '10 minutes'], answer_index: 1 },
+  { id: 'q_ramyeon_4', passage_id: 'passage_ramyeon', sort_order: 4, question: '뭘 넣으면 더 맛있어요?', question_translated: 'What makes it more delicious?', options: ['치즈', '계란', '김치', '고기'], options_translated: ['Cheese', 'Egg', 'Kimchi', 'Meat'], answer_index: 1 },
+
+  // ── At the Restaurant ──────────────────────────────────────
+  { id: 'q_restaurant_1', passage_id: 'passage_restaurant', sort_order: 1, question: '어떤 식당을 찾았어요?', question_translated: 'What kind of restaurant did they find?', options: ['중식당', '일식당', '한식당', '양식당'], options_translated: ['Chinese', 'Japanese', 'Korean', 'Western'], answer_index: 2 },
+  { id: 'q_restaurant_2', passage_id: 'passage_restaurant', sort_order: 2, question: '친구는 뭘 주문했어요?', question_translated: 'What did the friend order?', options: ['비빔밥', '갈비탕', '냉면', '삼겹살'], options_translated: ['Bibimbap', 'Galbitang', 'Naengmyeon', 'Samgyeopsal'], answer_index: 1 },
+  { id: 'q_restaurant_3', passage_id: 'passage_restaurant', sort_order: 3, question: '반찬이 몇 가지 나왔어요?', question_translated: 'How many side dishes came out?', options: ['두 가지', '세 가지', '네 가지', '다섯 가지'], options_translated: ['Two', 'Three', 'Four', 'Five'], answer_index: 3 },
+  { id: 'q_restaurant_4', passage_id: 'passage_restaurant', sort_order: 4, question: '식사 후에 뭘 마셨어요?', question_translated: 'What did they drink after the meal?', options: ['커피', '녹차', '수정과', '물'], options_translated: ['Coffee', 'Green tea', 'Sikhye', 'Water'], answer_index: 2 },
+
+  // ── Seoul Subway ───────────────────────────────────────────
+  { id: 'q_subway_1', passage_id: 'passage_subway', sort_order: 1, question: '서울 지하철은 어때요?', question_translated: 'How is the Seoul subway?', options: ['복잡해요', '편리해요', '비싸요', '느려요'], options_translated: ['Complex', 'Convenient', 'Expensive', 'Slow'], answer_index: 1 },
+  { id: 'q_subway_2', passage_id: 'passage_subway', sort_order: 2, question: '교통카드로 뭘 탈 수 있어요?', question_translated: 'What can you take with a transit card?', options: ['지하철만', '버스만', '버스와 지하철 모두', '택시도'], options_translated: ['Only subway', 'Only bus', 'Both bus and subway', 'Taxi too'], answer_index: 2 },
+  { id: 'q_subway_3', passage_id: 'passage_subway', sort_order: 3, question: '누구에게도 쉬워요?', question_translated: 'It is easy for whom too?', options: ['학생들', '노인들', '외국 관광객들', '어린이들'], options_translated: ['Students', 'Elderly', 'Foreign tourists', 'Children'], answer_index: 2 },
+  { id: 'q_subway_4', passage_id: 'passage_subway', sort_order: 4, question: '환승하면 어떻게 돼요?', question_translated: 'What happens when you transfer?', options: ['더 비싸요', '할인이 돼요', '카드가 필요 없어요', '시간이 걸려요'], options_translated: ['More expensive', 'Get a discount', 'No card needed', 'Takes time'], answer_index: 1 },
+
+  // ── Gyeongbokgung ──────────────────────────────────────────
+  { id: 'q_gyeongbokgung_1', passage_id: 'passage_gyeongbokgung', sort_order: 1, question: '한복을 입으면 어떻게 돼요?', question_translated: 'What happens if you wear hanbok?', options: ['선물을 받아요', '입장이 무료예요', '사진을 찍어줘요', '할인이 돼요'], options_translated: ['Receive a gift', 'Entry is free', 'They take photos', 'Get discount'], answer_index: 1 },
+  { id: 'q_gyeongbokgung_2', passage_id: 'passage_gyeongbokgung', sort_order: 2, question: '경복궁은 언제 지어졌어요?', question_translated: 'When was Gyeongbokgung built?', options: ['고려시대', '조선시대', '삼국시대', '현대'], options_translated: ['Goryeo period', 'Joseon period', 'Three Kingdoms period', 'Modern era'], answer_index: 1 },
+  { id: 'q_gyeongbokgung_3', passage_id: 'passage_gyeongbokgung', sort_order: 3, question: '궁 안에서 뭘 했어요?', question_translated: 'What did they do inside the palace?', options: ['음식을 먹었어요', '사진을 찍었어요', '공연을 봤어요', '책을 읽었어요'], options_translated: ['Ate food', 'Took photos', 'Watched a performance', 'Read books'], answer_index: 1 },
+  { id: 'q_gyeongbokgung_4', passage_id: 'passage_gyeongbokgung', sort_order: 4, question: '무슨 행사를 볼 수 있었어요?', question_translated: 'What event were they able to see?', options: ['전통 공연', '수문장 교대식', '불꽃놀이', '음악 공연'], options_translated: ['Traditional performance', 'Royal guard ceremony', 'Fireworks', 'Music show'], answer_index: 1 },
+
+  // ── Jeju Island ────────────────────────────────────────────
+  { id: 'q_jeju_1', passage_id: 'passage_jeju', sort_order: 1, question: '누구와 제주도에 갔어요?', question_translated: 'Who did they go to Jeju with?', options: ['친구', '혼자', '가족', '학교'], options_translated: ['Friend', 'Alone', 'Family', 'School'], answer_index: 2 },
+  { id: 'q_jeju_2', passage_id: 'passage_jeju', sort_order: 2, question: '비행기로 얼마나 걸려요?', question_translated: 'How long does it take by plane?', options: ['삼십 분', '한 시간', '두 시간', '세 시간'], options_translated: ['30 min', '1 hour', '2 hours', '3 hours'], answer_index: 1 },
+  { id: 'q_jeju_3', passage_id: 'passage_jeju', sort_order: 3, question: '제주에서 어떤 산에 갔어요?', question_translated: 'What mountain did they go to in Jeju?', options: ['북한산', '설악산', '한라산', '지리산'], options_translated: ['Bukhansan', 'Seoraksan', 'Hallasan', 'Jirisan'], answer_index: 2 },
+  { id: 'q_jeju_4', passage_id: 'passage_jeju', sort_order: 4, question: '제주에서 뭘 먹었어요?', question_translated: 'What did they eat in Jeju?', options: ['갈치조림', '제주 흑돼지 구이', '한치물회', '고등어구이'], options_translated: ['Braised hairtail', 'Grilled Jeju black pork', 'Squid salad', 'Grilled mackerel'], answer_index: 1 },
+
+  // ── Busan ──────────────────────────────────────────────────
+  { id: 'q_busan_1', passage_id: 'passage_busan', sort_order: 1, question: '부산은 한국에서 몇 번째로 큰 도시예요?', question_translated: 'What number is Busan as the largest city in Korea?', options: ['첫 번째', '두 번째', '세 번째', '네 번째'], options_translated: ['First', 'Second', 'Third', 'Fourth'], answer_index: 1 },
+  { id: 'q_busan_2', passage_id: 'passage_busan', sort_order: 2, question: '어디에서 해산물을 먹었어요?', question_translated: 'Where did they eat seafood?', options: ['해운대', '자갈치 시장', '감천마을', '광안리'], options_translated: ['Haeundae', 'Jagalchi Market', 'Gamcheon Village', 'Gwangalli'], answer_index: 1 },
+  { id: 'q_busan_3', passage_id: 'passage_busan', sort_order: 3, question: '부산에서 유명한 해수욕장은 어디예요?', question_translated: 'What is the famous beach in Busan?', options: ['광안리', '송정', '해운대', '다대포'], options_translated: ['Gwangalli', 'Songjeong', 'Haeundae', 'Dadaepo'], answer_index: 2 },
+  { id: 'q_busan_4', passage_id: 'passage_busan', sort_order: 4, question: '부산 사람들은 어때요?', question_translated: 'How are the people of Busan?', options: ['무서워요', '바빠요', '친절해요', '무뚝뚝해요'], options_translated: ['Scary', 'Busy', 'Kind', 'Reserved'], answer_index: 2 },
+
+  // ── Incheon Airport ────────────────────────────────────────
+  { id: 'q_incheon_1', passage_id: 'passage_incheon', sort_order: 1, question: '공항에서 먼저 뭘 했어요?', question_translated: 'What did they do first at the airport?', options: ['밥을 먹었어요', '입국 심사를 받았어요', '쇼핑을 했어요', '커피를 마셨어요'], options_translated: ['Ate food', 'Went through immigration', 'Went shopping', 'Drank coffee'], answer_index: 1 },
+  { id: 'q_incheon_2', passage_id: 'passage_incheon', sort_order: 2, question: '서울역까지 어떻게 갔어요?', question_translated: 'How did they get to Seoul Station?', options: ['택시', '버스', '공항 철도', '지하철'], options_translated: ['Taxi', 'Bus', 'Airport Railroad', 'Subway'], answer_index: 2 },
+  { id: 'q_incheon_3', passage_id: 'passage_incheon', sort_order: 3, question: '공항 안에 뭐가 있어요?', question_translated: 'What is inside the airport?', options: ['호텔', '편의점과 식당', '학교', '병원'], options_translated: ['Hotel', 'Convenience stores and restaurants', 'School', 'Hospital'], answer_index: 1 },
+  { id: 'q_incheon_4', passage_id: 'passage_incheon', sort_order: 4, question: '기분이 어때요?', question_translated: 'How do they feel?', options: ['피곤해요', '슬퍼요', '한국에 왔다는 게 실감나요', '무서워요'], options_translated: ['Tired', 'Sad', "It feels real being in Korea", 'Scared'], answer_index: 2 },
+
+  // ── K-Pop Concert ──────────────────────────────────────────
+  { id: 'q_concert_1', passage_id: 'passage_concert', sort_order: 1, question: '콘서트에 언제 갔어요?', question_translated: 'When did they go to the concert?', options: ['오늘', '어제', '내일', '지난주'], options_translated: ['Today', 'Yesterday', 'Tomorrow', 'Last week'], answer_index: 1 },
+  { id: 'q_concert_2', passage_id: 'passage_concert', sort_order: 2, question: '가수가 무엇을 잘했어요?', question_translated: 'What did the singer do well?', options: ['춤', '노래', '연기', '요리'], options_translated: ['Dancing', 'Singing', 'Acting', 'Cooking'], answer_index: 1 },
+  { id: 'q_concert_3', passage_id: 'passage_concert', sort_order: 3, question: '콘서트에 팬이 많이 왔어요?', question_translated: 'Did many fans come to the concert?', options: ['별로 없었어요', '조금 왔어요', '많이 왔어요', '아무도 없었어요'], options_translated: ['Not many', 'A few', 'Many', 'Nobody'], answer_index: 2 },
+  { id: 'q_concert_4', passage_id: 'passage_concert', sort_order: 4, question: '다음 콘서트도 가고 싶어요?', question_translated: 'Do they want to go to the next concert too?', options: ['아니요', '모르겠어요', '네', '별로요'], options_translated: ['No', 'Not sure', 'Yes', 'Not really'], answer_index: 2 },
+
+  // ── K-Pop History ──────────────────────────────────────────
+  { id: 'q_kpop_history_1', passage_id: 'passage_kpop_history', sort_order: 1, question: 'K-Pop은 언제부터 시작됐어요?', question_translated: 'When did K-Pop start?', options: ['1980년대', '1990년대', '2000년대', '2010년대'], options_translated: ['1980s', '1990s', '2000s', '2010s'], answer_index: 1 },
+  { id: 'q_kpop_history_2', passage_id: 'passage_kpop_history', sort_order: 2, question: '처음에 어디서 인기가 있었어요?', question_translated: 'Where was it first popular?', options: ['일본', '중국', '한국', '미국'], options_translated: ['Japan', 'China', 'Korea', 'USA'], answer_index: 2 },
+  { id: 'q_kpop_history_3', passage_id: 'passage_kpop_history', sort_order: 3, question: '2000년대에 어디로 퍼졌어요?', question_translated: 'Where did it spread to in the 2000s?', options: ['유럽', '아시아 전역', '남미', '아프리카'], options_translated: ['Europe', 'All of Asia', 'South America', 'Africa'], answer_index: 1 },
+  { id: 'q_kpop_history_4', passage_id: 'passage_kpop_history', sort_order: 4, question: 'K-Pop 덕분에 뭐가 많아졌어요?', question_translated: 'What increased thanks to K-Pop?', options: ['한국 음식', '한국어 배우는 사람', '한국 관광객', '한국 드라마'], options_translated: ['Korean food', 'People learning Korean', 'Korean tourists', 'Korean dramas'], answer_index: 1 },
+
+  // ── Norebang ───────────────────────────────────────────────
+  { id: 'q_norebang_1', passage_id: 'passage_norebang', sort_order: 1, question: '노래방에 누구와 갔어요?', question_translated: 'Who did they go to the norebang with?', options: ['혼자', '가족', '친구들', '동료'], options_translated: ['Alone', 'Family', 'Friends', 'Colleagues'], answer_index: 2 },
+  { id: 'q_norebang_2', passage_id: 'passage_norebang', sort_order: 2, question: '얼마나 노래를 불렀어요?', question_translated: 'How long did they sing?', options: ['한 시간', '두 시간', '세 시간', '네 시간'], options_translated: ['1 hour', '2 hours', '3 hours', '4 hours'], answer_index: 1 },
+  { id: 'q_norebang_3', passage_id: 'passage_norebang', sort_order: 3, question: '뭘 치면서 춤을 췄어요?', question_translated: 'What did they hit while dancing?', options: ['북', '탬버린', '마라카스', '심벌즈'], options_translated: ['Drum', 'Tambourine', 'Maracas', 'Cymbals'], answer_index: 1 },
+  { id: 'q_norebang_4', passage_id: 'passage_norebang', sort_order: 4, question: '노래 후에 어떻게 됐어요?', question_translated: 'How did they feel after singing?', options: ['목이 아팠지만 재미있었어요', '슬펐어요', '배가 고팠어요', '피곤하고 별로였어요'], options_translated: ['Throat hurt but fun', 'Felt sad', 'Got hungry', 'Tired and not great'], answer_index: 0 },
+
+  // ── TOPIK ──────────────────────────────────────────────────
+  { id: 'q_topik_1', passage_id: 'passage_topik', sort_order: 1, question: 'TOPIK이 뭐예요?', question_translated: 'What is TOPIK?', options: ['한국 문화 시험', '한국어 능력 시험', '대학교 입학 시험', '취업 시험'], options_translated: ['Korean culture test', 'Korean language test', 'University entrance exam', 'Job test'], answer_index: 1 },
+  { id: 'q_topik_2', passage_id: 'passage_topik', sort_order: 2, question: '매일 얼마나 공부해요?', question_translated: 'How long do they study every day?', options: ['한 시간', '두 시간', '세 시간', '네 시간'], options_translated: ['1 hour', '2 hours', '3 hours', '4 hours'], answer_index: 1 },
+  { id: 'q_topik_3', passage_id: 'passage_topik', sort_order: 3, question: '뭘 열심히 외워요?', question_translated: 'What do they diligently memorize?', options: ['역사와 문화', '단어와 문법', '노래와 춤', '요리와 예절'], options_translated: ['History and culture', 'Vocabulary and grammar', 'Songs and dance', 'Cooking and etiquette'], answer_index: 1 },
+  { id: 'q_topik_4', passage_id: 'passage_topik', sort_order: 4, question: '이번 시험에서 몇 급을 받고 싶어요?', question_translated: 'What level do they want to get on this exam?', options: ['1급', '2급', '3급', '4급'], options_translated: ['Level 1', 'Level 2', 'Level 3', 'Level 4'], answer_index: 2 },
+
+  // ── Chuseok ────────────────────────────────────────────────
+  { id: 'q_chuseok_1', passage_id: 'passage_chuseok', sort_order: 1, question: '추석은 언제예요?', question_translated: 'When is Chuseok?', options: ['음력 7월 15일', '음력 8월 15일', '음력 9월 15일', '양력 10월 15일'], options_translated: ['Lunar July 15', 'Lunar Aug 15', 'Lunar Sept 15', 'Oct 15'], answer_index: 1 },
+  { id: 'q_chuseok_2', passage_id: 'passage_chuseok', sort_order: 2, question: '추석에 뭘 만들어 먹어요?', question_translated: 'What do they make and eat on Chuseok?', options: ['떡국', '삼겹살', '송편', '비빔밥'], options_translated: ['Tteokguk', 'Samgyeopsal', 'Songpyeon', 'Bibimbap'], answer_index: 2 },
+  { id: 'q_chuseok_3', passage_id: 'passage_chuseok', sort_order: 3, question: '추석에 뭘 입어요?', question_translated: 'What do they wear on Chuseok?', options: ['교복', '정장', '한복', '운동복'], options_translated: ['School uniform', 'Suit', 'Hanbok', 'Sportswear'], answer_index: 2 },
+  { id: 'q_chuseok_4', passage_id: 'passage_chuseok', sort_order: 4, question: '추석에 가족들이 어떻게 해요?', question_translated: 'What do families do on Chuseok?', options: ['여행을 가요', '한자리에 모여요', '공부를 해요', '일을 해요'], options_translated: ['Go on a trip', 'Gather together', 'Study', 'Work'], answer_index: 1 },
+
+  // ── Seollal ────────────────────────────────────────────────
+  { id: 'q_seollal_1', passage_id: 'passage_seollal', sort_order: 1, question: '설날에 어른들에게 뭘 해요?', question_translated: 'What do they do for elders on Seollal?', options: ['선물을 줘요', '세배를 드려요', '노래를 해요', '요리를 해요'], options_translated: ['Give gifts', 'Bow', 'Sing', 'Cook'], answer_index: 1 },
+  { id: 'q_seollal_2', passage_id: 'passage_seollal', sort_order: 2, question: '세뱃돈이 뭐예요?', question_translated: 'What is sebaedon?', options: ['설날 음식', '새해 선물', '새해 돈', '명절 옷'], options_translated: ['Seollal food', 'New Year gift', 'New Year money', 'Holiday clothing'], answer_index: 2 },
+  { id: 'q_seollal_3', passage_id: 'passage_seollal', sort_order: 3, question: '설날에 뭘 먹어요?', question_translated: 'What do they eat on Seollal?', options: ['송편', '삼겹살', '떡국', '비빔밥'], options_translated: ['Songpyeon', 'Samgyeopsal', 'Tteokguk', 'Bibimbap'], answer_index: 2 },
+  { id: 'q_seollal_4', passage_id: 'passage_seollal', sort_order: 4, question: '떡국을 먹으면 어떻게 된대요?', question_translated: 'What happens when you eat tteokguk?', options: ['건강해져요', '나이를 한 살 먹어요', '행운이 와요', '돈이 생겨요'], options_translated: ['Become healthy', 'Become a year older', 'Good luck comes', 'Money appears'], answer_index: 1 },
+
+  // ── Delivery Culture ───────────────────────────────────────
+  { id: 'q_delivery_1', passage_id: 'passage_delivery', sort_order: 1, question: '배달 음식이 얼마나 빨리 와요?', question_translated: 'How quickly does delivery food arrive?', options: ['십 분', '삼십 분', '한 시간', '두 시간'], options_translated: ['10 min', '30 min', '1 hour', '2 hours'], answer_index: 1 },
+  { id: 'q_delivery_2', passage_id: 'passage_delivery', sort_order: 2, question: '배달 앱으로 어떻게 주문해요?', question_translated: 'How do you order with a delivery app?', options: ['전화로', '앱으로', '직접 가서', '문자로'], options_translated: ['By phone', 'Through the app', 'Going in person', 'By text'], answer_index: 1 },
+  { id: 'q_delivery_3', passage_id: 'passage_delivery', sort_order: 3, question: '어떤 음식도 배달이 돼요?', question_translated: 'What kind of food can be delivered?', options: ['치킨만', '피자만', '치킨, 피자, 한식 등 모두', '한식만'], options_translated: ['Only chicken', 'Only pizza', 'All: chicken, pizza, Korean food etc.', 'Only Korean food'], answer_index: 2 },
+  { id: 'q_delivery_4', passage_id: 'passage_delivery', sort_order: 4, question: '편의점 상품도 배달이 돼요?', question_translated: 'Can convenience store items also be delivered?', options: ['아니요', '가끔', '네, 심지어 편의점도', '잘 모르겠어요'], options_translated: ['No', 'Sometimes', 'Yes, even convenience stores', "Don't know"], answer_index: 2 },
+
+  // ── PC Bang ────────────────────────────────────────────────
+  { id: 'q_pc_bang_1', passage_id: 'passage_pc_bang', sort_order: 1, question: 'PC방은 어떤 문화예요?', question_translated: 'What kind of culture is PC bang?', options: ['전통 문화', '독특한 한국 문화', '외국 문화', '최신 문화'], options_translated: ['Traditional culture', 'Unique Korean culture', 'Foreign culture', 'Latest culture'], answer_index: 1 },
+  { id: 'q_pc_bang_2', passage_id: 'passage_pc_bang', sort_order: 2, question: '한 시간에 얼마예요?', question_translated: 'How much is it per hour?', options: ['오백 원', '천 원에서 이천 원', '오천 원', '만 원'], options_translated: ['500 won', '1,000-2,000 won', '5,000 won', '10,000 won'], answer_index: 1 },
+  { id: 'q_pc_bang_3', passage_id: 'passage_pc_bang', sort_order: 3, question: 'PC방에서 뭘 할 수 있어요?', question_translated: 'What can you do at a PC bang?', options: ['공부만', '게임만', '게임도 하고 음식도 먹을 수 있어요', '영화만'], options_translated: ['Only study', 'Only games', 'Can both game and eat food', 'Only movies'], answer_index: 2 },
+  { id: 'q_pc_bang_4', passage_id: 'passage_pc_bang', sort_order: 4, question: '밤새 PC방에 있는 사람들이 어때요?', question_translated: 'What about people who stay at PC bang all night?', options: ['없어요', '가끔 있어요', '많아요', '모르겠어요'], options_translated: ['None', 'Occasionally', 'Many', "Don't know"], answer_index: 2 },
 ];
 
 module.exports = { questions };
