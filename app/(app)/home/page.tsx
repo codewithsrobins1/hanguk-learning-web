@@ -198,7 +198,10 @@ export default function HomePage() {
               </div>
             }
             back={
-              <div className="h-full bg-cream rounded-2xl flex flex-col items-center justify-center p-6 border-[1.5px] border-border cursor-pointer">
+              <div
+                className="h-full bg-cream rounded-3xl flex flex-col items-center justify-center p-6 cursor-pointer"
+                style={{ boxShadow: 'inset 0 0 0 2px #1A1F36' }}
+              >
                 <p className="text-[10px] text-muted tracking-widest mb-2">
                   TRANSLATION
                 </p>

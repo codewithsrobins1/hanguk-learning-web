@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
+import { playCorrect, playIncorrect } from '@/lib/sounds';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
@@ -96,6 +97,7 @@ export default function FlashcardSessionPage() {
   const [done, setDone] = useState(false);
   const [reviewCards, setReviewCards] = useState<typeof cards | null>(null);
   const [showHangul, setShowHangul] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   if (loading)
     return (
@@ -123,8 +125,10 @@ export default function FlashcardSessionPage() {
   const handleAnswer = async (isKnown: boolean) => {
     if (isKnown) {
       setKnown((k) => [...k, index]);
+      if (soundEnabled) playCorrect();
     } else {
       setMissed((m) => [...m, index]);
+      if (soundEnabled) playIncorrect();
     }
     // Only save to Firestore during the real session, not review mode
     if (!reviewCards) {
@@ -241,6 +245,13 @@ export default function FlashcardSessionPage() {
             </span>
             <span className="text-[10px] font-bold text-muted">REF</span>
           </button>
+          <button
+            onClick={() => setSoundEnabled((s) => !s)}
+            className="flex items-center justify-center w-8 h-8 rounded-lg bg-cream border border-border hover:border-ink transition-colors"
+            title={soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
+          >
+            <span className="text-sm">{soundEnabled ? '🔊' : '🔇'}</span>
+          </button>
         </div>
 
         {/* Card area */}
@@ -281,7 +292,7 @@ export default function FlashcardSessionPage() {
                 </p>
                 <div className="px-4 py-2.5 bg-cream rounded-xl border-[1.5px] border-border">
                   <p
-                    className="text-sm text-muted text-center leading-6"
+                    className="text-m text-muted text-center leading-6"
                     style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
                   >
                     {card.sentence_parts.map((part, i) =>
