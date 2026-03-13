@@ -5,7 +5,6 @@ import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
 
 function HangulModal({ onClose }: { onClose: () => void }) {
   const [tab, setTab] = useState<'vowels' | 'consonants'>('vowels');
@@ -13,7 +12,7 @@ function HangulModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >
@@ -93,9 +92,10 @@ export default function FlashcardSessionPage() {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<number[]>([]);
+  const [missed, setMissed] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const [reviewCards, setReviewCards] = useState<typeof cards | null>(null);
   const [showHangul, setShowHangul] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
 
   if (loading)
     return (
@@ -117,15 +117,20 @@ export default function FlashcardSessionPage() {
       </div>
     );
 
+  // activeCards is either the full deck or the missed-card review subset
+  const activeCards = reviewCards ?? cards;
+
   const handleAnswer = async (isKnown: boolean) => {
     if (isKnown) {
-      if (soundEnabled) playCorrect();
       setKnown((k) => [...k, index]);
     } else {
-      if (soundEnabled) playIncorrect();
+      setMissed((m) => [...m, index]);
     }
-    await saveProgress(cards[index].id, setId, isKnown);
-    if (index + 1 >= cards.length) {
+    // Only save to Firestore during the real session, not review mode
+    if (!reviewCards) {
+      await saveProgress(activeCards[index].id, setId, isKnown);
+    }
+    if (index + 1 >= activeCards.length) {
       setDone(true);
       return;
     }
@@ -133,39 +138,71 @@ export default function FlashcardSessionPage() {
     setFlipped(false);
   };
 
-  if (done)
+  if (done) {
+    const missedCards = missed.map((i) => activeCards[i]);
+    const isReviewMode = reviewCards !== null;
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-8">
-        <span className="text-6xl mb-5">🎉</span>
+        <span className="text-6xl mb-5">{isReviewMode ? '📖' : '🎉'}</span>
         <h2 className="text-2xl font-extrabold text-ink mb-2">
-          Session Complete!
+          {isReviewMode ? 'Review Complete!' : 'Session Complete!'}
         </h2>
-        <p className="text-muted mb-8 text-center">
-          {known.length} / {cards.length} cards marked as known
+        <p className="text-muted mb-2 text-center">
+          {known.length} / {activeCards.length} cards{' '}
+          {isReviewMode ? 'reviewed correctly' : 'marked as known'}
         </p>
-        <div className="flex gap-3 w-full max-w-xs">
-          <button
-            onClick={() => {
-              setIndex(0);
-              setFlipped(false);
-              setKnown([]);
-              setDone(false);
-            }}
-            className="flex-1 py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
-          >
-            Try Again
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="flex-1 py-3.5 rounded-xl bg-ink text-cream font-bold text-sm hover:bg-inkLight transition-colors"
-          >
-            Done
-          </button>
+        {!isReviewMode && (
+          <p className="text-xs text-muted mb-8 text-center">
+            Missed cards don't affect your mastery score
+          </p>
+        )}
+        {isReviewMode && <div className="mb-8" />}
+
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          {/* Review missed — only show if there are missed cards and not already in review */}
+          {!isReviewMode && missedCards.length > 0 && (
+            <button
+              onClick={() => {
+                setReviewCards(missedCards);
+                setIndex(0);
+                setFlipped(false);
+                setKnown([]);
+                setMissed([]);
+                setDone(false);
+              }}
+              className="w-full py-3.5 rounded-xl border-2 border-red font-bold text-sm text-red hover:bg-red hover:text-white transition-colors"
+            >
+              Review Missed ({missedCards.length})
+            </button>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setReviewCards(null);
+                setIndex(0);
+                setFlipped(false);
+                setKnown([]);
+                setMissed([]);
+                setDone(false);
+              }}
+              className="flex-1 py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => router.back()}
+              className="flex-1 py-3.5 rounded-xl bg-ink text-cream font-bold text-sm hover:bg-inkLight transition-colors"
+            >
+              Done
+            </button>
+          </div>
         </div>
       </div>
     );
+  }
 
-  const card = cards[index];
+  const card = activeCards[index];
 
   return (
     <>
@@ -182,13 +219,13 @@ export default function FlashcardSessionPage() {
           </button>
           <div className="flex-1">
             <ProgressBar
-              progress={index / cards.length}
+              progress={index / activeCards.length}
               color="#111111"
               height={5}
             />
           </div>
           <span className="text-xs font-semibold text-muted mr-2">
-            {index + 1} / {cards.length}
+            {index + 1} / {activeCards.length}
           </span>
           {/* Hangul reference button */}
           <button
@@ -272,25 +309,16 @@ export default function FlashcardSessionPage() {
               </button>
               <button
                 onClick={() => handleAnswer(true)}
-                className="flex-1 py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity text-white"
+                className="flex-1 py-3.5 rounded-xl text-white font-bold text-sm hover:opacity-90 transition-opacity"
                 style={{ backgroundColor: '#22C55E' }}
               >
                 ✓ Know it
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <p className="text-xs text-muted">
-                Tap the card to see the translation
-              </p>
-              <button
-                onClick={() => setSoundEnabled((s) => !s)}
-                className="text-xs text-muted hover:text-ink transition-colors"
-                title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
-              >
-                {soundEnabled ? '🔊' : '🔇'}
-              </button>
-            </div>
+            <p className="text-xs text-muted">
+              Tap the card to see the translation
+            </p>
           )}
         </div>
       </div>

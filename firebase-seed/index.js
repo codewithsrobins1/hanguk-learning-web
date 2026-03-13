@@ -26,6 +26,7 @@ const { flashcards }    = require('./flashcards');
 const { passages }      = require('./passages');
 const { questions }     = require('./questions');
 const { dialogues }     = require('./dialogues');
+const { updates }       = require('./updates');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -78,6 +79,17 @@ async function seed() {
   }
 
   await batch2.commit();
+
+  // ── Batch 3: changelog ──────────────────────────────────────
+  const batch3 = db.batch();
+
+  console.log(`📝 Seeding ${updates.length} changelog entries...`);
+  for (const update of updates) {
+    const { id, ...data } = update;
+    batch3.set(db.collection('changelog').doc(id), data, { merge: true });
+  }
+
+  await batch3.commit();
 
   // ── Update card counts per set ──────────────────────────────
   console.log('🔢 Updating card counts...');

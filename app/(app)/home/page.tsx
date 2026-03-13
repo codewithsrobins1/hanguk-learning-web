@@ -6,6 +6,7 @@ import { useUserStats } from '@/hooks/useUserStats';
 import { useRandomCard, useFlashcardSets } from '@/hooks/useFlashcards';
 import { usePassages } from '@/hooks/usePassages';
 import ProgressBar from '@/components/ProgressBar';
+import { useChangelog } from '@/hooks/useChangelog';
 import FlipCard from '@/components/FlipCard';
 
 // Generate Mon–Sun of the current week
@@ -40,6 +41,7 @@ export default function HomePage() {
   const { passages } = usePassages();
   const [cardFlipped, setCardFlipped] = useState(false);
 
+  const { entries } = useChangelog();
   const displayName = profile?.display_name || profile?.username || 'Learner';
   const weekDays = buildWeek(stats.streak);
 
@@ -56,11 +58,12 @@ export default function HomePage() {
           <h1 className="text-3xl font-extrabold text-ink">{displayName}</h1>
         </div>
         {/* Streak badge */}
-        <div className="bg-navy rounded-2xl px-4 py-2.5 text-center">
-          <p className="text-cream font-extrabold text-base leading-none mb-1">
-            🔥 {stats.streak}
+        <div className="bg-navy rounded-2xl px-4 py-2.5 text-center min-w-[60px]">
+          <p className="text-xl leading-none mb-1">🔥</p>
+          <p className="text-cream font-extrabold text-base leading-none">
+            {stats.streak}
           </p>
-          <p className="text-[10px] text-gray-400">day streak</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">day streak</p>
         </div>
       </div>
 
@@ -81,17 +84,17 @@ export default function HomePage() {
                 className="w-full aspect-square flex items-center justify-center rounded-xl"
                 style={{
                   background: d.active
-                    ? '#D95F4B'
+                    ? '#E8412C'
                     : d.isFuture
                       ? 'transparent'
                       : '#F7F4EE',
-                  border: `1.5px solid ${d.isToday ? '#111111' : d.active ? '#D95F4B' : d.isFuture ? '#E8E3D8' : '#E8E3D8'}`,
+                  border: `1.5px solid ${d.isToday ? '#111111' : d.active ? '#E8412C' : d.isFuture ? '#E8E3D8' : '#E8E3D8'}`,
                   boxShadow: d.isToday ? '0 0 0 1.5px #111111' : 'none',
                   opacity: d.isFuture ? 0.35 : 1,
                 }}
               >
                 {d.active ? (
-                  <span style={{ fontSize: 20 }}>🔥</span>
+                  <span style={{ fontSize: 15 }}>🔥</span>
                 ) : (
                   <span
                     className="text-[11px] font-bold"
@@ -113,7 +116,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Overview ──────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-border p-4 mb-3">
+      <div className="bg-white rounded-2xl border border-border p-4 mb-8">
         <p className="text-[11px] font-bold text-muted tracking-widest mb-3">
           OVERVIEW
         </p>
@@ -163,11 +166,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Word of the Day ───────────────────────────────────── */}
+      {/* ── Quick Practice ───────────────────────────────────── */}
       {randomCard && (
-        <div className="mb-3">
-          <p className="text-[11px] font-bold text-muted tracking-widest mb-2">
-            WORD OF THE DAY
+        <div className="mb-8">
+          <p className="text-[14px] font-bold text-muted tracking-widest mb-2">
+            Quick Practice
           </p>
           <FlipCard
             height={130}
@@ -210,8 +213,8 @@ export default function HomePage() {
 
       {/* ── Continue where you left off ──────────────────────── */}
       {(recentSet || recentPassage) && (
-        <div className="mb-3">
-          <p className="text-sm font-extrabold text-ink mb-2">
+        <div className="mb-8">
+          <p className="text-[14px] font-bold text-muted tracking-widest mb-2">
             Continue where you left off
           </p>
           <div className="flex flex-col gap-2">
@@ -267,6 +270,43 @@ export default function HomePage() {
                 <span className="text-muted text-base flex-shrink-0">→</span>
               </Link>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Latest Updates ────────────────────────────────────── */}
+      {entries.length > 0 && (
+        <div className="mb-3">
+          <p className="text-[14px] font-bold text-muted tracking-widest mb-2">
+            LATEST UPDATES
+          </p>
+          <div className="bg-white rounded-2xl border border-border overflow-hidden">
+            {entries.map((entry, i) => (
+              <div
+                key={entry.id}
+                className={`flex items-start gap-3 px-4 py-3.5 ${i < entries.length - 1 ? 'border-b border-border' : ''}`}
+              >
+                <div className="w-9 h-9 rounded-xl bg-cream flex items-center justify-center text-base flex-shrink-0 mt-0.5">
+                  {entry.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <p className="text-sm font-extrabold text-ink">
+                      {entry.section}
+                    </p>
+                    <p className="text-[10px] font-semibold text-muted flex-shrink-0">
+                      {new Date(entry.date + 'T00:00:00').toLocaleDateString(
+                        'en-US',
+                        { month: 'short', day: 'numeric' }
+                      )}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted leading-relaxed">
+                    {entry.description}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
