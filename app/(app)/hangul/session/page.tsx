@@ -38,8 +38,8 @@ export default function HangulSessionPage() {
       setDone(true);
       return;
     }
-    setIndex((i) => i + 1);
     setFlipped(false);
+    setTimeout(() => setIndex((i) => i + 1), 250);
   };
 
   const reset = (newMode?: Mode) => {
