@@ -39,7 +39,7 @@ export default function HangulSessionPage() {
       return;
     }
     setFlipped(false);
-    setTimeout(() => setIndex((i) => i + 1), 250);
+    setTimeout(() => setIndex((i) => i + 1), 500);
   };
 
   const reset = (newMode?: Mode) => {
