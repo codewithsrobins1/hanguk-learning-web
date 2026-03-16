@@ -98,6 +98,7 @@ export default function FlashcardSessionPage() {
   const [reviewCards, setReviewCards] = useState<typeof cards | null>(null);
   const [showHangul, setShowHangul] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [transitioning, setTransitioning] = useState(false);
 
   if (loading)
     return (
@@ -138,8 +139,12 @@ export default function FlashcardSessionPage() {
       setDone(true);
       return;
     }
-    setIndex((i) => i + 1);
-    setFlipped(false);
+    setTransitioning(true);
+    setTimeout(() => {
+      setFlipped(false);
+      setIndex((i) => i + 1);
+      setTransitioning(false);
+    }, 150);
   };
 
   if (done) {
@@ -255,8 +260,15 @@ export default function FlashcardSessionPage() {
         </div>
 
         {/* Card area */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-6">
+        <div
+          className="flex-1 flex flex-col items-center justify-center gap-6"
+          style={{
+            opacity: transitioning ? 0 : 1,
+            transition: 'opacity 0.15s ease',
+          }}
+        >
           <FlipCard
+            key={index}
             height={290}
             flipped={flipped}
             onFlip={() => setFlipped(!flipped)}

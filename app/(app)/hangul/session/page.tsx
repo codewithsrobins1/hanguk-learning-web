@@ -16,6 +16,7 @@ export default function HangulSessionPage() {
   const [known, setKnown] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [transitioning, setTransitioning] = useState(false);
 
   const cards =
     mode === 'vowels'
@@ -38,8 +39,12 @@ export default function HangulSessionPage() {
       setDone(true);
       return;
     }
-    setFlipped(false);
-    setTimeout(() => setIndex((i) => i + 1), 500);
+    setTransitioning(true);
+    setTimeout(() => {
+      setFlipped(false);
+      setIndex((i) => i + 1);
+      setTransitioning(false);
+    }, 150);
   };
 
   const reset = (newMode?: Mode) => {
@@ -172,8 +177,15 @@ export default function HangulSessionPage() {
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
+      <div
+        className="flex-1 flex flex-col items-center justify-center gap-6"
+        style={{
+          opacity: transitioning ? 0 : 1,
+          transition: 'opacity 0.15s ease',
+        }}
+      >
         <FlipCard
+          key={index}
           height={290}
           flipped={flipped}
           onFlip={() => setFlipped(!flipped)}
