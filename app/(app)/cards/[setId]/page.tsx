@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
 import { playCorrect, playIncorrect } from '@/lib/sounds';
@@ -21,7 +21,6 @@ function HangulModal({ onClose }: { onClose: () => void }) {
         className="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-extrabold text-ink text-base">
             Hangul Reference
@@ -33,28 +32,20 @@ function HangulModal({ onClose }: { onClose: () => void }) {
             ✕
           </button>
         </div>
-
-        {/* Tab toggle */}
         <div className="flex gap-2 mb-4 bg-cream rounded-xl p-1">
           <button
             onClick={() => setTab('vowels')}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${
-              tab === 'vowels' ? 'bg-ink text-cream' : 'text-muted'
-            }`}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${tab === 'vowels' ? 'bg-ink text-cream' : 'text-muted'}`}
           >
             Vowels ({hangulVowels.length})
           </button>
           <button
             onClick={() => setTab('consonants')}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${
-              tab === 'consonants' ? 'bg-ink text-cream' : 'text-muted'
-            }`}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-colors ${tab === 'consonants' ? 'bg-ink text-cream' : 'text-muted'}`}
           >
             Consonants ({hangulConsonants.length})
           </button>
         </div>
-
-        {/* Character grid */}
         <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto">
           {chars.map((c) => (
             <div
@@ -74,14 +65,21 @@ function HangulModal({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </div>
-
-        {/* Sound hint */}
         <p className="text-[10px] text-muted text-center mt-3">
           Tap a character on the Hangul page for pronunciation details
         </p>
       </div>
     </div>
   );
+}
+
+function speakKorean(text: string) {
+  if (typeof window === 'undefined') return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ko-KR';
+  utter.rate = 0.9;
+  window.speechSynthesis.speak(utter);
 }
 
 export default function FlashcardSessionPage() {
@@ -99,6 +97,12 @@ export default function FlashcardSessionPage() {
   const [showHangul, setShowHangul] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
+
+  // Shuffle cards once on load
+  const shuffledCards = useMemo(
+    () => [...cards].sort(() => Math.random() - 0.5),
+    [cards]
+  );
 
   if (loading)
     return (
@@ -120,8 +124,7 @@ export default function FlashcardSessionPage() {
       </div>
     );
 
-  // activeCards is either the full deck or the missed-card review subset
-  const activeCards = reviewCards ?? cards;
+  const activeCards = reviewCards ?? shuffledCards;
 
   const handleAnswer = async (isKnown: boolean) => {
     if (isKnown) {
@@ -131,7 +134,6 @@ export default function FlashcardSessionPage() {
       setMissed((m) => [...m, index]);
       if (soundEnabled) playIncorrect();
     }
-    // Only save to Firestore during the real session, not review mode
     if (!reviewCards) {
       await saveProgress(activeCards[index].id, setId, isKnown);
     }
@@ -169,7 +171,6 @@ export default function FlashcardSessionPage() {
         {isReviewMode && <div className="mb-8" />}
 
         <div className="flex flex-col gap-3 w-full max-w-xs">
-          {/* Review missed — only show if there are missed cards and not already in review */}
           {!isReviewMode && missedCards.length > 0 && (
             <button
               onClick={() => {
@@ -212,6 +213,7 @@ export default function FlashcardSessionPage() {
   }
 
   const card = activeCards[index];
+  const koreanSentence = card.sentence_parts.join('');
 
   return (
     <>
@@ -236,11 +238,9 @@ export default function FlashcardSessionPage() {
           <span className="text-xs font-semibold text-muted mr-2">
             {index + 1} / {activeCards.length}
           </span>
-          {/* Hangul reference button */}
           <button
             onClick={() => setShowHangul(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cream border border-border hover:border-ink transition-colors"
-            title="Hangul reference"
           >
             <span
               className="text-sm font-bold text-ink"
@@ -253,7 +253,6 @@ export default function FlashcardSessionPage() {
           <button
             onClick={() => setSoundEnabled((s) => !s)}
             className="flex items-center justify-center w-8 h-8 rounded-lg bg-cream border border-border hover:border-ink transition-colors"
-            title={soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
           >
             <span className="text-sm">{soundEnabled ? '🔊' : '🔇'}</span>
           </button>
@@ -299,10 +298,10 @@ export default function FlashcardSessionPage() {
                 <p className="text-[11px] text-muted tracking-widest mb-4 font-bold">
                   TRANSLATION
                 </p>
-                <p className="text-2xl font-bold text-ink text-center mb-5">
+                <p className="text-2xl font-bold text-ink text-center mb-4">
                   {card.translation}
                 </p>
-                <div className="px-4 py-2.5 bg-cream rounded-xl border-[1.5px] border-border">
+                <div className="px-4 py-2.5 bg-cream rounded-xl border-[1.5px] border-border mb-4">
                   <p
                     className="text-m text-muted text-center leading-6"
                     style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
@@ -318,6 +317,20 @@ export default function FlashcardSessionPage() {
                     )}
                   </p>
                 </div>
+                {/* TTS button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    speakKorean(koreanSentence);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-navy text-cream font-bold text-xs hover:opacity-90 transition-opacity"
+                >
+                  <span>🔊</span>
+                  <span>Hear sentence</span>
+                </button>
+                <p className="text-[9px] text-muted mt-2 text-center">
+                  Tap to hear the full Korean sentence
+                </p>
               </div>
             }
           />
