@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { usePassageDetail, useSavePassageProgress } from '@/hooks/usePassages';
+import { useAuth } from '@/lib/auth';
+import { addXp } from '@/lib/xp';
 
 const catColors: Record<string, { bg: string; text: string }> = {
   'Daily Life': { bg: '#EFF6FF', text: '#3B82F6' },
@@ -13,6 +15,7 @@ const catColors: Record<string, { bg: string; text: string }> = {
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const { passage, questions, loading } = usePassageDetail(passageId);
   const saveProgress = useSavePassageProgress();
 
@@ -21,6 +24,7 @@ export default function PassagePage() {
   const [selected, setSelected] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [translatedQ, setTranslatedQ] = useState<Record<number, boolean>>({});
+  const [xpEarned, setXpEarned] = useState(0);
 
   if (loading || !passage)
     return (
@@ -40,6 +44,12 @@ export default function PassagePage() {
     setSubmitted(true);
     const s = questions.filter((q, i) => selected[i] === q.answer_index).length;
     await saveProgress(passageId, s, questions.length);
+    if (user) {
+      const isPerfect = s === questions.length;
+      const xp = isPerfect ? 15 : 10;
+      setXpEarned(xp);
+      await addXp(user.uid, xp);
+    }
   };
 
   return (
@@ -194,6 +204,12 @@ export default function PassagePage() {
               ? '🎉 완벽해요! Perfect!'
               : '다시 읽어보세요. Try again.'}
           </p>
+          {xpEarned > 0 && (
+            <div className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.6)' }}>
+              <span className="text-sm">⚡</span>
+              <p className="text-sm font-bold text-ink">+{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect score!' : ''}</p>
+            </div>
+          )}
         </div>
       )}
 

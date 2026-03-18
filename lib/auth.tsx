@@ -42,6 +42,8 @@ type Profile = {
   username: string;
   display_name: string | null;
   current_streak: number;
+  xp: number;
+  level: number;
   longest_streak: number;
   last_active_date: string | null;
 };

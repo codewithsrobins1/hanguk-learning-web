@@ -2,7 +2,9 @@
 import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
+import { useAuth } from '@/lib/auth';
 import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { addXp } from '@/lib/xp';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
@@ -85,6 +87,7 @@ function speakKorean(text: string) {
 export default function FlashcardSessionPage() {
   const { setId } = useParams<{ setId: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const { cards, loading } = useFlashcards(setId);
   const saveProgress = useSaveCardProgress();
 
@@ -93,6 +96,7 @@ export default function FlashcardSessionPage() {
   const [known, setKnown] = useState<number[]>([]);
   const [missed, setMissed] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const [xpEarned, setXpEarned] = useState(0);
   const [reviewCards, setReviewCards] = useState<typeof cards | null>(null);
   const [showHangul, setShowHangul] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -138,6 +142,14 @@ export default function FlashcardSessionPage() {
       await saveProgress(activeCards[index].id, setId, isKnown);
     }
     if (index + 1 >= activeCards.length) {
+      // Award XP — only on real session, not review mode
+      if (!reviewCards && user) {
+        const knownCount = isKnown ? known.length + 1 : known.length;
+        const isPerfect = knownCount === activeCards.length;
+        const xp = isPerfect ? 15 : 10;
+        setXpEarned(xp);
+        await addXp(user.uid, xp);
+      }
       setDone(true);
       return;
     }
@@ -163,6 +175,12 @@ export default function FlashcardSessionPage() {
           {known.length} / {activeCards.length} cards{' '}
           {isReviewMode ? 'reviewed correctly' : 'marked as known'}
         </p>
+        {!isReviewMode && xpEarned > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl mb-2" style={{ background: '#F0F7FF' }}>
+            <span className="text-base">⚡</span>
+            <p className="text-sm font-bold text-ink">+{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect score!' : ''}</p>
+          </div>
+        )}
         {!isReviewMode && (
           <p className="text-xs text-muted mb-8 text-center">
             Missed cards don't affect your mastery score

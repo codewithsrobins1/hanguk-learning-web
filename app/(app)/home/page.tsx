@@ -9,29 +9,24 @@ import ProgressBar from '@/components/ProgressBar';
 import { useChangelog } from '@/hooks/useChangelog';
 import FlipCard from '@/components/FlipCard';
 
-// Generate Mon–Sun of the current week
-function buildWeek(streak: number) {
-  const today = new Date();
-  const todayIdx = today.getDay(); // 0=Sun … 6=Sat
-  // Shift so week starts Monday: Mon=0 … Sun=6
-  const mondayOffset = (todayIdx + 6) % 7;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - mondayOffset);
-
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const daysAgo = Math.round((today.getTime() - d.getTime()) / 86400000);
-    return {
-      date: d.getDate(),
-      day: ['M', 'T', 'W', 'T', 'F', 'S', 'S'][i],
-      // active if this day is within the current streak and not in the future
-      active: daysAgo >= 0 && daysAgo < streak,
-      isToday: daysAgo === 0,
-      isFuture: daysAgo < 0,
-    };
-  });
-}
+const XP_SOURCES = [
+  { icon: '⧉', label: 'Flashcard set complete', xp: '+10 XP' },
+  {
+    icon: '⧉',
+    label: 'Flashcard set — perfect score',
+    xp: '+15 XP',
+    perfect: true,
+  },
+  { icon: '가', label: 'Hangul session done', xp: '+10 XP' },
+  { icon: '💬', label: 'Shadowing dialogue done', xp: '+10 XP' },
+  { icon: '≡', label: 'Reading passage + quiz done', xp: '+10 XP' },
+  {
+    icon: '≡',
+    label: 'Reading passage — perfect quiz',
+    xp: '+15 XP',
+    perfect: true,
+  },
+];
 
 export default function HomePage() {
   const { profile } = useAuth();
@@ -40,12 +35,10 @@ export default function HomePage() {
   const { sets } = useFlashcardSets();
   const { passages } = usePassages();
   const [cardFlipped, setCardFlipped] = useState(false);
-
+  const [showXpModal, setShowXpModal] = useState(false);
   const { entries } = useChangelog();
-  const displayName = profile?.display_name || profile?.username || 'Learner';
-  const weekDays = buildWeek(stats.streak);
 
-  // "Continue where you left off" — pick most recent set and passage
+  const displayName = profile?.display_name || profile?.username || 'Learner';
   const recentSet = sets.find((s) => (s.mastery_count ?? 0) > 0) ?? sets[0];
   const recentPassage = passages.find((p) => p.done) ?? passages[0];
 
@@ -57,61 +50,61 @@ export default function HomePage() {
           <p className="text-xs text-muted font-medium mb-1">안녕!</p>
           <h1 className="text-3xl font-extrabold text-ink">{displayName}</h1>
         </div>
-        {/* Streak badge */}
-        <div className="bg-navy rounded-2xl px-4 py-2.5 text-center min-w-[60px]">
-          <p className="text-xl leading-none mb-1">🔥</p>
-          <p className="text-cream font-extrabold text-base leading-none">
-            {stats.streak}
+        {/* Level badge */}
+        <div className="bg-navy rounded-2xl px-4 py-2.5 text-center min-w-[64px]">
+          <p
+            className="text-[11px] tracking-widest mb-0.5"
+            style={{ color: '#888' }}
+          >
+            LEVEL
           </p>
-          <p className="text-[10px] text-gray-400 mt-0.5">day streak</p>
+          <p className="text-cream font-extrabold text-2xl leading-none">
+            {stats.level}
+          </p>
         </div>
       </div>
 
-      {/* ── This week ─────────────────────────────────────────── */}
+      {/* ── XP Bar ────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-border p-4 mb-3">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-[11px] font-bold text-muted tracking-widest">
-            THIS WEEK
-          </p>
-          <p className="text-[11px] font-bold text-red">
-            {stats.streak} day streak 🔥
-          </p>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-base">⚡</span>
+            <span className="text-sm font-bold text-ink">
+              Level {stats.level}
+            </span>
+            <span className="text-[11px] text-muted">
+              → Level {stats.level + 1}
+            </span>
+          </div>
+          <span className="text-[11px] text-muted">
+            {stats.xpIntoLevel} / {stats.xpNeeded} XP
+          </span>
         </div>
-        <div className="grid grid-cols-7 gap-1.5">
-          {weekDays.map((d, i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <div
-                className="w-full aspect-square flex items-center justify-center rounded-xl"
-                style={{
-                  background: d.active
-                    ? '#E8412C'
-                    : d.isFuture
-                      ? 'transparent'
-                      : '#F7F4EE',
-                  border: `1.5px solid ${d.isToday ? '#111111' : d.active ? '#E8412C' : d.isFuture ? '#E8E3D8' : '#E8E3D8'}`,
-                  boxShadow: d.isToday ? '0 0 0 1.5px #111111' : 'none',
-                  opacity: d.isFuture ? 0.35 : 1,
-                }}
-              >
-                {d.active ? (
-                  <span style={{ fontSize: 15 }}>🔥</span>
-                ) : (
-                  <span
-                    className="text-[11px] font-bold"
-                    style={{ color: d.isFuture ? '#ccc' : '#888' }}
-                  >
-                    {d.date}
-                  </span>
-                )}
-              </div>
-              <p
-                className="text-[9px] font-bold"
-                style={{ color: d.active ? '#E8412C' : '#ccc' }}
-              >
-                {d.day}
-              </p>
-            </div>
-          ))}
+        <div
+          className="rounded-full overflow-hidden mb-2"
+          style={{ background: '#F7F4EE', height: 10 }}
+        >
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${Math.round(stats.xpProgress * 100)}%`,
+              background: '#1A1F36',
+            }}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] text-muted">
+            {stats.xpNeeded - stats.xpIntoLevel} XP to level up
+          </p>
+          <button
+            onClick={() => setShowXpModal(true)}
+            className="flex items-center gap-1 text-[11px] text-muted hover:text-ink transition-colors"
+          >
+            How XP is earned
+            <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-muted text-[9px]">
+              ?
+            </span>
+          </button>
         </div>
       </div>
 
@@ -121,7 +114,6 @@ export default function HomePage() {
           OVERVIEW
         </p>
         <div className="grid grid-cols-2 gap-3">
-          {/* Vocab */}
           <div className="bg-cream rounded-xl p-3">
             <p className="text-[10px] font-bold text-muted tracking-wider mb-1">
               VOCAB
@@ -141,7 +133,6 @@ export default function HomePage() {
               color="#E8412C"
             />
           </div>
-          {/* Reading */}
           <div className="bg-cream rounded-xl p-3">
             <p className="text-[10px] font-bold text-muted tracking-wider mb-1">
               READING
@@ -166,7 +157,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Quick Practice ───────────────────────────────────── */}
+      {/* ── Quick Practice ────────────────────────────────────── */}
       {randomCard && (
         <div className="mb-8">
           <p className="text-[14px] font-bold text-muted tracking-widest mb-2">
@@ -310,6 +301,59 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── XP Modal ─────────────────────────────────────────── */}
+      {showXpModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+          onClick={() => setShowXpModal(false)}
+        >
+          <div
+            className="bg-white w-full max-w-[500px] rounded-3xl p-6 pb-8 mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <p className="text-base font-extrabold text-ink">
+                How XP is earned
+              </p>
+              <button
+                onClick={() => setShowXpModal(false)}
+                className="w-7 h-7 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-border">
+              {XP_SOURCES.map((s, i) => (
+                <div
+                  key={i}
+                  className={`flex items-center justify-between px-4 py-3 ${i < XP_SOURCES.length - 1 ? 'border-b border-border' : ''} ${i % 2 === 0 ? 'bg-white' : 'bg-cream'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-base w-5 text-center">{s.icon}</span>
+                    <span className="text-sm text-ink">{s.label}</span>
+                    {s.perfect && (
+                      <span
+                        className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+                        style={{ background: '#FDE8E4', color: '#E8412C' }}
+                      >
+                        perfect
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-bold px-2 py-1 rounded-lg bg-navy text-cream">
+                    {s.xp}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted text-center mt-4">
+              XP never resets — progress always counts
+            </p>
           </div>
         </div>
       )}

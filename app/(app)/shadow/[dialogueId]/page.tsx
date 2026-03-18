@@ -3,14 +3,18 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useDialogue } from '@/hooks/useShadowing';
 import ProgressBar from '@/components/ProgressBar';
+import { useAuth } from '@/lib/auth';
+import { addXp } from '@/lib/xp';
 
 export default function ShadowSessionPage() {
   const { dialogueId } = useParams<{ dialogueId: string }>();
   const router = useRouter();
+  const { user } = useAuth();
   const { dialogue, loading } = useDialogue(dialogueId);
 
   const [currentLine, setCurrentLine] = useState(0);
   const [showTranslations, setShowTranslations] = useState(false);
+  const [xpEarned, setXpEarned] = useState(0);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -127,14 +131,29 @@ export default function ShadowSessionPage() {
         >
           ← Prev
         </button>
-        <button
-          onClick={() => setCurrentLine(l => Math.min(dialogue.lines.length - 1, l + 1))}
-          disabled={isLast}
-          className="flex-1 py-3.5 rounded-xl font-bold text-sm text-cream transition-opacity hover:opacity-90 disabled:opacity-40"
-          style={{ background: '#1A1F36' }}
-        >
-          Next →
-        </button>
+        {isLast ? (
+          <button
+            onClick={async () => {
+              if (xpEarned === 0 && user) {
+                setXpEarned(10);
+                await addXp(user.uid, 10);
+              }
+              router.back();
+            }}
+            className="flex-1 py-3.5 rounded-xl font-bold text-sm text-cream transition-opacity hover:opacity-90"
+            style={{ background: '#E8412C' }}
+          >
+            {xpEarned > 0 ? `+${xpEarned} XP · Done ✓` : 'Finish +10 XP'}
+          </button>
+        ) : (
+          <button
+            onClick={() => setCurrentLine(l => Math.min(dialogue.lines.length - 1, l + 1))}
+            className="flex-1 py-3.5 rounded-xl font-bold text-sm text-cream transition-opacity hover:opacity-90"
+            style={{ background: '#1A1F36' }}
+          >
+            Next →
+          </button>
+        )}
       </div>
     </div>
   );

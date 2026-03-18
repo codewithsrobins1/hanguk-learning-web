@@ -10,7 +10,7 @@ const sidebarItems = [
   { href: '/cards', label: 'Flashcards', icon: '⧉' },
   { href: '/read', label: 'Read', icon: '≡' },
   { href: '/shadow', label: 'Speak', icon: '💬' },
-  { href: '/profile', label: 'Profile', icon: '◎' },
+  { href: '/profile', label: 'Profile', icon: '⚙️' },
 ];
 
 const learnItems = [

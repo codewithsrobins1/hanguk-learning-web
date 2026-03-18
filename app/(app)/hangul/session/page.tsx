@@ -5,16 +5,20 @@ import { hangulVowels, hangulConsonants } from '@/data/hangul';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
 import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { addXp } from '@/lib/xp';
+import { useAuth } from '@/lib/auth';
 
 type Mode = 'vowels' | 'consonants' | 'all';
 
 export default function HangulSessionPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode | null>(null);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const [xpEarned, setXpEarned] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
 
@@ -27,7 +31,7 @@ export default function HangulSessionPage() {
           ? [...hangulVowels, ...hangulConsonants]
           : [];
 
-  const handleAnswer = (isKnown: boolean) => {
+  const handleAnswer = async (isKnown: boolean) => {
     if (isKnown) {
       if (soundEnabled) playCorrect();
       setKnown((k) => [...k, index]);
@@ -36,6 +40,10 @@ export default function HangulSessionPage() {
     }
 
     if (index + 1 >= cards.length) {
+      if (user) {
+        setXpEarned(10);
+        await addXp(user.uid, 10);
+      }
       setDone(true);
       return;
     }
@@ -130,12 +138,17 @@ export default function HangulSessionPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-8">
         <span className="text-6xl mb-5">🎉</span>
-        <h2 className="text-2xl font-extrabold text-ink mb-2">
-          Session Complete!
-        </h2>
-        <p className="text-muted mb-8 text-center">
+        <h2 className="text-2xl font-extrabold text-ink mb-2">Session Complete!</h2>
+        <p className="text-muted mb-3 text-center">
           {known.length} / {cards.length} characters mastered
         </p>
+        {xpEarned > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl mb-8" style={{ background: '#F0F7FF' }}>
+            <span className="text-base">⚡</span>
+            <p className="text-sm font-bold text-ink">+{xpEarned} XP earned</p>
+          </div>
+        )}
+        {xpEarned === 0 && <div className="mb-8" />}
         <div className="flex flex-col gap-3 w-full max-w-xs">
           <button
             onClick={() => reset(mode)}
