@@ -87,7 +87,7 @@ function speakKorean(text: string) {
 export default function FlashcardSessionPage() {
   const { setId } = useParams<{ setId: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const { cards, loading } = useFlashcards(setId);
   const saveProgress = useSaveCardProgress();
 
@@ -149,6 +149,7 @@ export default function FlashcardSessionPage() {
         const xp = isPerfect ? 15 : 10;
         setXpEarned(xp);
         await addXp(user.uid, xp);
+        await refreshProfile();
       }
       setDone(true);
       return;
@@ -176,9 +177,14 @@ export default function FlashcardSessionPage() {
           {isReviewMode ? 'reviewed correctly' : 'marked as known'}
         </p>
         {!isReviewMode && xpEarned > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl mb-2" style={{ background: '#F0F7FF' }}>
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-xl mb-2"
+            style={{ background: '#F0F7FF' }}
+          >
             <span className="text-base">⚡</span>
-            <p className="text-sm font-bold text-ink">+{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect score!' : ''}</p>
+            <p className="text-sm font-bold text-ink">
+              +{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect score!' : ''}
+            </p>
           </div>
         )}
         {!isReviewMode && (

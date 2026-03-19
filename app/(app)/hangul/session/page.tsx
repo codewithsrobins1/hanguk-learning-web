@@ -12,7 +12,7 @@ type Mode = 'vowels' | 'consonants' | 'all';
 
 export default function HangulSessionPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [mode, setMode] = useState<Mode | null>(null);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -43,6 +43,7 @@ export default function HangulSessionPage() {
       if (user) {
         setXpEarned(10);
         await addXp(user.uid, 10);
+        await refreshProfile();
       }
       setDone(true);
       return;
@@ -138,12 +139,17 @@ export default function HangulSessionPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-8">
         <span className="text-6xl mb-5">🎉</span>
-        <h2 className="text-2xl font-extrabold text-ink mb-2">Session Complete!</h2>
+        <h2 className="text-2xl font-extrabold text-ink mb-2">
+          Session Complete!
+        </h2>
         <p className="text-muted mb-3 text-center">
           {known.length} / {cards.length} characters mastered
         </p>
         {xpEarned > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl mb-8" style={{ background: '#F0F7FF' }}>
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-xl mb-8"
+            style={{ background: '#F0F7FF' }}
+          >
             <span className="text-base">⚡</span>
             <p className="text-sm font-bold text-ink">+{xpEarned} XP earned</p>
           </div>

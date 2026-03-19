@@ -168,7 +168,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <NavTab
             href="/profile"
             label="Profile"
-            icon="◎"
+            icon="⚙️"
             pathname={pathname}
           />
         </nav>

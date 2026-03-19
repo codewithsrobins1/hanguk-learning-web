@@ -15,7 +15,7 @@ const catColors: Record<string, { bg: string; text: string }> = {
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const { passage, questions, loading } = usePassageDetail(passageId);
   const saveProgress = useSavePassageProgress();
 
@@ -49,6 +49,7 @@ export default function PassagePage() {
       const xp = isPerfect ? 15 : 10;
       setXpEarned(xp);
       await addXp(user.uid, xp);
+      await refreshProfile();
     }
   };
 
@@ -205,9 +206,15 @@ export default function PassagePage() {
               : '다시 읽어보세요. Try again.'}
           </p>
           {xpEarned > 0 && (
-            <div className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.6)' }}>
+            <div
+              className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.6)' }}
+            >
               <span className="text-sm">⚡</span>
-              <p className="text-sm font-bold text-ink">+{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect score!' : ''}</p>
+              <p className="text-sm font-bold text-ink">
+                +{xpEarned} XP earned
+                {xpEarned === 15 ? ' · Perfect score!' : ''}
+              </p>
             </div>
           )}
         </div>
