@@ -12,6 +12,18 @@ const DIFFICULTY_COLORS = {
   Advanced: { bg: '#FFF0EE', text: '#E8412C' },
 };
 
+function formatDate(date: Date | null): string {
+  if (!date) return 'Not completed';
+  return (
+    'Last completed: ' +
+    date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  );
+}
+
 export default function ShadowPage() {
   const { dialogues, loading } = useDialogues();
   const [category, setCategory] = useState('All');
@@ -29,7 +41,7 @@ export default function ShadowPage() {
     return matchesDiff && matchesCat;
   });
 
-  const grouped = DIFFICULTIES.reduce<Record<string, Dialogue[]>>(
+  const grouped = DIFFICULTIES.reduce<Record<string, typeof dialogues>>(
     (acc, diff) => {
       const items = filtered.filter((d) => d.difficulty === diff);
       if (items.length > 0) acc[diff] = items;
@@ -54,7 +66,6 @@ export default function ShadowPage() {
 
       {/* Filters row */}
       <div className="flex flex-wrap gap-6 mb-2">
-        {/* Difficulty pills */}
         <div className="flex-1">
           <p className="text-[11px] font-bold text-muted tracking-widest mb-2">
             DIFFICULTY
@@ -80,8 +91,6 @@ export default function ShadowPage() {
             })}
           </div>
         </div>
-
-        {/* Category dropdown */}
         <div className="w-full md:w-56 flex-shrink-0">
           <p className="text-[11px] font-bold text-muted tracking-widest mb-2">
             CATEGORY
@@ -139,7 +148,6 @@ export default function ShadowPage() {
           const c = DIFFICULTY_COLORS[diff as keyof typeof DIFFICULTY_COLORS];
           return (
             <div key={diff} className="mb-8">
-              {/* Group header */}
               <div className="flex items-center gap-3 mb-3">
                 <span
                   className="text-s font-extrabold px-3 py-1 rounded-full"
@@ -152,8 +160,6 @@ export default function ShadowPage() {
                   {items.length}
                 </span>
               </div>
-
-              {/* 2-col grid on desktop, 1-col on mobile */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {items.map((d) => (
                   <Link
@@ -172,6 +178,14 @@ export default function ShadowPage() {
                         {d.title_ko}
                       </p>
                       <p className="text-xs text-muted">{d.category}</p>
+                      <p
+                        className="text-[11px] font-semibold mt-1"
+                        style={{
+                          color: d.completed_at ? '#16A34A' : '#888888',
+                        }}
+                      >
+                        {formatDate(d.completed_at)}
+                      </p>
                     </div>
                     <span className="text-muted text-lg flex-shrink-0">→</span>
                   </Link>

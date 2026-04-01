@@ -15,7 +15,7 @@ const catColors: Record<string, { bg: string; text: string }> = {
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
   const router = useRouter();
-  const { user, refreshProfile } = useAuth();
+  const { user } = useAuth();
   const { passage, questions, loading } = usePassageDetail(passageId);
   const saveProgress = useSavePassageProgress();
 
@@ -49,7 +49,6 @@ export default function PassagePage() {
       const xp = isPerfect ? 15 : 10;
       setXpEarned(xp);
       await addXp(user.uid, xp);
-      await refreshProfile();
     }
   };
 
@@ -190,37 +189,46 @@ export default function PassagePage() {
           제출하기 →
         </button>
       ) : (
-        <div
-          className={`rounded-2xl p-5 text-center border-2 ${
-            score === questions.length
-              ? 'bg-greenLight border-green'
-              : 'bg-redLight border-red'
-          }`}
-        >
-          <p className="text-2xl font-extrabold text-ink mb-1">
-            {score}/{questions.length} 정답
-          </p>
-          <p className="text-sm text-muted">
-            {score === questions.length
-              ? '🎉 완벽해요! Perfect!'
-              : '다시 읽어보세요. Try again.'}
-          </p>
-          {xpEarned > 0 && (
-            <div
-              className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.6)' }}
-            >
-              <span className="text-sm">⚡</span>
-              <p className="text-sm font-bold text-ink">
-                +{xpEarned} XP earned
-                {xpEarned === 15 ? ' · Perfect score!' : ''}
-              </p>
-            </div>
-          )}
-        </div>
+        <>
+          <div
+            className={`rounded-2xl p-5 text-center border-2 ${
+              score === questions.length
+                ? 'bg-greenLight border-green'
+                : 'bg-redLight border-red'
+            }`}
+          >
+            <p className="text-2xl font-extrabold text-ink mb-1">
+              {score}/{questions.length} 정답
+            </p>
+            <p className="text-sm text-muted">
+              {score === questions.length
+                ? '🎉 완벽해요! Perfect!'
+                : '다시 읽어보세요. Try again.'}
+            </p>
+            {xpEarned > 0 && (
+              <div
+                className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.6)' }}
+              >
+                <span className="text-sm">⚡</span>
+                <p className="text-sm font-bold text-ink">
+                  +{xpEarned} XP earned
+                  {xpEarned === 15 ? ' · Perfect score!' : ''}
+                </p>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => router.push('/read')}
+            className="w-full py-3.5 rounded-xl font-bold text-sm text-cream mt-3 hover:opacity-90 transition-opacity"
+            style={{ background: '#1A1F36' }}
+          >
+            ← Back to Reading
+          </button>
+        </>
       )}
 
-      <div className="h-8" />
+      <div className="h-24" />
     </div>
   );
 }
