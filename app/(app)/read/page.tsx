@@ -47,7 +47,7 @@ export default function ReadPage() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-6 py-8">
       <h1 className="text-3xl font-extrabold text-ink mb-5">Reading</h1>
 
       {/* Search + Filter row */}
@@ -84,7 +84,7 @@ export default function ReadPage() {
           <button onClick={() => { setSearch(''); setCategory('All'); }} className="text-xs font-bold text-ink underline mt-1">Clear filters</button>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filtered.map(p => {
             const cat = catColors[p.category] || { bg: '#E8E3D8', text: '#888' };
             return (
