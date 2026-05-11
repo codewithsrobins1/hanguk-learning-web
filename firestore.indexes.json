@@ -40,6 +40,19 @@
         { "fieldPath": "user_id", "order": "ASCENDING" },
         { "fieldPath": "passage_id", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "grammar_questions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "lesson_id", "order": "ASCENDING" },
+        { "fieldPath": "sort_order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "user_grammar_progress",
+      "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "user_id", "order": "ASCENDING" }]
     }
   ],
   "fieldOverrides": []

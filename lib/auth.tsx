@@ -4,37 +4,17 @@ const HTML_SCRIPT_PATTERN = /<[^>]*>|javascript:|on\w+\s*=/i;
 const SPECIAL_CHARS = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/;
 const HAS_NUMBER = /\d/;
 
-function validateSignUpInputs(
-  email: string,
-  password: string,
-  username: string
-): string | null {
-  if (HTML_SCRIPT_PATTERN.test(username) || HTML_SCRIPT_PATTERN.test(email)) {
-    return 'Invalid characters detected in username or email.';
-  }
+function validateSignUpInputs(email: string, password: string, username: string): string | null {
+  if (HTML_SCRIPT_PATTERN.test(username) || HTML_SCRIPT_PATTERN.test(email)) return 'Invalid characters detected in username or email.';
   if (password.length < 8) return 'Password must be at least 8 characters.';
-  if (!HAS_NUMBER.test(password))
-    return 'Password must contain at least one number.';
-  if (!SPECIAL_CHARS.test(password))
-    return 'Password must contain at least one special character.';
+  if (!HAS_NUMBER.test(password)) return 'Password must contain at least one number.';
+  if (!SPECIAL_CHARS.test(password)) return 'Password must contain at least one special character.';
   return null;
 }
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  User,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-} from 'firebase/auth';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 type Profile = {
@@ -46,29 +26,21 @@ type Profile = {
   level: number;
   longest_streak: number;
   last_active_date: string | null;
+  interests: string[];
 };
 
 type AuthContextType = {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (
-    email: string,
-    password: string
-  ) => Promise<{ error: string | null }>;
-  signUp: (
-    email: string,
-    password: string,
-    username: string
-  ) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, username: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
-  profile: null,
-  loading: true,
+  user: null, profile: null, loading: true,
   signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null }),
   signOut: async () => {},
@@ -87,20 +59,13 @@ const updateActivity = async (userId: string) => {
   const ref = doc(db, 'profiles', userId);
   const snap = await getDoc(ref);
   if (!snap.exists()) return;
-
   const p = snap.data() as Profile;
   if (p.last_active_date === today) return;
-
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
   const isConsecutive = p.last_active_date === yesterday;
   const newStreak = isConsecutive ? p.current_streak + 1 : 1;
   const newLongest = Math.max(newStreak, p.longest_streak);
-
-  await updateDoc(ref, {
-    last_active_date: today,
-    current_streak: newStreak,
-    longest_streak: newLongest,
-  });
+  await updateDoc(ref, { last_active_date: today, current_streak: newStreak, longest_streak: newLongest });
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -129,21 +94,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: null };
     } catch (err: any) {
       const code = err?.code;
-      if (
-        code === 'auth/invalid-credential' ||
-        code === 'auth/wrong-password' ||
-        code === 'auth/user-not-found'
-      ) {
-        return { error: 'Incorrect email or password. Please try again.' };
-      } else if (code === 'auth/too-many-requests') {
-        return {
-          error: 'Too many attempts. Please wait a moment and try again.',
-        };
-      } else if (code === 'auth/user-disabled') {
-        return { error: 'This account has been disabled.' };
-      } else {
-        return { error: 'Something went wrong. Please try again.' };
-      }
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return { error: 'Incorrect email or password. Please try again.' };
+      if (code === 'auth/too-many-requests') return { error: 'Too many attempts. Please wait a moment and try again.' };
+      if (code === 'auth/user-disabled') return { error: 'This account has been disabled.' };
+      return { error: 'Something went wrong. Please try again.' };
     }
   };
 
@@ -151,11 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const validationError = validateSignUpInputs(email, password, username);
     if (validationError) return { error: validationError };
     try {
-      const { user: newUser } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const { user: newUser } = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, 'profiles', newUser.uid), {
         id: newUser.uid,
         username,
@@ -163,45 +113,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         current_streak: 0,
         longest_streak: 0,
         last_active_date: new Date().toISOString().split('T')[0],
+        xp: 0,
+        level: 1,
+        interests: [],
         created_at: serverTimestamp(),
       });
       return { error: null };
     } catch (err: any) {
       const code = err?.code;
-      if (code === 'auth/email-already-in-use') {
-        return { error: 'An account with this email already exists.' };
-      } else if (code === 'auth/invalid-email') {
-        return { error: 'Please enter a valid email address.' };
-      } else {
-        return { error: 'Something went wrong. Please try again.' };
-      }
+      if (code === 'auth/email-already-in-use') return { error: 'An account with this email already exists.' };
+      if (code === 'auth/invalid-email') return { error: 'Please enter a valid email address.' };
+      return { error: 'Something went wrong. Please try again.' };
     }
   };
 
-  const signOut = async () => {
-    await firebaseSignOut(auth);
-    setProfile(null);
-  };
+  const signOut = async () => { await firebaseSignOut(auth); setProfile(null); };
 
   const refreshProfile = async () => {
-    if (user) {
-      const p = await fetchProfile(user.uid);
-      setProfile(p);
-    }
+    if (user) { const p = await fetchProfile(user.uid); setProfile(p); }
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        loading,
-        signIn,
-        signUp,
-        signOut,
-        refreshProfile,
-      }}
-    >
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
