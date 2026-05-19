@@ -27,6 +27,19 @@ type Profile = {
   longest_streak: number;
   last_active_date: string | null;
   interests: string[];
+  goals: {
+    flashcards: number;
+    reading: number;
+    speaking: number;
+    grammar: number;
+    set_at: string;
+    baseline: {
+      flashcards: number;
+      reading: number;
+      speaking: number;
+      grammar: number;
+    };
+  } | null;
 };
 
 type AuthContextType = {
