@@ -12,12 +12,12 @@ const LEVEL_COLORS = {
   Advanced:     { bg: '#FFF0EE', text: '#E8412C' },
 };
 
+type Example = { korean: string; translation: string };
+type DialogueLine = { speaker: string; korean: string; translation: string };
+
 type AIContent = {
-  examples: { korean: string; translation: string }[];
-  dialogue: {
-    context: string;
-    lines: { speaker: string; korean: string; translation: string }[];
-  };
+  examples:  Example[];
+  dialogue: { context: string; lines: DialogueLine[] };
 };
 
 const selectStyle = {
@@ -39,51 +39,102 @@ const selectStyle = {
   paddingRight: 28,
 };
 
-// Strip the English part in parentheses from quiz prompts
 function stripEnglish(prompt: string) {
   return prompt.replace(/\s*\(.*?\)\s*/g, ' ').trim();
 }
 
 export default function GrammarLessonPage() {
-  const { lessonId } = useParams<{ lessonId: string }>();
-  const router = useRouter();
+  const { lessonId }  = useParams<{ lessonId: string }>();
+  const router        = useRouter();
   const { user, profile, refreshProfile } = useAuth();
-  const { lesson, questions, loading } = useGrammarLesson(lessonId);
+  const { lesson, questions, loading }    = useGrammarLesson(lessonId);
 
-  const [selected, setSelected] = useState<Record<number, number>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [xpEarned, setXpEarned] = useState(0);
+  const [selected,        setSelected]        = useState<Record<number, number>>({});
+  const [submitted,       setSubmitted]       = useState(false);
+  const [xpEarned,        setXpEarned]        = useState(0);
   const [showTranslation, setShowTranslation] = useState(false);
 
-  const [aiContent, setAiContent] = useState<AIContent | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState(false);
+  // Streaming AI state
+  const [aiContent,      setAiContent]      = useState<AIContent | null>(null);
+  const [isStreaming,    setIsStreaming]     = useState(false);
+  const [aiError,        setAiError]        = useState(false);
   const [activeInterest, setActiveInterest] = useState('');
 
   const interests: string[] = profile?.interests ?? [];
 
   const fetchAiContent = useCallback(async (interest: string) => {
     if (!lesson || !interest) return;
-    setAiLoading(true);
+
+    // Reset state
+    setIsStreaming(true);
     setAiError(false);
+    setAiContent({ examples: [], dialogue: { context: '', lines: [] } });
+
     try {
       const res = await fetch('/api/grammar/generate', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          titleKo: lesson.title_ko,
-          titleEn: lesson.title_en,
+          titleKo:     lesson.title_ko,
+          titleEn:     lesson.title_en,
           explanation: lesson.explanation,
           interest,
         }),
       });
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      setAiContent(data);
+
+      if (!res.ok || !res.body) throw new Error('API error');
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer    = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Split on newlines — each complete line is a JSON item
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? ''; // keep incomplete trailing line
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const item = JSON.parse(trimmed);
+            setAiContent(prev => {
+              if (!prev) return prev;
+              if (item.type === 'example') {
+                return {
+                  ...prev,
+                  examples: [...prev.examples, { korean: item.korean, translation: item.translation }],
+                };
+              }
+              if (item.type === 'context') {
+                return { ...prev, dialogue: { ...prev.dialogue, context: item.text } };
+              }
+              if (item.type === 'line') {
+                return {
+                  ...prev,
+                  dialogue: {
+                    ...prev.dialogue,
+                    lines: [...prev.dialogue.lines, { speaker: item.speaker, korean: item.korean, translation: item.translation }],
+                  },
+                };
+              }
+              return prev;
+            });
+          } catch {
+            // Incomplete or malformed line — skip
+          }
+        }
+      }
     } catch {
       setAiError(true);
+      setAiContent(null);
     } finally {
-      setAiLoading(false);
+      setIsStreaming(false);
     }
   }, [lesson]);
 
@@ -96,7 +147,6 @@ export default function GrammarLessonPage() {
 
   const handleInterestChange = (interest: string) => {
     setActiveInterest(interest);
-    setAiContent(null);
     fetchAiContent(interest);
   };
 
@@ -128,9 +178,11 @@ export default function GrammarLessonPage() {
     </div>
   );
 
-  const levelColor = LEVEL_COLORS[lesson.level] ?? LEVEL_COLORS.Beginner;
+  const levelColor  = LEVEL_COLORS[lesson.level] ?? LEVEL_COLORS.Beginner;
   const allAnswered = Object.keys(selected).length === questions.length;
-  const score = submitted ? questions.filter((q, i) => selected[i] === q.answer_index).length : 0;
+  const score       = submitted ? questions.filter((q, i) => selected[i] === q.answer_index).length : 0;
+  const hasExamples = (aiContent?.examples?.length ?? 0) > 0;
+  const hasDialogue = (aiContent?.dialogue?.lines?.length ?? 0) > 0;
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8 pb-16">
@@ -143,16 +195,14 @@ export default function GrammarLessonPage() {
             {lesson.level}
           </span>
         </div>
-        {/* Translation toggle */}
         <button
           onClick={() => setShowTranslation(s => !s)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border-[1.5px] transition-all"
           style={{
-            background: showTranslation ? '#1A1F36' : '#fff',
-            color: showTranslation ? '#F7F4EE' : '#888',
-            borderColor: showTranslation ? '#1A1F36' : '#E8E3D8',
-          }}
-        >
+            background:   showTranslation ? '#1A1F36' : '#fff',
+            color:        showTranslation ? '#F7F4EE' : '#888',
+            borderColor:  showTranslation ? '#1A1F36' : '#E8E3D8',
+          }}>
           {showTranslation ? '🇬🇧 EN On' : '🇰🇷 KR Only'}
         </button>
       </div>
@@ -163,97 +213,120 @@ export default function GrammarLessonPage() {
       </h1>
       <p className="text-base text-muted font-semibold mb-6">{lesson.title_en}</p>
 
-      {/* Explanation — always visible */}
+      {/* Explanation */}
       <div className="bg-white rounded-2xl border border-border p-5 mb-5">
         <p className="text-[11px] font-bold text-muted tracking-widest mb-2">EXPLANATION</p>
         <p className="text-sm text-ink leading-relaxed">{lesson.explanation}</p>
       </div>
 
-      {/* AI Examples */}
+      {/* AI Examples — streams in */}
       <div className="bg-white rounded-2xl border border-border p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-bold text-muted tracking-widest">EXAMPLES</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-bold text-muted tracking-widest">EXAMPLES</p>
+            {/* Streaming indicator */}
+            {isStreaming && (
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-navy animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-navy animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-navy animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            )}
+          </div>
           {interests.length > 1 && (
             <select
               value={activeInterest}
               onChange={e => handleInterestChange(e.target.value)}
               style={selectStyle}
-              disabled={aiLoading}
+              disabled={isStreaming}
             >
-              {interests.map(i => (
-                <option key={i} value={i}>{i}</option>
-              ))}
+              {interests.map(i => <option key={i} value={i}>{i}</option>)}
             </select>
           )}
         </div>
 
-        {aiLoading && (
-          <div className="flex flex-col items-center py-8 gap-3">
-            <div className="w-6 h-6 border-2 border-navy border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-muted">{aiContent ? 'Updating your lesson...' : 'Generating examples...'}</p>
-          </div>
-        )}
-
-        {aiError && !aiLoading && (
+        {/* Error state */}
+        {aiError && !isStreaming && (
           <div className="flex flex-col items-center py-6 gap-3">
             <p className="text-xs text-muted text-center">Couldn't load examples.</p>
             <button onClick={() => fetchAiContent(activeInterest)} className="text-xs font-bold text-navy hover:underline">Try again</button>
           </div>
         )}
 
-        {aiContent && !aiLoading && (
-          <>
-            {/* 5 examples */}
-            <div className="flex flex-col gap-3 mb-5">
-              {aiContent.examples.map((ex, i) => (
-                <div key={i} className="border-l-[3px] border-navy pl-3">
-                  <p className="text-base font-semibold text-ink leading-relaxed" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
-                    {ex.korean}
-                  </p>
-                  {showTranslation && (
-                    <p className="text-xs text-muted mt-0.5">{ex.translation}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Mini dialogue */}
-            <div className="bg-cream rounded-xl p-4">
-              <p className="text-[10px] font-bold text-muted tracking-widest mb-1">MINI DIALOGUE</p>
-              {showTranslation && (
-                <p className="text-[11px] text-muted italic mb-3">{aiContent.dialogue.context}</p>
-              )}
-              <div className="flex flex-col gap-2.5">
-                {aiContent.dialogue.lines.map((line, i) => {
-                  const isA = line.speaker === 'A';
-                  return (
-                    <div key={i} className={`flex gap-2 ${isA ? '' : 'flex-row-reverse'}`}>
-                      <div
-                        className="flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full text-[10px] font-extrabold text-white mt-1"
-                        style={{ background: isA ? '#1A1F36' : '#E8412C' }}
-                      >
-                        {line.speaker}
-                      </div>
-                      <div className={`max-w-[80%] px-3 py-2 rounded-xl ${isA ? 'rounded-tl-none' : 'rounded-tr-none'} bg-white border border-border`}>
-                        <p className="text-sm font-semibold text-ink" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
-                          {line.korean}
-                        </p>
-                        {showTranslation && (
-                          <p className="text-[11px] text-muted mt-0.5">{line.translation}</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </>
-        )}
-
-        {!aiLoading && !aiContent && !aiError && interests.length === 0 && (
+        {/* No interests */}
+        {!isStreaming && !aiContent && !aiError && interests.length === 0 && (
           <p className="text-xs text-muted text-center py-4">
             <Link href="/grammar" className="text-navy font-bold hover:underline">Set your interests</Link> to see personalized examples.
           </p>
+        )}
+
+        {/* Examples — appear one by one as they stream */}
+        {hasExamples && (
+          <div className="flex flex-col gap-3 mb-5">
+            {aiContent!.examples.map((ex, i) => (
+              <div key={i} className="border-l-[3px] border-navy pl-3 animate-fadeIn">
+                <p className="text-base font-semibold text-ink leading-relaxed" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
+                  {ex.korean}
+                </p>
+                {showTranslation && (
+                  <p className="text-xs text-muted mt-0.5">{ex.translation}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Placeholder rows while streaming (before first example arrives) */}
+        {isStreaming && !hasExamples && (
+          <div className="flex flex-col gap-3 mb-5">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="border-l-[3px] border-border pl-3">
+                <div className="h-5 bg-cream rounded animate-pulse" style={{ width: `${60 + i * 7}%` }} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Dialogue — appears after examples */}
+        {hasDialogue && (
+          <div className="bg-cream rounded-xl p-4">
+            <p className="text-[10px] font-bold text-muted tracking-widest mb-1">MINI DIALOGUE</p>
+            {showTranslation && aiContent!.dialogue.context && (
+              <p className="text-[11px] text-muted italic mb-3">{aiContent!.dialogue.context}</p>
+            )}
+            <div className="flex flex-col gap-2.5">
+              {aiContent!.dialogue.lines.map((line, i) => {
+                const isA = line.speaker === 'A';
+                return (
+                  <div key={i} className={`flex gap-2 ${isA ? '' : 'flex-row-reverse'}`}>
+                    <div className="flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full text-[10px] font-extrabold text-white mt-1"
+                      style={{ background: isA ? '#1A1F36' : '#E8412C' }}>
+                      {line.speaker}
+                    </div>
+                    <div className={`max-w-[80%] px-3 py-2 rounded-xl ${isA ? 'rounded-tl-none' : 'rounded-tr-none'} bg-white border border-border`}>
+                      <p className="text-sm font-semibold text-ink" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{line.korean}</p>
+                      {showTranslation && <p className="text-[11px] text-muted mt-0.5">{line.translation}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Dialogue placeholder while streaming */}
+        {isStreaming && hasExamples && !hasDialogue && (
+          <div className="bg-cream rounded-xl p-4">
+            <p className="text-[10px] font-bold text-muted tracking-widest mb-3">MINI DIALOGUE</p>
+            <div className="flex flex-col gap-2.5">
+              {[1,2,3,4].map(i => (
+                <div key={i} className={`flex gap-2 ${i % 2 !== 0 ? '' : 'flex-row-reverse'}`}>
+                  <div className="w-6 h-6 rounded-full bg-border flex-shrink-0" />
+                  <div className="h-9 bg-white border border-border rounded-xl animate-pulse" style={{ width: `${45 + i * 8}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
@@ -272,21 +345,19 @@ export default function GrammarLessonPage() {
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {q.options.map((opt, oi) => {
-                  const isSel = selected[qi] === oi;
+                  const isSel  = selected[qi] === oi;
                   const isRight = submitted && oi === q.answer_index;
                   const isWrong = submitted && isSel && oi !== q.answer_index;
                   return (
-                    <button
-                      key={oi}
+                    <button key={oi}
                       onClick={() => !submitted && setSelected({ ...selected, [qi]: oi })}
                       disabled={submitted}
                       className={`p-2.5 rounded-xl border-2 text-sm font-bold text-center transition-colors ${
                         isRight ? 'bg-greenLight border-green text-green'
                         : isWrong ? 'bg-redLight border-red text-red'
-                        : isSel ? 'bg-ink border-ink text-cream'
+                        : isSel  ? 'bg-ink border-ink text-cream'
                         : 'bg-cream border-border text-ink hover:border-ink'
-                      }`}
-                    >
+                      }`}>
                       {opt}
                     </button>
                   );
@@ -296,22 +367,17 @@ export default function GrammarLessonPage() {
           ))}
 
           {!submitted ? (
-            <button
-              onClick={handleSubmit}
-              disabled={!allAnswered}
+            <button onClick={handleSubmit} disabled={!allAnswered}
               className={`w-full py-4 rounded-xl font-bold transition-colors ${
                 allAnswered ? 'bg-red text-white hover:opacity-90' : 'bg-border text-muted cursor-not-allowed'
-              }`}
-            >
+              }`}>
               Submit →
             </button>
           ) : (
             <>
               <div className={`rounded-2xl p-5 text-center border-2 ${score === questions.length ? 'bg-greenLight border-green' : 'bg-redLight border-red'}`}>
                 <p className="text-2xl font-extrabold text-ink mb-1">{score}/{questions.length} correct</p>
-                <p className="text-sm text-muted">
-                  {score === questions.length ? '🎉 Perfect score!' : 'Keep practicing!'}
-                </p>
+                <p className="text-sm text-muted">{score === questions.length ? '🎉 Perfect score!' : 'Keep practicing!'}</p>
                 {xpEarned > 0 && (
                   <div className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.6)' }}>
                     <span className="text-sm">⚡</span>
@@ -319,11 +385,9 @@ export default function GrammarLessonPage() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={() => router.push('/grammar')}
+              <button onClick={() => router.push('/grammar')}
                 className="w-full py-3.5 rounded-xl font-bold text-sm text-cream mt-3 hover:opacity-90 transition-opacity"
-                style={{ background: '#1A1F36' }}
-              >
+                style={{ background: '#1A1F36' }}>
                 ← Back to Grammar
               </button>
             </>

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -8,10 +8,7 @@ export async function POST(req: NextRequest) {
     const { titleKo, titleEn, explanation, interest } = await req.json();
 
     if (!titleKo || !interest) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
     }
 
     const prompt = `You are a Korean language teacher creating personalized lesson content.
@@ -20,52 +17,59 @@ Grammar point: ${titleKo} (${titleEn})
 Explanation: ${explanation}
 Student's interest: ${interest}
 
-Create 5 example sentences and a short 4-line dialogue, all tailored to someone interested in "${interest}". Every example and dialogue line must naturally use the grammar point "${titleKo}".
+Output each item on its own line as a JSON object. Nothing else — no markdown, no code blocks, no extra text.
 
-Return ONLY valid JSON — no markdown, no explanation, no backticks — with exactly this structure:
-{
-  "examples": [
-    { "korean": "Korean sentence", "translation": "English translation" },
-    { "korean": "Korean sentence", "translation": "English translation" },
-    { "korean": "Korean sentence", "translation": "English translation" },
-    { "korean": "Korean sentence", "translation": "English translation" },
-    { "korean": "Korean sentence", "translation": "English translation" }
-  ],
-  "dialogue": {
-    "context": "One-line scene description (e.g. 'Two friends discussing a new game release')",
-    "lines": [
-      { "speaker": "A", "korean": "Korean line", "translation": "English translation" },
-      { "speaker": "B", "korean": "Korean line", "translation": "English translation" },
-      { "speaker": "A", "korean": "Korean line", "translation": "English translation" },
-      { "speaker": "B", "korean": "Korean line", "translation": "English translation" }
-    ]
-  }
-}
+Output exactly 5 example sentences first (one JSON object per line):
+{"type":"example","korean":"Korean sentence here","translation":"English translation here"}
+
+Then output the dialogue context (one line):
+{"type":"context","text":"One-line scene description"}
+
+Then output exactly 4 dialogue lines alternating A and B (one per line):
+{"type":"line","speaker":"A","korean":"Korean line here","translation":"English translation here"}
 
 Rules:
-- Every one of the 5 examples must use ${titleKo} clearly and naturally
-- Examples must reference ${interest} topics, vocabulary, or scenarios
-- Dialogue must be exactly 4 lines, alternating A and B speakers
-- Dialogue must also use ${titleKo} at least twice across the 4 lines
-- Keep Korean natural and conversational — not textbook-stiff
-- Return ONLY the JSON object`;
+- Every example must use ${titleKo} naturally and clearly
+- All examples and dialogue must reference ${interest} topics or scenarios
+- Dialogue must use ${titleKo} at least twice across 4 lines
+- Keep Korean natural and conversational
+- Each JSON object on its own line — nothing else`;
 
-    const message = await client.messages.create({
+    const stream = client.messages.stream({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const text =
-      message.content[0].type === 'text' ? message.content[0].text : '';
-    const clean = text.replace(/```json|```/g, '').trim();
-    const data = JSON.parse(clean);
+    const readable = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of stream) {
+            if (
+              chunk.type === 'content_block_delta' &&
+              chunk.delta.type === 'text_delta'
+            ) {
+              controller.enqueue(encoder.encode(chunk.delta.text));
+            }
+          }
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return NextResponse.json(data);
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    });
   } catch (err) {
     console.error('Grammar generate error:', err);
-    return NextResponse.json(
-      { error: 'Failed to generate content' },
+    return new Response(
+      JSON.stringify({ error: 'Failed to generate content' }),
       { status: 500 }
     );
   }
