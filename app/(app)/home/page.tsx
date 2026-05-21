@@ -49,10 +49,10 @@ export default function HomePage() {
   const goalRows = goals ? [
     {
       key: 'flashcards',
-      label: 'Flashcard sets',
+      label: 'Vocabulary cards',
       icon: '⧉',
       color: '#E8412C',
-      done: Math.max(0, stats.setsReviewed  - (goals.baseline?.flashcards ?? 0)),
+      done: Math.max(0, stats.cardsKnown    - (goals.baseline?.flashcards ?? 0)),
       target: goals.flashcards,
     },
     {
@@ -65,10 +65,10 @@ export default function HomePage() {
     },
     {
       key: 'speaking',
-      label: 'Dialogues',
+      label: 'Speaking sessions',
       icon: '💬',
       color: '#8B5CF6',
-      done: Math.max(0, stats.dialoguesDone - (goals.baseline?.speaking ?? 0)),
+      done: Math.max(0, stats.dialogueSessions - (goals.baseline?.speaking ?? 0)),
       target: goals.speaking,
     },
     {
@@ -91,9 +91,9 @@ export default function HomePage() {
         ...goalDraft,
         set_at: new Date().toISOString(),
         baseline: {
-          flashcards: stats.setsReviewed,
+          flashcards: stats.cardsKnown,
           reading:    stats.passagesDone,
-          speaking:   stats.dialoguesDone,
+          speaking:   stats.dialogueSessions,
           grammar:    stats.grammarDone,
         },
       },
@@ -298,9 +298,9 @@ export default function HomePage() {
             <p className="text-xs text-muted mb-5">Progress counts from when you save this goal.</p>
             <div className="flex flex-col gap-4 mb-6">
               {[
-                { key: 'flashcards', label: 'Flashcard sets',   icon: '⧉' },
+                { key: 'flashcards', label: 'Vocabulary cards',   icon: '⧉' },
                 { key: 'reading',    label: 'Reading passages', icon: '≡' },
-                { key: 'speaking',   label: 'Dialogues',        icon: '💬' },
+                { key: 'speaking',   label: 'Speaking sessions',        icon: '💬' },
                 { key: 'grammar',    label: 'Grammar lessons',  icon: '문' },
               ].map(({ key, label, icon }) => (
                 <div key={key} className="flex items-center justify-between">

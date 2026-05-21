@@ -22,6 +22,7 @@ export type UserStats = {
   passagesDone: number;
   totalPassages: number;
   dialoguesDone: number;
+  dialogueSessions: number;
   totalDialogues: number;
   grammarDone: number;
   totalGrammar: number;
@@ -32,7 +33,7 @@ const DEFAULT_STATS: UserStats = {
   cardsStudied: 0, cardsKnown: 0, totalCards: 0,
   setsReviewed: 0, totalSets: 0,
   passagesDone: 0, totalPassages: 0,
-  dialoguesDone: 0, totalDialogues: 0,
+  dialoguesDone: 0, dialogueSessions: 0, totalDialogues: 0,
   grammarDone: 0, totalGrammar: 0,
 };
 
@@ -92,6 +93,7 @@ export function useUserStats() {
       passagesDone: passageProgressSnap.docs.length,
       totalPassages: totalPassagesSnap.data().count,
       dialoguesDone: dialogueProgressSnap.docs.length,
+      dialogueSessions: profile?.dialogue_sessions ?? 0,
       totalDialogues: totalDialoguesSnap.data().count,
       grammarDone: grammarProgressSnap.docs.length,
       totalGrammar: totalGrammarSnap.data().count,

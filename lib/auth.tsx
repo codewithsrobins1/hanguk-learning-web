@@ -27,6 +27,7 @@ type Profile = {
   longest_streak: number;
   last_active_date: string | null;
   interests: string[];
+  dialogue_sessions: number;
   goals: {
     flashcards: number;
     reading: number;
@@ -129,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         xp: 0,
         level: 1,
         interests: [],
+        dialogue_sessions: 0,
         created_at: serverTimestamp(),
       });
       return { error: null };

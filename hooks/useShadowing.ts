@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection, query, orderBy, getDocs,
-  doc, getDoc, setDoc, where, serverTimestamp,
+  doc, getDoc, setDoc, where, serverTimestamp, increment, updateDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
@@ -89,4 +89,9 @@ export async function saveDialogueProgress(
     completed_at: serverTimestamp(),
     best_score:   updatedBest,
   }, { merge: true });
+
+  // Increment total session counter on profile for goal tracking
+  await updateDoc(doc(db, 'profiles', userId), {
+    dialogue_sessions: increment(1),
+  });
 }
