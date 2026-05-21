@@ -306,7 +306,7 @@ export default function GrammarPage() {
           {interests.length < 2 ? `Select ${2 - interests.length} more` : `${interests.length} selected${interests.length < 4 ? ' · up to 4' : ''}`}
         </p>
         <button onClick={handleSaveInterests} disabled={interests.length < 2 || saving}
-          className="w-full py-4 rounded-2xl font-extrabold text-sm disabled:opacity-40"
+          className="btn-press w-full py-4 rounded-2xl font-quicksand font-bold text-base disabled:opacity-40"
           style={{ background: '#1A1F36', color: '#F7F4EE' }}
         >{saving ? 'Saving...' : 'Continue →'}</button>
       </div>

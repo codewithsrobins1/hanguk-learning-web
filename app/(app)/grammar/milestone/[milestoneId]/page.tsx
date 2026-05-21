@@ -64,13 +64,13 @@ export default function MilestonePage() {
         <button onClick={() => router.back()} className="text-2xl text-muted hover:text-ink transition-colors">←</button>
         <div>
           <p className="text-[11px] font-bold text-muted tracking-widest">CHECKPOINT</p>
-          <h1 className="text-xl font-extrabold text-ink">{levelLabel} · Milestone {group}</h1>
+          <h1 className="font-quicksand font-bold text-ink text-xl">{levelLabel} · Milestone {group}</h1>
         </div>
       </div>
 
       {/* Intro card */}
       {!submitted && (
-        <div className="bg-navy rounded-2xl p-5 mb-6 text-center">
+        <div className="bg-navy rounded-3xl p-5 mb-6 text-center">
           <p className="text-3xl mb-3">🏆</p>
           <p className="text-cream font-extrabold text-lg mb-1">Checkpoint Quiz</p>
           <p className="text-gray-400 text-sm">4 questions from the last 5 lessons. Score 3 or more to unlock the next group.</p>
@@ -121,7 +121,7 @@ export default function MilestonePage() {
         <>
           <div className="rounded-2xl p-6 text-center border-2 bg-greenLight border-green mb-3">
             <p className="text-3xl mb-2">🎉</p>
-            <p className="text-2xl font-extrabold text-ink mb-1">{score}/{questions.length} correct</p>
+            <p className="font-quicksand font-bold text-ink text-2xl mb-1">{score}/{questions.length} correct</p>
             <p className="text-sm font-semibold" style={{ color: '#16A34A' }}>Checkpoint passed! Next group unlocked.</p>
             {xpEarned > 0 && (
               <div className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.6)' }}>
@@ -142,7 +142,7 @@ export default function MilestonePage() {
         <>
           <div className="rounded-2xl p-6 text-center border-2 bg-redLight border-red mb-3">
             <p className="text-3xl mb-2">💪</p>
-            <p className="text-2xl font-extrabold text-ink mb-1">{score}/{questions.length} correct</p>
+            <p className="font-quicksand font-bold text-ink text-2xl mb-1">{score}/{questions.length} correct</p>
             <p className="text-sm text-muted">You need 3 or more to pass. Review the lessons and try again.</p>
           </div>
           <div className="flex gap-3">

@@ -4,59 +4,81 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 
-const sidebarItems = [
-  { href: '/home',    label: 'Home',       icon: '⌂'  },
-  { href: '/hangul',  label: 'Hangul',     icon: '가'  },
-  { href: '/cards',   label: 'Flashcards', icon: '⧉'  },
-  { href: '/read',    label: 'Read',       icon: '≡'  },
-  { href: '/shadow',  label: 'Speak',      icon: '💬' },
-  { href: '/grammar', label: 'Grammar',    icon: '문'  },
-  { href: '/profile', label: 'Profile',    icon: '⚙️' },
+const NAV_ITEMS = [
+  { href: '/home', label: 'Home', icon: '⌂' },
+  { href: '/hangul', label: 'Hangul', icon: '가' },
+  { href: '/cards', label: 'Flashcards', icon: '⧉' },
+  { href: '/read', label: 'Read', icon: '≡' },
+  { href: '/shadow', label: 'Speak', icon: '💬' },
+  { href: '/grammar', label: 'Grammar', icon: '문' },
+  { href: '/profile', label: 'Profile', icon: '⚙️' },
 ];
-
-const learnItems = [
-  { href: '/hangul',  label: 'Hangul',   icon: '가'  },
-  { href: '/cards',   label: 'Cards',    icon: '⧉'  },
-  { href: '/read',    label: 'Read',     icon: '≡'  },
-  { href: '/shadow',  label: 'Speak',    icon: '💬' },
-  { href: '/grammar', label: 'Grammar',  icon: '문'  },
-];
-
-const learnPaths = learnItems.map(i => i.href);
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const [learnOpen, setLearnOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => { if (!loading && !user) router.replace('/login'); }, [user, loading, router]);
-  useEffect(() => { setLearnOpen(false); }, [pathname]);
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login');
+  }, [user, loading, router]);
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
-  if (loading || !user) return (
-    <div className="min-h-screen bg-cream flex items-center justify-center">
-      <p className="text-3xl animate-pulse" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>한국</p>
-    </div>
-  );
+  // Lock body scroll when menu open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
 
-  const isLearnActive = learnPaths.some(p => pathname === p || pathname.startsWith(p + '/'));
+  if (loading || !user)
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <p
+          className="text-3xl animate-pulse"
+          style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+        >
+          한국
+        </p>
+      </div>
+    );
 
   return (
     <div className="flex min-h-screen bg-cream">
-      {/* Sidebar — desktop */}
-      <aside className="hidden md:flex flex-col w-56 min-h-screen bg-white border-r border-border px-4 py-6 fixed left-0 top-0 bottom-0">
+      {/* ── Desktop sidebar ───────────────────────────────────── */}
+      <aside className="hidden md:flex flex-col w-60 min-h-screen bg-navy fixed left-0 top-0 bottom-0 z-40 px-4 py-6">
+        {/* Logo */}
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-9 h-9 bg-navy rounded-xl flex items-center justify-center">
-            <span className="text-cream text-base font-bold" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>한</span>
+          <div className="w-9 h-9 bg-red rounded-xl flex items-center justify-center flex-shrink-0">
+            <span
+              className="text-white text-base font-bold"
+              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+            >
+              한
+            </span>
           </div>
-          <span className="font-extrabold text-ink text-lg">Hanguk</span>
+          <span className="font-quicksand font-bold text-cream text-lg tracking-tight">
+            Hanguk
+          </span>
         </div>
-        <nav className="flex flex-col gap-1">
-          {sidebarItems.map(item => {
-            const active = pathname === item.href || pathname.startsWith(item.href + '/');
+        {/* Nav items */}
+        <nav className="flex flex-col gap-1 flex-1">
+          {NAV_ITEMS.map((item) => {
+            const active =
+              pathname === item.href || pathname.startsWith(item.href + '/');
             return (
-              <Link key={item.href} href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${active ? 'bg-ink text-cream' : 'text-inkLight hover:bg-cream'}`}
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  active
+                    ? 'bg-white/15 text-white'
+                    : 'text-white/50 hover:bg-white/8 hover:text-white/80'
+                }`}
               >
                 <span className="text-lg w-6 text-center">{item.icon}</span>
                 {item.label}
@@ -66,65 +88,105 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
       </aside>
 
-      <main className="flex-1 md:ml-56 pb-24 md:pb-0 min-h-screen">{children}</main>
+      {/* ── Mobile top bar ────────────────────────────────────── */}
+      <div
+        className="md:hidden fixed top-0 left-0 right-0 z-40 bg-navy flex items-center justify-between px-5"
+        style={{ height: 56 }}
+      >
+        <Link href="/home" className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-red rounded-lg flex items-center justify-center">
+            <span
+              className="text-white text-sm font-bold"
+              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+            >
+              한
+            </span>
+          </div>
+          <span className="font-quicksand font-bold text-cream text-base tracking-tight">
+            Hanguk
+          </span>
+        </Link>
+        {/* Hamburger */}
+        <button
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label="Open menu"
+          className="flex flex-col gap-[5px] p-2 rounded-lg"
+          style={{ background: 'rgba(255,255,255,0.1)' }}
+        >
+          <span className="block w-5 h-[2px] bg-cream rounded-full" />
+          <span className="block w-3.5 h-[2px] bg-cream rounded-full" />
+          <span className="block w-5 h-[2px] bg-cream rounded-full" />
+        </button>
+      </div>
 
-      {/* ── Bottom nav — mobile ──────────────────────────────── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-        {learnOpen && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setLearnOpen(false)} />
-            <div className="absolute bottom-[72px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 z-50 pb-1">
-              {[...learnItems].reverse().map((item, i) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + '/');
-                return (
-                  <Link key={item.href} href={item.href}
-                    className="flex items-center gap-3 pl-4 pr-5 py-2.5 rounded-2xl font-bold text-sm shadow-lg transition-all"
-                    style={{
-                      background: active ? '#1A1F36' : '#fff',
-                      color: active ? '#F7F4EE' : '#111',
-                      border: '1.5px solid #E8E3D8',
-                      minWidth: 140,
-                      transform: `translateY(${learnOpen ? 0 : 20}px)`,
-                      opacity: learnOpen ? 1 : 0,
-                      transition: `transform 0.2s ease ${i * 40}ms, opacity 0.2s ease ${i * 40}ms`,
-                    }}
+      {/* ── Mobile slide-out menu ─────────────────────────────── */}
+      {menuOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-50 menu-fade-in"
+            style={{ background: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setMenuOpen(false)}
+          />
+          {/* Menu panel */}
+          <div className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-72 bg-navy flex flex-col menu-slide-in">
+            {/* Menu header */}
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <Link href="/home" className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-red rounded-lg flex items-center justify-center">
+                  <span
+                    className="text-white text-sm font-bold"
+                    style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
                   >
-                    <span className="text-base w-5 text-center">{item.icon}</span>
+                    한
+                  </span>
+                </div>
+                <span className="font-quicksand font-bold text-cream text-base">
+                  Hanguk
+                </span>
+              </Link>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white text-lg transition-colors"
+                style={{ background: 'rgba(255,255,255,0.08)' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Nav items */}
+            <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
+              {NAV_ITEMS.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + '/');
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                      active
+                        ? 'bg-white/15 text-white'
+                        : 'text-white/55 hover:bg-white/8 hover:text-white/80'
+                    }`}
+                  >
+                    <span className="text-lg w-6 text-center">{item.icon}</span>
                     {item.label}
                   </Link>
                 );
               })}
-            </div>
-          </>
-        )}
-
-        <nav className="bg-white border-t border-border flex items-stretch px-4" style={{ height: 64 }}>
-          <NavTab href="/home" label="Home" icon="⌂" pathname={pathname} />
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <button
-              onClick={() => setLearnOpen(o => !o)}
-              className="flex flex-col items-center justify-center gap-0.5 w-full py-2 transition-colors"
-              style={{ color: learnOpen || isLearnActive ? '#111' : '#aaa' }}
-            >
-              <span className="text-xl transition-transform duration-200" style={{ transform: learnOpen ? 'rotate(45deg)' : 'rotate(0deg)', display: 'block' }}>
-                {learnOpen ? '✕' : '⊕'}
-              </span>
-              <span className="text-[9px] font-semibold">Learn</span>
-            </button>
+            </nav>
           </div>
-          <NavTab href="/profile" label="Profile" icon="⚙️" pathname={pathname} />
-        </nav>
-      </div>
-    </div>
-  );
-}
+        </>
+      )}
 
-function NavTab({ href, label, icon, pathname }: { href: string; label: string; icon: string; pathname: string }) {
-  const active = pathname === href || pathname.startsWith(href + '/');
-  return (
-    <Link href={href} className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors" style={{ color: active ? '#111' : '#aaa' }}>
-      <span className="text-xl">{icon}</span>
-      <span className="text-[8px] font-semibold">{label}</span>
-    </Link>
+      {/* ── Main content ──────────────────────────────────────── */}
+      <main className="flex-1 md:ml-60 min-h-screen pt-14 md:pt-0">
+        {children}
+      </main>
+    </div>
   );
 }

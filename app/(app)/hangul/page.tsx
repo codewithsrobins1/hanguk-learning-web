@@ -12,7 +12,7 @@ export default function HangulPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-extrabold text-ink mb-6">Hangul</h1>
+      <h1 className="font-quicksand font-bold text-ink text-3xl mb-6">Hangul</h1>
 
       {/* Study CTA */}
       <div className="bg-navy rounded-2xl p-5 mb-6 flex items-center justify-between">

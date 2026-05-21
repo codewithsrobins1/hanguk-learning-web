@@ -376,7 +376,7 @@ export default function GrammarLessonPage() {
           ) : (
             <>
               <div className={`rounded-2xl p-5 text-center border-2 ${score === questions.length ? 'bg-greenLight border-green' : 'bg-redLight border-red'}`}>
-                <p className="text-2xl font-extrabold text-ink mb-1">{score}/{questions.length} correct</p>
+                <p className="font-quicksand font-bold text-ink text-2xl mb-1">{score}/{questions.length} correct</p>
                 <p className="text-sm text-muted">{score === questions.length ? '🎉 Perfect score!' : 'Keep practicing!'}</p>
                 {xpEarned > 0 && (
                   <div className="flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.6)' }}>

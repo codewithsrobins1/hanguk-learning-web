@@ -43,7 +43,7 @@ export default function CardsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-extrabold text-ink mb-5">Flashcards</h1>
+      <h1 className="font-quicksand font-bold text-ink text-3xl mb-5">Flashcards</h1>
 
       {/* Search + Filter row */}
       <div className="flex gap-2 mb-5">
@@ -54,7 +54,7 @@ export default function CardsPage() {
             placeholder="Search sets..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-10 pl-8 pr-3 rounded-xl border border-border bg-white text-sm font-medium text-ink placeholder:text-muted focus:outline-none focus:border-ink transition-colors"
+            className="w-full h-11 pl-9 pr-3 rounded-2xl border-2 border-border bg-white text-sm font-medium text-ink placeholder:text-muted focus:outline-none focus:border-ink transition-colors"
           />
         </div>
         <select

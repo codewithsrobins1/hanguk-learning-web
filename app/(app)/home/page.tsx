@@ -23,10 +23,10 @@ function Stepper({ value, onChange }: { value: number; onChange: (v: number) => 
   return (
     <div className="flex items-center gap-3">
       <button onClick={() => onChange(Math.max(1, value - 1))}
-        className="w-8 h-8 rounded-full border-[1.5px] border-border bg-cream font-bold text-ink text-lg flex items-center justify-center hover:border-ink transition-colors">−</button>
+        className="w-9 h-9 rounded-full border-2 border-border bg-cream font-bold text-ink text-lg flex items-center justify-center hover:border-ink transition-colors">−</button>
       <span className="text-base font-extrabold text-ink w-6 text-center">{value}</span>
       <button onClick={() => onChange(Math.min(99, value + 1))}
-        className="w-8 h-8 rounded-full border-[1.5px] border-border bg-cream font-bold text-ink text-lg flex items-center justify-center hover:border-ink transition-colors">+</button>
+        className="w-9 h-9 rounded-full border-2 border-border bg-cream font-bold text-ink text-lg flex items-center justify-center hover:border-ink transition-colors">+</button>
     </div>
   );
 }
@@ -36,49 +36,20 @@ export default function HomePage() {
   const { stats } = useUserStats();
   const randomCard = useRandomCard();
 
-  const [cardFlipped, setCardFlipped] = useState(false);
-  const [showXpModal, setShowXpModal] = useState(false);
-  const [showGoalModal, setShowGoalModal] = useState(false);
-  const [goalDraft, setGoalDraft] = useState<GoalDraft>({ flashcards: 5, reading: 3, speaking: 4, grammar: 5 });
-  const [savingGoal, setSavingGoal] = useState(false);
+  const [cardFlipped,    setCardFlipped]    = useState(false);
+  const [showXpModal,    setShowXpModal]    = useState(false);
+  const [showGoalModal,  setShowGoalModal]  = useState(false);
+  const [goalDraft,      setGoalDraft]      = useState<GoalDraft>({ flashcards: 5, reading: 3, speaking: 4, grammar: 5 });
+  const [savingGoal,     setSavingGoal]     = useState(false);
 
   const displayName = profile?.display_name || profile?.username || 'Learner';
   const goals = profile?.goals ?? null;
 
-  // Progress = current stat minus baseline (snapshot at goal-set time)
   const goalRows = goals ? [
-    {
-      key: 'flashcards',
-      label: 'Vocabulary cards',
-      icon: '⧉',
-      color: '#E8412C',
-      done: Math.max(0, stats.cardsKnown    - (goals.baseline?.flashcards ?? 0)),
-      target: goals.flashcards,
-    },
-    {
-      key: 'reading',
-      label: 'Reading passages',
-      icon: '≡',
-      color: '#3B82F6',
-      done: Math.max(0, stats.passagesDone  - (goals.baseline?.reading ?? 0)),
-      target: goals.reading,
-    },
-    {
-      key: 'speaking',
-      label: 'Speaking sessions',
-      icon: '💬',
-      color: '#8B5CF6',
-      done: Math.max(0, stats.dialogueSessions - (goals.baseline?.speaking ?? 0)),
-      target: goals.speaking,
-    },
-    {
-      key: 'grammar',
-      label: 'Grammar lessons',
-      icon: '문',
-      color: '#F59E0B',
-      done: Math.max(0, stats.grammarDone   - (goals.baseline?.grammar ?? 0)),
-      target: goals.grammar,
-    },
+    { key: 'flashcards', label: 'Vocabulary cards',   icon: '⧉', color: '#E8412C', done: Math.max(0, stats.cardsKnown       - (goals.baseline?.flashcards ?? 0)), target: goals.flashcards },
+    { key: 'reading',    label: 'Reading passages',   icon: '≡',  color: '#3B82F6', done: Math.max(0, stats.passagesDone     - (goals.baseline?.reading   ?? 0)), target: goals.reading    },
+    { key: 'speaking',   label: 'Speaking sessions',  icon: '💬', color: '#8B5CF6', done: Math.max(0, stats.dialogueSessions - (goals.baseline?.speaking  ?? 0)), target: goals.speaking   },
+    { key: 'grammar',    label: 'Grammar lessons',    icon: '문', color: '#F59E0B', done: Math.max(0, stats.grammarDone      - (goals.baseline?.grammar   ?? 0)), target: goals.grammar    },
   ] : [];
 
   const allGoalsMet = goalRows.length > 0 && goalRows.every(g => g.done >= g.target);
@@ -87,16 +58,7 @@ export default function HomePage() {
     if (!user) return;
     setSavingGoal(true);
     await updateDoc(doc(db, 'profiles', user.uid), {
-      goals: {
-        ...goalDraft,
-        set_at: new Date().toISOString(),
-        baseline: {
-          flashcards: stats.cardsKnown,
-          reading:    stats.passagesDone,
-          speaking:   stats.dialogueSessions,
-          grammar:    stats.grammarDone,
-        },
-      },
+      goals: { ...goalDraft, set_at: new Date().toISOString(), baseline: { flashcards: stats.cardsKnown, reading: stats.passagesDone, speaking: stats.dialogueSessions, grammar: stats.grammarDone } },
     });
     await refreshProfile();
     setSavingGoal(false);
@@ -115,109 +77,91 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-7 py-8">
+    <div className="max-w-xl mx-auto px-6 py-8">
 
-      {/* ── Header ───────────────────────────────────────────── */}
-      <div className="flex items-start justify-between mb-6">
+      {/* ── Header ─────────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-7">
         <div>
-          <p className="text-xs text-muted font-medium mb-1">안녕!</p>
-          <h1 className="text-3xl font-extrabold text-ink">{displayName}</h1>
+          <p className="text-xs text-muted font-semibold mb-1 tracking-wider">안녕하세요!</p>
+          <h1 className="font-quicksand font-bold text-ink text-3xl leading-tight">{displayName}</h1>
         </div>
-        <div className="bg-navy rounded-2xl px-4 py-2.5 text-center min-w-[64px]">
-          <p className="text-[11px] tracking-widest mb-0.5" style={{ color: '#888' }}>LEVEL</p>
-          <p className="text-cream font-extrabold text-2xl leading-none">{stats.level}</p>
+        <div className="bg-navy rounded-2xl px-4 py-3 text-center min-w-[68px] shadow-md">
+          <p className="text-[10px] tracking-widest mb-0.5 font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>LEVEL</p>
+          <p className="text-cream font-quicksand font-bold text-2xl leading-none">{stats.level}</p>
         </div>
       </div>
 
-      {/* ── XP Bar ────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-border p-4 mb-3">
-        <div className="flex items-center justify-between mb-2">
+      {/* ── XP Bar ─────────────────────────────────────────── */}
+      <div className="bg-navy rounded-3xl p-5 mb-5 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-base">⚡</span>
-            <span className="text-sm font-bold text-ink">Level {stats.level}</span>
-            <span className="text-[11px] text-muted">→ Level {stats.level + 1}</span>
+            <span className="text-sm font-bold text-cream">Level {stats.level}</span>
+            <span className="text-xs text-white/40">→ Level {stats.level + 1}</span>
           </div>
-          <span className="text-[11px] text-muted">{stats.xpIntoLevel} / {stats.xpNeeded} XP</span>
+          <span className="text-xs font-semibold text-white/50">{stats.xpIntoLevel} / {stats.xpNeeded} XP</span>
         </div>
-        <div className="rounded-full overflow-hidden mb-2" style={{ background: '#F7F4EE', height: 10 }}>
-          <div className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#1A1F36' }} />
+        <div className="rounded-full overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.12)', height: 10 }}>
+          <div className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#E8412C' }} />
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-[11px] text-muted">{stats.xpNeeded - stats.xpIntoLevel} XP to level up</p>
+          <p className="text-xs text-white/40 font-medium">{stats.xpNeeded - stats.xpIntoLevel} XP to next level</p>
           <button onClick={() => setShowXpModal(true)}
-            className="flex items-center gap-1 text-[11px] text-muted hover:text-ink transition-colors">
+            className="flex items-center gap-1 text-xs text-white/40 hover:text-white/70 transition-colors">
             How XP is earned
-            <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-muted text-[9px]">?</span>
+            <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-white/25 text-[9px]">?</span>
           </button>
         </div>
       </div>
 
-      {/* ── Overview ──────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-border p-4 mb-6">
-        <p className="text-[11px] font-bold text-muted tracking-widest mb-3">OVERVIEW</p>
+      {/* ── Overview ───────────────────────────────────────── */}
+      <div className="bg-white rounded-3xl border border-border p-5 mb-5">
+        <p className="text-[11px] font-bold text-muted tracking-widest mb-4">OVERVIEW</p>
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-cream rounded-xl p-3">
-            <p className="text-[10px] font-bold text-muted tracking-wider mb-1">VOCAB</p>
-            <p className="text-xl font-extrabold text-ink mb-0.5">
-              {stats.cardsKnown}<span className="text-xs font-semibold text-muted"> / {stats.totalCards}</span>
-            </p>
-            <p className="text-[10px] text-muted mb-2">cards known</p>
-            <ProgressBar progress={stats.totalCards > 0 ? stats.cardsKnown / stats.totalCards : 0} color="#E8412C" />
-          </div>
-          <div className="bg-cream rounded-xl p-3">
-            <p className="text-[10px] font-bold text-muted tracking-wider mb-1">READING</p>
-            <p className="text-xl font-extrabold text-ink mb-0.5">
-              {stats.passagesDone}<span className="text-xs font-semibold text-muted"> / {stats.totalPassages}</span>
-            </p>
-            <p className="text-[10px] text-muted mb-2">passages done</p>
-            <ProgressBar progress={stats.totalPassages > 0 ? stats.passagesDone / stats.totalPassages : 0} color="#3B82F6" />
-          </div>
-          <div className="bg-cream rounded-xl p-3">
-            <p className="text-[10px] font-bold text-muted tracking-wider mb-1">SPEAK</p>
-            <p className="text-xl font-extrabold text-ink mb-0.5">
-              {stats.dialoguesDone}<span className="text-xs font-semibold text-muted"> / {stats.totalDialogues}</span>
-            </p>
-            <p className="text-[10px] text-muted mb-2">dialogues done</p>
-            <ProgressBar progress={stats.totalDialogues > 0 ? stats.dialoguesDone / stats.totalDialogues : 0} color="#8B5CF6" />
-          </div>
-          <div className="bg-cream rounded-xl p-3">
-            <p className="text-[10px] font-bold text-muted tracking-wider mb-1">GRAMMAR</p>
-            <p className="text-xl font-extrabold text-ink mb-0.5">
-              {stats.grammarDone}<span className="text-xs font-semibold text-muted"> / {stats.totalGrammar}</span>
-            </p>
-            <p className="text-[10px] text-muted mb-2">lessons done</p>
-            <ProgressBar progress={stats.totalGrammar > 0 ? stats.grammarDone / stats.totalGrammar : 0} color="#F59E0B" />
-          </div>
+          {[
+            { label: 'VOCAB',   value: stats.cardsKnown,   total: stats.totalCards,    sub: 'cards known',   color: '#E8412C' },
+            { label: 'READING', value: stats.passagesDone, total: stats.totalPassages, sub: 'passages done', color: '#3B82F6' },
+            { label: 'SPEAK',   value: stats.dialoguesDone,total: stats.totalDialogues,sub: 'dialogues done',color: '#8B5CF6' },
+            { label: 'GRAMMAR', value: stats.grammarDone,  total: stats.totalGrammar,  sub: 'lessons done',  color: '#F59E0B' },
+          ].map(item => (
+            <div key={item.label} className="bg-cream rounded-2xl p-3.5">
+              <p className="text-[10px] font-bold text-muted tracking-wider mb-1.5">{item.label}</p>
+              <p className="text-xl font-quicksand font-bold text-ink mb-0.5">
+                {item.value}<span className="text-xs font-semibold text-muted"> / {item.total}</span>
+              </p>
+              <p className="text-[10px] text-muted mb-2.5">{item.sub}</p>
+              <ProgressBar progress={item.total > 0 ? item.value / item.total : 0} color={item.color} />
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Goals ─────────────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-border p-4 mb-6">
-        <div className="flex items-center justify-between mb-3">
+      {/* ── Goals ──────────────────────────────────────────── */}
+      <div className="bg-white rounded-3xl border border-border p-5 mb-5">
+        <div className="flex items-center justify-between mb-4">
           <p className="text-[11px] font-bold text-muted tracking-widest">GOALS</p>
           {goals && !allGoalsMet && (
-            <button onClick={openEditGoal}
-              className="text-[11px] font-semibold text-muted hover:text-ink transition-colors">Edit</button>
+            <button onClick={openEditGoal} className="text-xs font-semibold text-muted hover:text-ink transition-colors">Edit</button>
           )}
         </div>
 
         {!goals ? (
-          <div className="flex flex-col items-center py-4 gap-3">
-            <p className="text-sm text-muted text-center">No goals set yet. Set a target to track your progress.</p>
+          <div className="flex flex-col items-center py-5 gap-4">
+            <div className="text-3xl">🎯</div>
+            <p className="text-sm text-muted text-center">No goals set yet. Set a target to track your daily progress.</p>
             <button onClick={() => setShowGoalModal(true)}
-              className="px-5 py-2.5 rounded-xl font-bold text-sm text-cream hover:opacity-90 transition-opacity"
-              style={{ background: '#1A1F36' }}>
+              className="btn-press-navy bg-navy text-cream px-6 py-3 rounded-2xl font-quicksand font-bold text-sm">
               Set a goal →
             </button>
           </div>
         ) : allGoalsMet ? (
-          <div className="flex flex-col items-center py-4 gap-3">
-            <p className="text-2xl">🎉</p>
-            <p className="text-base font-extrabold text-ink">You've met your goal!</p>
+          <div className="flex flex-col items-center py-5 gap-3">
+            <p className="text-4xl">🎉</p>
+            <p className="font-quicksand font-bold text-ink text-xl">You've met your goal!</p>
             <p className="text-xs text-muted text-center">Amazing work. Reset to set a new challenge.</p>
             <button onClick={handleResetGoal}
-              className="px-5 py-2.5 rounded-xl border-[1.5px] border-border font-bold text-sm text-ink hover:bg-cream transition-colors">
+              className="px-5 py-2.5 rounded-xl border-2 border-border font-bold text-sm text-ink hover:bg-cream transition-colors">
               Reset Goals
             </button>
           </div>
@@ -231,9 +175,7 @@ export default function HomePage() {
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <span className="text-sm">{g.icon}</span>
-                      <p className={`text-xs font-bold transition-all ${met ? 'line-through text-muted' : 'text-ink'}`}>
-                        {g.label}
-                      </p>
+                      <p className={`text-xs font-bold transition-all ${met ? 'line-through text-muted' : 'text-ink'}`}>{g.label}</p>
                       {met && <span className="text-[11px] font-bold" style={{ color: '#16A34A' }}>✓</span>}
                     </div>
                     <p className="text-xs font-semibold" style={{ color: met ? '#16A34A' : '#888' }}>
@@ -251,17 +193,17 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* ── Quick Practice ────────────────────────────────────── */}
+      {/* ── Quick Practice ─────────────────────────────────── */}
       {randomCard && (
         <div className="mb-8">
-          <p className="text-[14px] font-bold text-muted tracking-widest mb-2">Quick Practice</p>
+          <p className="text-[11px] font-bold text-muted tracking-widest mb-3">QUICK PRACTICE</p>
           <FlipCard
-            height={130}
+            height={140}
             flipped={cardFlipped}
             onFlip={() => setCardFlipped(!cardFlipped)}
             front={
-              <div className="h-full bg-navy rounded-2xl flex flex-col items-center justify-center p-6 cursor-pointer">
-                <p className="text-[10px] text-gray-500 tracking-widest mb-3">TAP TO REVEAL</p>
+              <div className="h-full bg-navy rounded-3xl flex flex-col items-center justify-center p-6 cursor-pointer">
+                <p className="text-[10px] text-white/30 tracking-widest mb-3 font-semibold">TAP TO REVEAL</p>
                 <p className="text-xl font-semibold text-cream text-center leading-relaxed"
                   style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
                   {randomCard.sentence_parts.map((part, i) =>
@@ -274,67 +216,62 @@ export default function HomePage() {
             }
             back={
               <div className="h-full bg-cream rounded-3xl flex flex-col items-center justify-center p-6 cursor-pointer"
-                style={{ boxShadow: 'inset 0 0 0 2px #1A1F36' }}>
-                <p className="text-[10px] text-muted tracking-widest mb-2">TRANSLATION</p>
-                <p className="text-lg font-bold text-ink text-center">{randomCard.translation}</p>
+                style={{ border: '2px solid #1A1F36' }}>
+                <p className="text-[10px] text-muted tracking-widest mb-2 font-semibold">TRANSLATION</p>
+                <p className="text-lg font-quicksand font-bold text-ink text-center">{randomCard.translation}</p>
               </div>
             }
           />
         </div>
       )}
 
-      {/* ── Goal Modal ────────────────────────────────────────── */}
+      {/* ── Goal Modal ─────────────────────────────────────── */}
       {showGoalModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6"
-          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setShowGoalModal(false)}>
-          <div className="bg-white w-full max-w-sm rounded-3xl p-6"
-            onClick={e => e.stopPropagation()}>
+          <div className="bg-white w-full max-w-sm rounded-4xl p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-base font-extrabold text-ink">Set your goal</p>
+              <p className="font-quicksand font-bold text-ink text-lg">Set your goal</p>
               <button onClick={() => setShowGoalModal(false)}
-                className="w-7 h-7 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-sm">✕</button>
+                className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-sm">✕</button>
             </div>
-            <p className="text-xs text-muted mb-5">Progress counts from when you save this goal.</p>
-            <div className="flex flex-col gap-4 mb-6">
+            <p className="text-xs text-muted mb-6">Progress counts from when you save this goal.</p>
+            <div className="flex flex-col gap-5 mb-6">
               {[
-                { key: 'flashcards', label: 'Vocabulary cards',   icon: '⧉' },
-                { key: 'reading',    label: 'Reading passages', icon: '≡' },
-                { key: 'speaking',   label: 'Speaking sessions',        icon: '💬' },
-                { key: 'grammar',    label: 'Grammar lessons',  icon: '문' },
+                { key: 'flashcards', label: 'Vocabulary cards',  icon: '⧉' },
+                { key: 'reading',    label: 'Reading passages',  icon: '≡' },
+                { key: 'speaking',   label: 'Speaking sessions', icon: '💬' },
+                { key: 'grammar',    label: 'Grammar lessons',   icon: '문' },
               ].map(({ key, label, icon }) => (
                 <div key={key} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-base w-5 text-center">{icon}</span>
                     <span className="text-sm font-semibold text-ink">{label}</span>
                   </div>
-                  <Stepper
-                    value={goalDraft[key as keyof GoalDraft]}
-                    onChange={v => setGoalDraft(prev => ({ ...prev, [key]: v }))}
-                  />
+                  <Stepper value={goalDraft[key as keyof GoalDraft]}
+                    onChange={v => setGoalDraft(prev => ({ ...prev, [key]: v }))} />
                 </div>
               ))}
             </div>
             <button onClick={handleSaveGoal} disabled={savingGoal}
-              className="w-full py-3.5 rounded-xl font-bold text-sm text-cream disabled:opacity-40 hover:opacity-90 transition-opacity"
-              style={{ background: '#1A1F36' }}>
+              className="btn-press w-full bg-navy text-cream py-4 rounded-2xl font-quicksand font-bold text-base">
               {savingGoal ? 'Saving...' : 'Save Goal'}
             </button>
           </div>
         </div>
       )}
 
-      {/* ── XP Modal ─────────────────────────────────────────── */}
+      {/* ── XP Modal ───────────────────────────────────────── */}
       {showXpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setShowXpModal(false)}>
-          <div className="bg-white w-full max-w-[500px] rounded-3xl p-6 pb-8 mx-4"
-            onClick={e => e.stopPropagation()}>
+          <div className="bg-white w-full max-w-sm rounded-4xl p-6 mx-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <p className="text-base font-extrabold text-ink">How XP is earned</p>
+              <p className="font-quicksand font-bold text-ink text-lg">How XP is earned</p>
               <button onClick={() => setShowXpModal(false)}
-                className="w-7 h-7 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-sm">✕</button>
+                className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-sm">✕</button>
             </div>
             <div className="rounded-2xl overflow-hidden border border-border">
               {XP_SOURCES.map((s, i) => (
@@ -344,8 +281,7 @@ export default function HomePage() {
                     <span className="text-base w-5 text-center">{s.icon}</span>
                     <span className="text-sm text-ink">{s.label}</span>
                     {s.perfect && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md"
-                        style={{ background: '#FDE8E4', color: '#E8412C' }}>perfect</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: '#FDE8E4', color: '#E8412C' }}>perfect</span>
                     )}
                   </div>
                   <span className="text-xs font-bold px-2 py-1 rounded-lg bg-navy text-cream">{s.xp}</span>

@@ -56,7 +56,7 @@ export default function PassagePage() {
     <div className="max-w-2xl mx-auto px-6 py-8">
       <button
         onClick={() => router.back()}
-        className="text-2xl text-muted mb-5 hover:text-ink transition-colors block"
+        className="text-2xl text-muted mb-5 hover:scale-110 transition-transform hover:text-ink transition-colors block"
       >
         ←
       </button>

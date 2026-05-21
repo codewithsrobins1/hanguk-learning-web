@@ -75,7 +75,7 @@ export default function HangulSessionPage() {
         <div className="flex flex-col gap-3 w-full">
           <button
             onClick={() => setMode('vowels')}
-            className="w-full py-4 rounded-2xl bg-ink text-cream font-bold text-sm flex items-center justify-between px-5 hover:opacity-90 transition-opacity"
+            className="btn-press w-full py-4 rounded-2xl bg-navy text-cream font-quicksand font-bold text-base flex items-center justify-between px-5 hover:opacity-90 transition-opacity"
           >
             <div className="flex items-center gap-3">
               <span
@@ -92,7 +92,7 @@ export default function HangulSessionPage() {
           </button>
           <button
             onClick={() => setMode('consonants')}
-            className="w-full py-4 rounded-2xl bg-ink text-cream font-bold text-sm flex items-center justify-between px-5 hover:opacity-90 transition-opacity"
+            className="btn-press w-full py-4 rounded-2xl bg-navy text-cream font-quicksand font-bold text-base flex items-center justify-between px-5 hover:opacity-90 transition-opacity"
           >
             <div className="flex items-center gap-3">
               <span

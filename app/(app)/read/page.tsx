@@ -48,7 +48,7 @@ export default function ReadPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-extrabold text-ink mb-5">Reading</h1>
+      <h1 className="font-quicksand font-bold text-ink text-3xl mb-5">Reading</h1>
 
       {/* Search + Filter row */}
       <div className="flex gap-2 mb-5">

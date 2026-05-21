@@ -49,7 +49,7 @@ export default function ShadowPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-extrabold text-ink mb-1">Shadowing</h1>
+      <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Shadowing</h1>
       <p className="text-sm text-muted mb-6">Practice real Korean conversations</p>
 
       {/* Filters */}
@@ -112,7 +112,7 @@ export default function ShadowPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {items.map(d => (
                   <Link key={d.id} href={`/shadow/${d.id}`}
-                    className="bg-white border-[1.5px] border-border rounded-2xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
+                    className="bg-white border-[1.5px] border-border rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
                     <div className="flex-1 min-w-0">
                       <p className="font-extrabold text-[18px] text-ink mb-0.5">{d.title}</p>
                       <p className="text-[16px] text-muted mb-1" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{d.title_ko}</p>

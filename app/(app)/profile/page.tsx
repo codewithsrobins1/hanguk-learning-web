@@ -72,7 +72,7 @@ export default function ProfilePage() {
           </svg>
         </div>
         <div>
-          <h1 className="text-2xl font-extrabold text-ink">Settings</h1>
+          <h1 className="font-quicksand font-bold text-ink text-2xl">Settings</h1>
           <p className="text-s text-muted">Manage your account</p>
         </div>
       </div>
