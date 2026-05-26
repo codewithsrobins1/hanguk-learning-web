@@ -6,6 +6,7 @@ import { useRandomCard } from '@/hooks/useFlashcards';
 import ProgressBar from '@/components/ProgressBar';
 import FlipCard from '@/components/FlipCard';
 import { doc, updateDoc } from 'firebase/firestore';
+import { SECTIONS } from '@/lib/sections';
 import { db } from '@/lib/firebase';
 
 const XP_SOURCES = [
@@ -17,7 +18,7 @@ const XP_SOURCES = [
   { icon: '≡',  label: 'Reading passage — perfect quiz', xp: '+15 XP', perfect: true },
 ];
 
-type GoalDraft = { flashcards: number; reading: number; speaking: number; grammar: number };
+type GoalDraft = Record<string, number>;
 
 function Stepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
@@ -39,18 +40,20 @@ export default function HomePage() {
   const [cardFlipped,    setCardFlipped]    = useState(false);
   const [showXpModal,    setShowXpModal]    = useState(false);
   const [showGoalModal,  setShowGoalModal]  = useState(false);
-  const [goalDraft,      setGoalDraft]      = useState<GoalDraft>({ flashcards: 5, reading: 3, speaking: 4, grammar: 5 });
+  const [goalDraft,      setGoalDraft]      = useState<GoalDraft>(Object.fromEntries(SECTIONS.map(s => [s.key, 3])));
   const [savingGoal,     setSavingGoal]     = useState(false);
 
   const displayName = profile?.display_name || profile?.username || 'Learner';
   const goals = profile?.goals ?? null;
 
-  const goalRows = goals ? [
-    { key: 'flashcards', label: 'Vocabulary cards',   icon: '⧉', color: '#E8412C', done: Math.max(0, stats.cardsKnown       - (goals.baseline?.flashcards ?? 0)), target: goals.flashcards },
-    { key: 'reading',    label: 'Reading passages',   icon: '≡',  color: '#3B82F6', done: Math.max(0, stats.passagesDone     - (goals.baseline?.reading   ?? 0)), target: goals.reading    },
-    { key: 'speaking',   label: 'Speaking sessions',  icon: '💬', color: '#8B5CF6', done: Math.max(0, stats.dialogueSessions - (goals.baseline?.speaking  ?? 0)), target: goals.speaking   },
-    { key: 'grammar',    label: 'Grammar lessons',    icon: '문', color: '#F59E0B', done: Math.max(0, stats.grammarDone      - (goals.baseline?.grammar   ?? 0)), target: goals.grammar    },
-  ] : [];
+  const goalRows = goals ? SECTIONS.map(s => ({
+    key:    s.key,
+    label:  s.label,
+    icon:   s.icon,
+    color:  s.color,
+    done:   Math.max(0, (stats[s.statKey] ?? 0) - (goals.baseline?.[s.key] ?? 0)),
+    target: goals.targets?.[s.key] ?? 0,
+  })).filter(g => g.target > 0) : [];
 
   const allGoalsMet = goalRows.length > 0 && goalRows.every(g => g.done >= g.target);
 
@@ -58,7 +61,11 @@ export default function HomePage() {
     if (!user) return;
     setSavingGoal(true);
     await updateDoc(doc(db, 'profiles', user.uid), {
-      goals: { ...goalDraft, set_at: new Date().toISOString(), baseline: { flashcards: stats.cardsKnown, reading: stats.passagesDone, speaking: stats.dialogueSessions, grammar: stats.grammarDone } },
+      goals: {
+        targets:  goalDraft,
+        set_at:   new Date().toISOString(),
+        baseline: Object.fromEntries(SECTIONS.map(s => [s.key, stats[s.statKey] ?? 0])),
+      },
     });
     await refreshProfile();
     setSavingGoal(false);
@@ -72,7 +79,7 @@ export default function HomePage() {
   };
 
   const openEditGoal = () => {
-    if (goals) setGoalDraft({ flashcards: goals.flashcards, reading: goals.reading, speaking: goals.speaking, grammar: goals.grammar });
+    if (goals) setGoalDraft({ ...goals.targets });
     setShowGoalModal(true);
   };
 
@@ -119,25 +126,24 @@ export default function HomePage() {
       <div className="bg-white rounded-3xl border border-border p-5 mb-5">
         <p className="text-[11px] font-bold text-muted tracking-widest mb-4">OVERVIEW</p>
         <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: 'VOCAB',   value: stats.cardsKnown,   total: stats.totalCards,    sub: 'cards known',   color: '#E8412C' },
-            { label: 'READING', value: stats.passagesDone, total: stats.totalPassages, sub: 'passages done', color: '#3B82F6' },
-            { label: 'SPEAK',   value: stats.dialoguesDone,total: stats.totalDialogues,sub: 'dialogues done',color: '#8B5CF6' },
-            { label: 'GRAMMAR', value: stats.grammarDone,  total: stats.totalGrammar,  sub: 'lessons done',  color: '#F59E0B' },
-          ].map(item => (
-            <div key={item.label} className="bg-cream rounded-2xl p-3.5">
-              <p className="text-[10px] font-bold text-muted tracking-wider mb-1.5">{item.label}</p>
-              <p className="text-xl font-quicksand font-bold text-ink mb-0.5">
-                {item.value}<span className="text-xs font-semibold text-muted"> / {item.total}</span>
-              </p>
-              <p className="text-[10px] text-muted mb-2.5">{item.sub}</p>
-              <ProgressBar progress={item.total > 0 ? item.value / item.total : 0} color={item.color} />
-            </div>
-          ))}
+          {SECTIONS.map(s => {
+            const value = (stats as any)[s.statKey] ?? 0;
+            const total = (stats as any)[s.totalKey] ?? 0;
+            return (
+              <div key={s.key} className="bg-cream rounded-2xl p-3.5">
+                <p className="text-[10px] font-bold text-muted tracking-wider mb-1.5">{s.overviewLabel}</p>
+                <p className="text-xl font-quicksand font-bold text-ink mb-0.5">
+                  {value}<span className="text-xs font-semibold text-muted"> / {total}</span>
+                </p>
+                <p className="text-[10px] text-muted mb-2.5">{s.subLabel}</p>
+                <ProgressBar progress={total > 0 ? value / total : 0} color={s.color} />
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* ── Goals ──────────────────────────────────────────── */}
+            {/* ── Goals ──────────────────────────────────────────── */}
       <div className="bg-white rounded-3xl border border-border p-5 mb-5">
         <div className="flex items-center justify-between mb-4">
           <p className="text-[11px] font-bold text-muted tracking-widest">GOALS</p>
@@ -238,18 +244,13 @@ export default function HomePage() {
             </div>
             <p className="text-xs text-muted mb-6">Progress counts from when you save this goal.</p>
             <div className="flex flex-col gap-5 mb-6">
-              {[
-                { key: 'flashcards', label: 'Vocabulary cards',  icon: '⧉' },
-                { key: 'reading',    label: 'Reading passages',  icon: '≡' },
-                { key: 'speaking',   label: 'Speaking sessions', icon: '💬' },
-                { key: 'grammar',    label: 'Grammar lessons',   icon: '문' },
-              ].map(({ key, label, icon }) => (
+              {SECTIONS.map(({ key, label, icon }) => (
                 <div key={key} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-base w-5 text-center">{icon}</span>
                     <span className="text-sm font-semibold text-ink">{label}</span>
                   </div>
-                  <Stepper value={goalDraft[key as keyof GoalDraft]}
+                  <Stepper value={goalDraft[key] ?? 3}
                     onChange={v => setGoalDraft(prev => ({ ...prev, [key]: v }))} />
                 </div>
               ))}

@@ -26,6 +26,8 @@ export type UserStats = {
   totalDialogues: number;
   grammarDone: number;
   totalGrammar: number;
+  listeningDone: number;
+  totalListening: number;
 };
 
 const DEFAULT_STATS: UserStats = {
@@ -35,6 +37,7 @@ const DEFAULT_STATS: UserStats = {
   passagesDone: 0, totalPassages: 0,
   dialoguesDone: 0, dialogueSessions: 0, totalDialogues: 0,
   grammarDone: 0, totalGrammar: 0,
+  listeningDone: 0, totalListening: 0,
 };
 
 export function useUserStats() {
@@ -56,6 +59,8 @@ export function useUserStats() {
       totalDialoguesSnap,
       grammarProgressSnap,
       totalGrammarSnap,
+      listeningProgressSnap,
+      totalListeningSnap,
     ] = await Promise.all([
       getDocs(query(collection(db, 'user_card_progress'), where('user_id', '==', user.uid))),
       getCountFromServer(collection(db, 'flashcards')),
@@ -66,6 +71,8 @@ export function useUserStats() {
       getCountFromServer(collection(db, 'dialogues')),
       getDocs(query(collection(db, 'user_grammar_progress'), where('user_id', '==', user.uid))),
       getCountFromServer(collection(db, 'grammar_lessons')),
+      getDocs(query(collection(db, 'user_listening_progress'), where('user_id', '==', user.uid))),
+      getCountFromServer(collection(db, 'listening_exercises')),
     ]);
 
     const cardDocs = cardProgressSnap.docs.map(d => d.data());
@@ -97,6 +104,8 @@ export function useUserStats() {
       totalDialogues: totalDialoguesSnap.data().count,
       grammarDone: grammarProgressSnap.docs.length,
       totalGrammar: totalGrammarSnap.data().count,
+      listeningDone: listeningProgressSnap.docs.length,
+      totalListening: totalListeningSnap.data().count,
     });
 
     setLoading(false);

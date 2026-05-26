@@ -1,0 +1,55 @@
+export const SECTIONS = [
+  {
+    key: 'flashcards',
+    label: 'Vocabulary cards',
+    overviewLabel: 'VOCAB',
+    subLabel: 'cards known',
+    icon: '⧉',
+    color: '#E8412C',
+    statKey: 'cardsKnown',
+    totalKey: 'totalCards',
+  },
+  {
+    key: 'reading',
+    label: 'Reading passages',
+    overviewLabel: 'READING',
+    subLabel: 'passages done',
+    icon: '≡',
+    color: '#3B82F6',
+    statKey: 'passagesDone',
+    totalKey: 'totalPassages',
+  },
+  {
+    key: 'speaking',
+    label: 'Speaking sessions',
+    overviewLabel: 'SPEAK',
+    subLabel: 'dialogues done',
+    icon: '💬',
+    color: '#8B5CF6',
+    statKey: 'dialogueSessions',
+    totalKey: 'totalDialogues',
+  },
+  {
+    key: 'grammar',
+    label: 'Grammar lessons',
+    overviewLabel: 'GRAMMAR',
+    subLabel: 'lessons done',
+    icon: '문',
+    color: '#F59E0B',
+    statKey: 'grammarDone',
+    totalKey: 'totalGrammar',
+  },
+  {
+    key: 'listening',
+    label: 'Listening exercises',
+    overviewLabel: 'LISTEN',
+    subLabel: 'exercises done',
+    icon: '🎧',
+    color: '#06B6D4',
+    statKey: 'listeningDone',
+    totalKey: 'totalListening',
+  },
+] as const;
+
+export type SectionKey = (typeof SECTIONS)[number]['key'];
+export type StatKey = (typeof SECTIONS)[number]['statKey'];

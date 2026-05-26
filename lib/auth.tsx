@@ -29,17 +29,9 @@ type Profile = {
   interests: string[];
   dialogue_sessions: number;
   goals: {
-    flashcards: number;
-    reading: number;
-    speaking: number;
-    grammar: number;
-    set_at: string;
-    baseline: {
-      flashcards: number;
-      reading: number;
-      speaking: number;
-      grammar: number;
-    };
+    targets:  Record<string, number>;
+    set_at:   string;
+    baseline: Record<string, number>;
   } | null;
 };
 
