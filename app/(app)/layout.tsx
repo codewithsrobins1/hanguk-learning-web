@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: '/cards', label: 'Flashcards', icon: '⧉' },
   { href: '/read', label: 'Read', icon: '≡' },
   { href: '/shadow', label: 'Speak', icon: '💬' },
+  { href: '/listen', label: 'Listen', icon: '🎧' },
   { href: '/grammar', label: 'Grammar', icon: '문' },
   { href: '/profile', label: 'Profile', icon: '⚙️' },
 ];

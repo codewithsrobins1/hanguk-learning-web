@@ -9,6 +9,7 @@ service cloud.firestore {
     match /changelog/{id}                   { allow read: if true; }
     match /grammar_lessons/{id}             { allow read: if true; }
     match /grammar_questions/{id}           { allow read: if true; }
+    match /listening_exercises/{id}         { allow read: if true; }
     match /profiles/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId;
@@ -32,6 +33,11 @@ service cloud.firestore {
       allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
     }
     match /milestone_results/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
+    }
+    match /user_listening_progress/{docId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.resource.data.user_id == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
