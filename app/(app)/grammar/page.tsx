@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useGrammarLessons, useMilestoneResults, LessonWithProgress, MilestoneResult } from '@/hooks/useGrammar';
@@ -56,15 +56,12 @@ function buildPath(
 ): { nodes: PathNode[]; totalH: number } {
   const levels: Level[] = filterLevel === 'All' ? [...LEVELS] : [filterLevel];
   const rawNodes: RawPathNode[] = [];
-  let lastX = RIGHT_X; // start RIGHT so first node goes LEFT
+  let lastX = RIGHT_X;
   const nextX = () => { lastX = lastX === LEFT_X ? RIGHT_X : LEFT_X; return lastX; };
-
   let prevDone = true;
 
   levels.forEach((level, li) => {
-    if (filterLevel === 'All' && li > 0) {
-      rawNodes.push({ kind: 'divider', label: level });
-    }
+    if (filterLevel === 'All' && li > 0) rawNodes.push({ kind: 'divider', label: level });
 
     const levelLessons = lessons.filter(l => l.level === level);
     const groupCount = Math.ceil(levelLessons.length / 5);
@@ -101,10 +98,7 @@ function buildPath(
       return node;
     }
     let status = n.status;
-    if (!foundCurrent && status === 'unlocked') {
-      status = 'current';
-      foundCurrent = true;
-    }
+    if (!foundCurrent && status === 'unlocked') { status = 'current'; foundCurrent = true; }
     const node = { ...n, status, y } as PathNode;
     y += ROW_H;
     return node;
@@ -113,24 +107,15 @@ function buildPath(
   return { nodes, totalH: y + 48 };
 }
 
-// ── Node components ───────────────────────────────────────────────
+// ── Sub-components ────────────────────────────────────────────────
 function LessonNode({ node }: { node: Extract<PathNode, { kind: 'lesson' }> }) {
   const s = node.status;
   const isPerfect = node.lesson.score !== null && node.lesson.score === node.lesson.total;
-
-  const bg =
-    s === 'completed' ? '#1A1F36'
-    : s === 'current' || s === 'unlocked' ? '#fff'
-    : '#ECEAE6';
-
-  const border =
-    s === 'current'  ? '#1A1F36'
-    : s === 'unlocked' ? '#C4BFBA'
-    : 'transparent';
+  const bg = s === 'completed' ? '#1A1F36' : s === 'current' || s === 'unlocked' ? '#fff' : '#ECEAE6';
+  const border = s === 'current' ? '#1A1F36' : s === 'unlocked' ? '#C4BFBA' : 'transparent';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      {/* Circle */}
       <div style={{
         width: NODE_SIZE, height: NODE_SIZE, borderRadius: '50%',
         background: bg, border: `2.5px solid ${border}`,
@@ -143,31 +128,21 @@ function LessonNode({ node }: { node: Extract<PathNode, { kind: 'lesson' }> }) {
         ) : s === 'locked' ? (
           <span style={{ fontSize: 22 }}>🔒</span>
         ) : (
-          <span style={{
-            fontSize: 13, fontWeight: 800, color: '#1A1F36',
-            fontFamily: 'Noto Sans KR, sans-serif',
-            lineHeight: 1.2, textAlign: 'center', padding: '0 6px',
-          }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: '#1A1F36', fontFamily: 'Noto Sans KR, sans-serif', lineHeight: 1.2, textAlign: 'center', padding: '0 6px' }}>
             {node.lesson.title_ko.length > 6 ? node.lesson.title_ko.slice(0, 6) + '…' : node.lesson.title_ko}
           </span>
         )}
       </div>
-
-      {/* Subtext */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, maxWidth: 90 }}>
         {s === 'completed' ? (
           <>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#444', textAlign: 'center', lineHeight: 1.3 }}>
-              {node.lesson.title_en}
-            </span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#444', textAlign: 'center', lineHeight: 1.3 }}>{node.lesson.title_en}</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#16A34A', whiteSpace: 'nowrap' }}>
               {node.lesson.completed_at ? formatMonthYear(node.lesson.completed_at) : ''}
             </span>
           </>
         ) : s !== 'locked' ? (
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#888', textAlign: 'center', lineHeight: 1.3 }}>
-            {node.lesson.title_en}
-          </span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#888', textAlign: 'center', lineHeight: 1.3 }}>{node.lesson.title_en}</span>
         ) : null}
       </div>
     </div>
@@ -176,25 +151,15 @@ function LessonNode({ node }: { node: Extract<PathNode, { kind: 'lesson' }> }) {
 
 function MilestoneNode({ node }: { node: Extract<PathNode, { kind: 'milestone' }> }) {
   const s = node.status;
-
-  const bg =
-    s === 'completed' ? '#F59E0B'
-    : s === 'current' || s === 'unlocked' ? '#fff'
-    : '#ECEAE6';
-
-  const border =
-    s === 'completed' ? '#F59E0B'
-    : s === 'current' || s === 'unlocked' ? '#F59E0B'
-    : 'transparent';
+  const bg = s === 'completed' ? '#F59E0B' : s === 'current' || s === 'unlocked' ? '#fff' : '#ECEAE6';
+  const border = s === 'completed' ? '#F59E0B' : s === 'current' || s === 'unlocked' ? '#F59E0B' : 'transparent';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      {/* Circle */}
       <div style={{
         width: MILESTONE_SIZE, height: MILESTONE_SIZE, borderRadius: '50%',
         background: bg, border: `3px solid ${border}`,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: 2,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
         boxShadow: (s === 'current' || s === 'unlocked') ? '0 0 0 7px rgba(245,158,11,0.12)' : 'none',
         flexShrink: 0,
       }}>
@@ -209,22 +174,14 @@ function MilestoneNode({ node }: { node: Extract<PathNode, { kind: 'milestone' }
           </>
         )}
       </div>
-
-      {/* Subtext */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, maxWidth: 90 }}>
         {s === 'completed' && node.result?.completed_at ? (
           <>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#444', whiteSpace: 'nowrap' }}>
-              Checkpoint {node.group}
-            </span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B', whiteSpace: 'nowrap' }}>
-              {formatMonthYear(node.result.completed_at)}
-            </span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#444', whiteSpace: 'nowrap' }}>Checkpoint {node.group}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B', whiteSpace: 'nowrap' }}>{formatMonthYear(node.result.completed_at)}</span>
           </>
         ) : s !== 'locked' ? (
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B', whiteSpace: 'nowrap' }}>
-            Checkpoint {node.group}
-          </span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#F59E0B', whiteSpace: 'nowrap' }}>Checkpoint {node.group}</span>
         ) : null}
       </div>
     </div>
@@ -253,9 +210,18 @@ export default function GrammarPage() {
   const { results, loading: resultsLoading } = useMilestoneResults();
   const router = useRouter();
 
-  const [filterLevel, setFilterLevel] = useState<Level | 'All'>('All');
-  const [interests, setInterests] = useState<string[]>([]);
-  const [saving, setSaving] = useState(false);
+  const [filterLevel,   setFilterLevel]   = useState<Level | 'All'>('All');
+  const [interests,     setInterests]     = useState<string[]>([]);
+  const [saving,        setSaving]        = useState(false);
+  const [showBackTop,   setShowBackTop]   = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowBackTop(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const hasInterests = profile && profile.interests && profile.interests.length > 0;
   const loading = lessonsLoading || resultsLoading;
@@ -274,16 +240,12 @@ export default function GrammarPage() {
   };
 
   const toggleInterest = (i: string) => {
-    setInterests(prev =>
-      prev.includes(i) ? prev.filter(x => x !== i) : prev.length < 4 ? [...prev, i] : prev
-    );
+    setInterests(prev => prev.includes(i) ? prev.filter(x => x !== i) : prev.length < 4 ? [...prev, i] : prev);
   };
 
   const handleNodeClick = (node: PathNode) => {
-    if (node.kind === 'lesson' && node.status !== 'locked')
-      router.push(`/grammar/${node.lesson.id}`);
-    if (node.kind === 'milestone' && node.status !== 'locked')
-      router.push(`/grammar/milestone/${node.milestoneId}`);
+    if (node.kind === 'lesson' && node.status !== 'locked') router.push(`/grammar/${node.lesson.id}`);
+    if (node.kind === 'milestone' && node.status !== 'locked') router.push(`/grammar/milestone/${node.milestoneId}`);
   };
 
   if (!hasInterests) {
@@ -297,8 +259,9 @@ export default function GrammarPage() {
             return (
               <button key={i} onClick={() => toggleInterest(i)}
                 className="px-4 py-2 rounded-full text-sm font-semibold border-[1.5px] transition-all"
-                style={{ background: sel ? '#1A1F36' : '#fff', color: sel ? '#F7F4EE' : '#444', borderColor: sel ? '#1A1F36' : '#E8E3D8' }}
-              >{i}</button>
+                style={{ background: sel ? '#1A1F36' : '#fff', color: sel ? '#F7F4EE' : '#444', borderColor: sel ? '#1A1F36' : '#E8E3D8' }}>
+                {i}
+              </button>
             );
           })}
         </div>
@@ -307,8 +270,9 @@ export default function GrammarPage() {
         </p>
         <button onClick={handleSaveInterests} disabled={interests.length < 2 || saving}
           className="btn-press w-full py-4 rounded-2xl font-quicksand font-bold text-base disabled:opacity-40"
-          style={{ background: '#1A1F36', color: '#F7F4EE' }}
-        >{saving ? 'Saving...' : 'Continue →'}</button>
+          style={{ background: '#1A1F36', color: '#F7F4EE' }}>
+          {saving ? 'Saving...' : 'Continue →'}
+        </button>
       </div>
     );
   }
@@ -333,8 +297,9 @@ export default function GrammarPage() {
           <p className="text-sm text-muted">{doneLessons}/{totalLessons} lessons · {doneMilestones} milestones passed</p>
         </div>
         <button onClick={() => router.push('/profile')}
-          className="text-[11px] font-semibold text-muted hover:text-ink transition-colors mt-1"
-        >Edit interests</button>
+          className="text-[11px] font-semibold text-muted hover:text-ink transition-colors mt-1">
+          Edit interests
+        </button>
       </div>
 
       {/* Level filter tabs */}
@@ -349,13 +314,14 @@ export default function GrammarPage() {
                 background: isActive ? (c ? c.text : '#1A1F36') : '#fff',
                 color: isActive ? '#fff' : (c ? c.text : '#444'),
                 borderColor: c ? c.text : '#E8E3D8',
-              }}
-            >{level}</button>
+              }}>
+              {level}
+            </button>
           );
         })}
       </div>
 
-      {/* Roadmap — centres within available width, clips overflow */}
+      {/* Roadmap */}
       <div style={{ overflowX: 'hidden', width: '100%' }}>
         <div style={{ position: 'relative', width: CONTAINER_W, margin: '0 auto', height: totalH }}>
 
@@ -370,8 +336,7 @@ export default function GrammarPage() {
                 : prev.kind === 'milestone' ? prev.result?.passed === true : false;
               return (
                 <line key={i}
-                  x1={prev.x} y1={prev.y}
-                  x2={node.x} y2={node.y}
+                  x1={prev.x} y1={prev.y} x2={node.x} y2={node.y}
                   stroke={done ? '#1A1F36' : '#E8E3D8'}
                   strokeWidth={done ? 3 : 2}
                   strokeDasharray={done ? 'none' : '6 4'}
@@ -389,19 +354,15 @@ export default function GrammarPage() {
                 </div>
               );
             }
-
             const size = node.kind === 'milestone' ? MILESTONE_SIZE : NODE_SIZE;
-
             return (
-              <div key={i}
-                onClick={() => handleNodeClick(node)}
+              <div key={i} onClick={() => handleNodeClick(node)}
                 style={{
                   position: 'absolute',
                   left: node.x - size / 2,
                   top: node.y - size / 2,
                   cursor: node.status === 'locked' ? 'default' : 'pointer',
-                }}
-              >
+                }}>
                 {node.kind === 'lesson'
                   ? <LessonNode node={node} />
                   : <MilestoneNode node={node} />
@@ -427,6 +388,17 @@ export default function GrammarPage() {
           </div>
         ))}
       </div>
+
+      {/* Back to top */}
+      {showBackTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-6 md:right-8 z-50 w-11 h-11 rounded-2xl bg-navy text-cream flex items-center justify-center shadow-lg hover:opacity-90 transition-all"
+          aria-label="Back to top"
+        >
+          ↑
+        </button>
+      )}
     </div>
   );
 }

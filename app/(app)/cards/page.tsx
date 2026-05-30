@@ -31,6 +31,7 @@ const selectStyle = {
 export default function CardsPage() {
   const { sets, loading } = useFlashcardSets();
   const [search, setSearch] = useState('');
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [category, setCategory] = useState('All');
 
   const categories = ['All', ...Array.from(new Set(sets.map(s => s.category)))];
@@ -38,7 +39,8 @@ export default function CardsPage() {
   const filtered = sets.filter(s => {
     const matchesCategory = category === 'All' || s.category === category;
     const matchesSearch = s.title.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const isComplete = (s.mastery_count ?? 0) >= s.card_count && s.card_count > 0;
+    return matchesCategory && matchesSearch && (!hideCompleted || !isComplete);
   });
 
   return (
@@ -67,6 +69,20 @@ export default function CardsPage() {
           ))}
         </select>
       </div>
+
+
+      {/* Hide completed toggle */}
+      <label className="flex items-center gap-2 cursor-pointer mb-5 w-fit">
+        <div
+          onClick={() => setHideCompleted(h => !h)}
+          className="relative w-9 h-5 rounded-full transition-colors cursor-pointer flex-shrink-0"
+          style={{ background: hideCompleted ? '#1A1F36' : '#E8E3D8' }}
+        >
+          <div className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+            style={{ left: hideCompleted ? '18px' : '2px' }} />
+        </div>
+        <span className="text-sm font-semibold text-muted">Hide completed</span>
+      </label>
 
       {loading ? (
         <div className="flex justify-center py-16">

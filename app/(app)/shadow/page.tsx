@@ -24,6 +24,7 @@ function formatMonthYear(date: Date) {
 export default function ShadowPage() {
   const { dialogues, loading } = useDialogues();
   const [category,   setCategory]   = useState('All');
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [difficulty, setDifficulty] = useState<string | null>(null);
 
   const categories = ['All', ...Array.from(new Set(dialogues.map(d => d.category)))];
@@ -32,7 +33,7 @@ export default function ShadowPage() {
   const filtered = dialogues.filter(d => {
     const matchesDiff = difficulty === null || d.difficulty === difficulty;
     const matchesCat  = category === 'All' || d.category === category;
-    return matchesDiff && matchesCat;
+    return matchesDiff && matchesCat && (!hideCompleted || !d.completed_at);
   });
 
   const grouped = DIFFICULTIES.reduce<Record<string, typeof dialogues>>((acc, diff) => {
@@ -90,6 +91,20 @@ export default function ShadowPage() {
           </button>
         )}
       </div>
+
+
+      {/* Hide completed toggle */}
+      <label className="flex items-center gap-2 cursor-pointer mb-5 w-fit">
+        <div
+          onClick={() => setHideCompleted(h => !h)}
+          className="relative w-9 h-5 rounded-full transition-colors cursor-pointer flex-shrink-0"
+          style={{ background: hideCompleted ? '#1A1F36' : '#E8E3D8' }}
+        >
+          <div className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
+            style={{ left: hideCompleted ? '18px' : '2px' }} />
+        </div>
+        <span className="text-sm font-semibold text-muted">Hide completed</span>
+      </label>
 
       {Object.keys(grouped).length === 0 ? (
         <div className="text-center mt-16">
