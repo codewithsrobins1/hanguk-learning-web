@@ -33,6 +33,15 @@ type Profile = {
     set_at:   string;
     baseline: Record<string, number>;
   } | null;
+  routine: {
+    daysPerWeek:   number;
+    minutesPerDay: number;
+    priority:      string;
+    level:         string;
+    selectedDays:  number[];
+    cycle:         string[];
+    created_at:    string;
+  } | null;
 };
 
 type AuthContextType = {
