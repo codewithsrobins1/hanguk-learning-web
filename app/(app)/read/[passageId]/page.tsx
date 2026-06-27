@@ -34,7 +34,8 @@ export default function PassagePage() {
     );
 
   const cat = catColors[passage.category] || { bg: '#E8E3D8', text: '#888' };
-  const allAnswered = Object.keys(selected).length === questions.length;
+  const hasQuiz = questions.length > 0;
+  const allAnswered = hasQuiz && Object.keys(selected).length === questions.length;
   const score = submitted
     ? questions.filter((q, i) => selected[i] === q.answer_index).length
     : 0;
@@ -126,7 +127,23 @@ export default function PassagePage() {
         <span className="text-xs text-muted">Comprehension Check</span>
       </div>
 
-      {questions.map((q, qi) => (
+      {/* No quiz available — guard against the empty-quiz bug */}
+      {!hasQuiz && (
+        <div className="bg-white rounded-2xl p-6 mb-5 border border-border text-center">
+          <p className="text-2xl mb-2">📝</p>
+          <p className="font-bold text-ink text-sm mb-1">Quiz coming soon</p>
+          <p className="text-xs text-muted mb-4">This passage doesn't have a comprehension quiz yet.</p>
+          <button
+            onClick={() => router.push('/read')}
+            className="px-5 py-2.5 rounded-xl font-bold text-sm text-cream hover:opacity-90 transition-opacity"
+            style={{ background: '#1A1F36' }}
+          >
+            ← Back to Reading
+          </button>
+        </div>
+      )}
+
+      {hasQuiz && questions.map((q, qi) => (
         <div
           key={qi}
           className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-border"
@@ -176,7 +193,7 @@ export default function PassagePage() {
         </div>
       ))}
 
-      {!submitted ? (
+      {hasQuiz && !submitted && (
         <button
           onClick={handleSubmit}
           disabled={!allAnswered}
@@ -188,7 +205,9 @@ export default function PassagePage() {
         >
           제출하기 →
         </button>
-      ) : (
+      )}
+
+      {hasQuiz && submitted && (
         <>
           <div
             className={`rounded-2xl p-5 text-center border-2 ${
