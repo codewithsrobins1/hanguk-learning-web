@@ -4,49 +4,88 @@
       "collectionGroup": "comprehension_questions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "passage_id", "order": "ASCENDING" },
-        { "fieldPath": "sort_order", "order": "ASCENDING" }
+        {
+          "fieldPath": "passage_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sort_order",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "flashcards",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "set_id", "order": "ASCENDING" },
-        { "fieldPath": "sort_order", "order": "ASCENDING" }
+        {
+          "fieldPath": "set_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sort_order",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "user_card_progress",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "user_id", "order": "ASCENDING" },
-        { "fieldPath": "known", "order": "ASCENDING" }
+        {
+          "fieldPath": "user_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "known",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "user_card_progress",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "user_id", "order": "ASCENDING" },
-        { "fieldPath": "set_id", "order": "ASCENDING" },
-        { "fieldPath": "known", "order": "ASCENDING" }
+        {
+          "fieldPath": "user_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "set_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "known",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "user_passage_progress",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "user_id", "order": "ASCENDING" },
-        { "fieldPath": "passage_id", "order": "ASCENDING" }
+        {
+          "fieldPath": "user_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "passage_id",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "grammar_questions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "lesson_id", "order": "ASCENDING" },
-        { "fieldPath": "sort_order", "order": "ASCENDING" }
+        {
+          "fieldPath": "lesson_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sort_order",
+          "order": "ASCENDING"
+        }
       ]
     }
   ],

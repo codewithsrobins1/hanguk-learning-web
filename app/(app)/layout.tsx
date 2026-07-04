@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/read', label: 'Read', icon: '≡' },
   { href: '/shadow', label: 'Speak', icon: '💬' },
   { href: '/listen', label: 'Listen', icon: '🎧' },
+  { href: '/patterns', label: 'Patterns', icon: '🧩' },
   { href: '/grammar', label: 'Grammar', icon: '문' },
   { href: '/profile', label: 'Profile', icon: '⚙️' },
 ];
