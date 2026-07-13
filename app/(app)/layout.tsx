@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth';
 const NAV_ITEMS = [
   { href: '/home', label: 'Home', icon: '⌂' },
   { href: '/hangul', label: 'Hangul', icon: '가' },
-  { href: '/cards', label: 'Flashcards', icon: '⧉' },
+  { href: '/cards', label: 'Vocab', icon: '⧉' },
   { href: '/read', label: 'Read', icon: '≡' },
   { href: '/shadow', label: 'Speak', icon: '💬' },
   { href: '/listen', label: 'Listen', icon: '🎧' },

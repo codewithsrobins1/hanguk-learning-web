@@ -86,3 +86,11 @@ export type Dialogue = {
   sort_order: number;
   lines: DialogueLine[];
 };
+
+// ── Extended Flashcard type with cloze fields ────────────────────
+export type FlashcardWithCloze = Flashcard & {
+  cloze_sentence:    string;   // e.g. "저는 한국어를 ___ 싶어요."
+  cloze_answer:      string;   // e.g. "배우고"
+  cloze_distractors: string[]; // e.g. ["먹고", "자고", "가고"]
+  cloze_translation: string;   // e.g. "I want to learn Korean."
+};

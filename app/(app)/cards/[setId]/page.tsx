@@ -1,18 +1,16 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
 import { useAuth } from '@/lib/auth';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
 import { addXp } from '@/lib/xp';
-import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
+import { FlashcardWithCloze } from '@/types';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
 
 function HangulModal({ onClose }: { onClose: () => void }) {
   const [tab, setTab] = useState<'vowels' | 'consonants'>('vowels');
   const chars = tab === 'vowels' ? hangulVowels : hangulConsonants;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
@@ -29,7 +27,7 @@ function HangulModal({ onClose }: { onClose: () => void }) {
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink transition-colors text-lg"
+            className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-lg"
           >
             ✕
           </button>
@@ -67,9 +65,6 @@ function HangulModal({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </div>
-        <p className="text-[10px] text-muted text-center mt-3">
-          Tap a character on the Hangul page for pronunciation details
-        </p>
       </div>
     </div>
   );
@@ -78,13 +73,30 @@ function HangulModal({ onClose }: { onClose: () => void }) {
 function speakKorean(text: string) {
   if (typeof window === 'undefined') return;
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'ko-KR';
-  utter.rate = 0.9;
-  window.speechSynthesis.speak(utter);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ko-KR';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
 }
 
-export default function FlashcardSessionPage() {
+function buildAnsweredSentence(cloze: string, word: string, color: string) {
+  const parts = cloze.split('___');
+  if (parts.length !== 2)
+    return (
+      <span style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{cloze}</span>
+    );
+  return (
+    <span style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
+      {parts[0]}
+      <span style={{ color, fontWeight: 800 }}>{word}</span>
+      {parts[1]}
+    </span>
+  );
+}
+
+type AnswerState = 'idle' | 'correct' | 'wrong';
+
+export default function VocabSessionPage() {
   const { setId } = useParams<{ setId: string }>();
   const router = useRouter();
   const { user, refreshProfile } = useAuth();
@@ -92,22 +104,40 @@ export default function FlashcardSessionPage() {
   const saveProgress = useSaveCardProgress();
 
   const [index, setIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
+  const [answerState, setAnswerState] = useState<AnswerState>('idle');
+  const [chosenOption, setChosenOption] = useState<string | null>(null);
   const [known, setKnown] = useState<number[]>([]);
-  const [missed, setMissed] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
-  const [reviewCards, setReviewCards] = useState<typeof cards | null>(null);
+  const [showTranslation, setShowTranslation] = useState(false);
   const [showHangul, setShowHangul] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [shake, setShake] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
 
-  // Shuffle cards once on load
+  // ── All hooks must come before any early returns ─────────────────
   const shuffledCards = useMemo(
     () => [...cards].sort(() => Math.random() - 0.5),
     [cards]
   );
 
+  const card = shuffledCards[index] as FlashcardWithCloze | undefined;
+
+  const options = useMemo(() => {
+    if (!card) return [];
+    const all = [
+      card.cloze_answer,
+      ...(card.cloze_distractors ?? []).slice(0, 3),
+    ];
+    return [...all].sort(() => Math.random() - 0.5);
+  }, [card?.id]);
+
+  useEffect(() => {
+    setAnswerState('idle');
+    setChosenOption(null);
+    setShowTranslation(false);
+  }, [index]);
+
+  // ── Early returns after all hooks ────────────────────────────────
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -128,24 +158,74 @@ export default function FlashcardSessionPage() {
       </div>
     );
 
-  const activeCards = reviewCards ?? shuffledCards;
+  if (done) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-8">
+        <span className="text-6xl mb-5">🎉</span>
+        <h2 className="text-2xl font-quicksand font-bold text-ink mb-2">
+          Session Complete!
+        </h2>
+        <p className="text-muted mb-2 text-center">
+          {known.length} / {shuffledCards.length} correct
+        </p>
+        {xpEarned > 0 && (
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-xl mb-6"
+            style={{ background: '#F0F7FF' }}
+          >
+            <span>⚡</span>
+            <p className="text-sm font-bold text-ink">
+              +{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect!' : ''}
+            </p>
+          </div>
+        )}
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <button
+            onClick={() => {
+              setIndex(0);
+              setKnown([]);
+              setDone(false);
+              setXpEarned(0);
+            }}
+            className="w-full py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
+          >
+            Try Again
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="btn-press w-full py-3.5 rounded-xl bg-navy text-cream font-bold text-sm"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const handleAnswer = async (isKnown: boolean) => {
-    if (isKnown) {
+  if (!card) return null;
+
+  // ── Handlers ─────────────────────────────────────────────────────
+  const handleAnswer = async (option: string) => {
+    if (answerState !== 'idle') return;
+    setChosenOption(option);
+    const correct = option === card.cloze_answer;
+    if (correct) {
+      setAnswerState('correct');
       setKnown((k) => [...k, index]);
-      if (soundEnabled) playCorrect();
     } else {
-      setMissed((m) => [...m, index]);
-      if (soundEnabled) playIncorrect();
+      setAnswerState('wrong');
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     }
-    if (!reviewCards) {
-      await saveProgress(activeCards[index].id, setId, isKnown);
-    }
-    if (index + 1 >= activeCards.length) {
-      // Award XP — only on real session, not review mode
-      if (!reviewCards && user) {
-        const knownCount = isKnown ? known.length + 1 : known.length;
-        const isPerfect = knownCount === activeCards.length;
+    await saveProgress(card.id, setId, correct);
+  };
+
+  const handleNext = async () => {
+    if (index + 1 >= shuffledCards.length) {
+      if (user) {
+        const isPerfect =
+          known.length + (answerState === 'correct' ? 1 : 0) ===
+          shuffledCards.length;
         const xp = isPerfect ? 15 : 10;
         setXpEarned(xp);
         await addXp(user.uid, xp);
@@ -156,96 +236,54 @@ export default function FlashcardSessionPage() {
     }
     setTransitioning(true);
     setTimeout(() => {
-      setFlipped(false);
       setIndex((i) => i + 1);
       setTransitioning(false);
     }, 150);
   };
 
-  if (done) {
-    const missedCards = missed.map((i) => activeCards[i]);
-    const isReviewMode = reviewCards !== null;
+  // ── Derived values ────────────────────────────────────────────────
+  const cardBg =
+    answerState === 'correct'
+      ? '#F0FFF4'
+      : answerState === 'wrong'
+        ? '#FFF5F5'
+        : '#1A1F36';
 
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-8">
-        <span className="text-6xl mb-5">{isReviewMode ? '📖' : '🎉'}</span>
-        <h2 className="text-2xl font-extrabold text-ink mb-2">
-          {isReviewMode ? 'Review Complete!' : 'Session Complete!'}
-        </h2>
-        <p className="text-muted mb-2 text-center">
-          {known.length} / {activeCards.length} cards{' '}
-          {isReviewMode ? 'reviewed correctly' : 'marked as known'}
-        </p>
-        {!isReviewMode && xpEarned > 0 && (
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-xl mb-2"
-            style={{ background: '#F0F7FF' }}
-          >
-            <span className="text-base">⚡</span>
-            <p className="text-sm font-bold text-ink">
-              +{xpEarned} XP earned{xpEarned === 15 ? ' · Perfect score!' : ''}
-            </p>
-          </div>
-        )}
-        {!isReviewMode && (
-          <p className="text-xs text-muted mb-8 text-center">
-            Missed cards don't affect your mastery score
-          </p>
-        )}
-        {isReviewMode && <div className="mb-8" />}
+  const cardBorder =
+    answerState === 'correct'
+      ? '2px solid #86EFAC'
+      : answerState === 'wrong'
+        ? '2px solid #FCA5A5'
+        : 'none';
 
-        <div className="flex flex-col gap-3 w-full max-w-xs">
-          {!isReviewMode && missedCards.length > 0 && (
-            <button
-              onClick={() => {
-                setReviewCards(missedCards);
-                setIndex(0);
-                setFlipped(false);
-                setKnown([]);
-                setMissed([]);
-                setDone(false);
-              }}
-              className="w-full py-3.5 rounded-xl border-2 border-red font-bold text-sm text-red hover:bg-red hover:text-white transition-colors"
-            >
-              Review Missed ({missedCards.length})
-            </button>
-          )}
-          <div className="flex gap-3">
-            <button
-              onClick={() => {
-                setReviewCards(null);
-                setIndex(0);
-                setFlipped(false);
-                setKnown([]);
-                setMissed([]);
-                setDone(false);
-              }}
-              className="flex-1 py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
-            >
-              Try Again
-            </button>
-            <button
-              onClick={() => router.back()}
-              className="flex-1 py-3.5 rounded-xl bg-ink text-cream font-bold text-sm hover:bg-inkLight transition-colors"
-            >
-              Done
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const fullSentence =
+    card.cloze_sentence?.replace('___', card.cloze_answer) ?? '';
 
-  const card = activeCards[index];
-  const koreanSentence = card.sentence_parts.join('');
-
+  // ── Render ────────────────────────────────────────────────────────
   return (
     <>
       {showHangul && <HangulModal onClose={() => setShowHangul(false)} />}
 
-      <div className="min-h-screen flex flex-col px-6 py-8 max-w-xl mx-auto">
+      <style>{`
+        @keyframes shake {
+          0%,100% { transform: translateX(0); }
+          20%      { transform: translateX(-8px); }
+          40%      { transform: translateX(8px); }
+          60%      { transform: translateX(-6px); }
+          80%      { transform: translateX(6px); }
+        }
+        .shake { animation: shake 0.45s ease; }
+      `}</style>
+
+      <div
+        className="min-h-screen flex flex-col px-6 py-8 max-w-xl mx-auto"
+        style={{
+          opacity: transitioning ? 0 : 1,
+          transition: 'opacity 0.15s ease',
+        }}
+      >
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => router.back()}
             className="text-2xl text-muted hover:text-ink transition-colors"
@@ -254,13 +292,13 @@ export default function FlashcardSessionPage() {
           </button>
           <div className="flex-1">
             <ProgressBar
-              progress={index / activeCards.length}
+              progress={index / shuffledCards.length}
               color="#111111"
               height={5}
             />
           </div>
-          <span className="text-xs font-semibold text-muted mr-2">
-            {index + 1} / {activeCards.length}
+          <span className="text-xs font-semibold text-muted mr-1">
+            {index + 1} / {shuffledCards.length}
           </span>
           <button
             onClick={() => setShowHangul(true)}
@@ -274,113 +312,151 @@ export default function FlashcardSessionPage() {
             </span>
             <span className="text-[10px] font-bold text-muted">REF</span>
           </button>
-          <button
-            onClick={() => setSoundEnabled((s) => !s)}
-            className="flex items-center justify-center w-8 h-8 rounded-lg bg-cream border border-border hover:border-ink transition-colors"
-          >
-            <span className="text-sm">{soundEnabled ? '🔊' : '🔇'}</span>
-          </button>
         </div>
 
-        {/* Card area */}
+        {/* Vocab card */}
         <div
-          className="flex-1 flex flex-col items-center justify-center gap-6"
-          style={{
-            opacity: transitioning ? 0 : 1,
-            transition: 'opacity 0.15s ease',
-          }}
+          className={`rounded-3xl p-8 mb-5 flex flex-col items-center justify-center min-h-[220px] transition-all ${shake ? 'shake' : ''}`}
+          style={{ background: cardBg, border: cardBorder }}
         >
-          <FlipCard
-            key={index}
-            height={290}
-            flipped={flipped}
-            onFlip={() => setFlipped(!flipped)}
-            className="w-full max-w-sm"
-            front={
-              <div className="h-full bg-navy rounded-3xl flex flex-col items-center justify-center p-8 shadow-xl cursor-pointer">
-                <p className="text-[11px] text-gray-500 tracking-widest mb-6 font-bold">
-                  TAP TO REVEAL
-                </p>
-                <p
-                  className="text-2xl font-semibold text-cream text-center leading-10"
-                  style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-                >
-                  {card.sentence_parts.map((part, i) =>
-                    i === card.key_index ? (
-                      <span key={i} className="text-red font-extrabold">
-                        {part}
-                      </span>
-                    ) : (
-                      <span key={i}>{part}</span>
-                    )
-                  )}
-                </p>
-              </div>
-            }
-            back={
-              <div className="h-full bg-white rounded-3xl border-2 border-border flex flex-col items-center justify-center p-8 cursor-pointer">
-                <p className="text-[11px] text-muted tracking-widest mb-4 font-bold">
-                  TRANSLATION
-                </p>
-                <p className="text-2xl font-bold text-ink text-center mb-4">
-                  {card.translation}
-                </p>
-                <div className="px-4 py-2.5 bg-cream rounded-xl border-[1.5px] border-border mb-4">
-                  <p
-                    className="text-m text-muted text-center leading-6"
-                    style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-                  >
-                    {card.sentence_parts.map((part, i) =>
-                      i === card.key_index ? (
-                        <span key={i} className="text-ink font-bold">
-                          {part}
-                        </span>
-                      ) : (
-                        <span key={i}>{part}</span>
-                      )
-                    )}
-                  </p>
-                </div>
-                {/* TTS button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    speakKorean(koreanSentence);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-navy text-cream font-bold text-xs hover:opacity-90 transition-opacity"
-                >
-                  <span>🔊</span>
-                  <span>Hear sentence</span>
-                </button>
-                <p className="text-[9px] text-muted mt-2 text-center">
-                  Tap to hear the full Korean sentence
-                </p>
-              </div>
-            }
-          />
-
-          {flipped ? (
-            <div className="flex gap-3 w-full max-w-sm">
-              <button
-                onClick={() => handleAnswer(false)}
-                className="flex-1 py-3.5 rounded-xl border-2 border-border bg-white font-bold text-sm text-ink hover:bg-cream transition-colors"
+          {answerState === 'idle' ? (
+            <>
+              <p className="text-[11px] text-gray-500 tracking-widest mb-5 font-bold">
+                FILL IN THE BLANK
+              </p>
+              <p
+                className="text-2xl font-semibold text-center leading-10"
+                style={{
+                  fontFamily: 'Noto Sans KR, sans-serif',
+                  color: '#F7F4EE',
+                }}
               >
-                ✗ Still Learning
-              </button>
-              <button
-                onClick={() => handleAnswer(true)}
-                className="flex-1 py-3.5 rounded-xl text-white font-bold text-sm hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: '#22C55E' }}
-              >
-                ✓ Know it
-              </button>
-            </div>
+                {card.cloze_sentence ?? card.sentence_parts.join('')}
+              </p>
+            </>
           ) : (
-            <p className="text-xs text-muted">
-              Tap the card to see the translation
-            </p>
+            <>
+              <p
+                className="text-[11px] tracking-widest mb-5 font-bold"
+                style={{
+                  color: answerState === 'correct' ? '#16A34A' : '#E8412C',
+                }}
+              >
+                {answerState === 'correct' ? '✓ CORRECT' : '✗ INCORRECT'}
+              </p>
+              <p
+                className="text-2xl font-semibold text-center leading-10 mb-3"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+              >
+                {buildAnsweredSentence(
+                  card.cloze_sentence ?? '',
+                  card.cloze_answer,
+                  answerState === 'correct' ? '#16A34A' : '#E8412C'
+                )}
+              </p>
+              <button
+                onClick={() => speakKorean(fullSentence)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs hover:opacity-90 transition-opacity mt-2"
+                style={{ background: '#1A1F36', color: '#F7F4EE' }}
+              >
+                <span>🔊</span>
+                <span>Hear sentence</span>
+              </button>
+            </>
           )}
         </div>
+
+        {/* Show translation */}
+        <button
+          onClick={() => setShowTranslation((s) => !s)}
+          className="text-xs font-semibold text-muted hover:text-ink transition-colors mb-4 text-center"
+        >
+          {showTranslation ? 'Hide translation ↑' : 'Show translation ↓'}
+        </button>
+        {showTranslation && (
+          <div className="bg-white rounded-2xl border border-border px-5 py-3 mb-4 text-center">
+            <p className="text-sm font-semibold text-ink">
+              {answerState !== 'idle'
+                ? card.cloze_translation
+                : card.translation}
+            </p>
+          </div>
+        )}
+
+        {/* Wrong answer hint */}
+        {answerState === 'wrong' && (
+          <div className="bg-white rounded-2xl border-2 border-green px-5 py-3 mb-4 text-center">
+            <p className="text-xs text-muted mb-1">Correct answer</p>
+            <p
+              className="font-bold text-green text-lg"
+              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+            >
+              {card.cloze_answer}
+            </p>
+          </div>
+        )}
+
+        {/* Word bank */}
+        {answerState === 'idle' && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {options.map((opt, i) => (
+              <button
+                key={i}
+                onClick={() => handleAnswer(opt)}
+                className="py-4 rounded-2xl border-2 border-border bg-white font-bold text-xl text-ink hover:border-ink transition-all active:scale-95"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Post-answer chips */}
+        {answerState !== 'idle' && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {options.map((opt, i) => {
+              const isCorrect = opt === card.cloze_answer;
+              const isChosen = opt === chosenOption;
+              return (
+                <div
+                  key={i}
+                  className="py-4 rounded-2xl border-2 text-center font-bold text-xl"
+                  style={{
+                    fontFamily: 'Noto Sans KR, sans-serif',
+                    background: isCorrect
+                      ? '#F0FFF4'
+                      : isChosen
+                        ? '#FFF5F5'
+                        : '#fff',
+                    borderColor: isCorrect
+                      ? '#86EFAC'
+                      : isChosen
+                        ? '#FCA5A5'
+                        : '#E8E3D8',
+                    color: isCorrect
+                      ? '#16A34A'
+                      : isChosen
+                        ? '#E8412C'
+                        : '#aaa',
+                  }}
+                >
+                  {opt}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Next button */}
+        {answerState !== 'idle' && (
+          <button
+            onClick={handleNext}
+            className="btn-press w-full py-4 rounded-2xl bg-navy text-cream font-quicksand font-bold text-base"
+          >
+            {index + 1 >= shuffledCards.length ? 'Finish ✓' : 'Next →'}
+          </button>
+        )}
       </div>
     </>
   );
