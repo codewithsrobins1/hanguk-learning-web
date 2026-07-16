@@ -466,7 +466,7 @@ export default function HomePage() {
   // ── TODAY'S PLAN (routine exists) ───────────────────────────────
   // ════════════════════════════════════════════════════════════════
   return (
-    <div className="max-w-xl mx-auto px-6 py-8">
+    <div className="max-w-xl lg:max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -480,132 +480,141 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* XP Bar */}
-      <div className="bg-white rounded-2xl border-2 border-border p-4 mb-5">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-base">⚡</span>
-            <span className="text-sm font-bold text-ink">Level {stats.level}</span>
-            <span className="text-xs text-muted">→ Level {stats.level + 1}</span>
-          </div>
-          <span className="text-xs font-semibold text-muted">{stats.xpIntoLevel} / {stats.xpNeeded} XP</span>
-        </div>
-        <div className="rounded-full overflow-hidden" style={{ background: '#F7F4EE', height: 10 }}>
-          <div className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#E8412C' }} />
-        </div>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 lg:gap-6 lg:items-start">
 
-      {/* Week ahead strip */}
-      {upcomingDays.length > 0 && (
-        <div className="grid w-full mb-5" style={{ gridTemplateColumns: `repeat(${upcomingDays.length}, minmax(0, 1fr))`, gap: 6 }}>
-          {upcomingDays.map((d, i) => {
-            const dayName = d.date.toLocaleDateString('en-US', { weekday: 'short' });
-            return (
-              <div key={i}
-                className="flex flex-col items-center gap-1 rounded-2xl px-1 py-2.5 min-w-0"
-                style={{
-                  background: d.isToday ? '#1A1F36' : '#fff',
-                  border: d.isToday ? 'none' : '2px solid #E8E3D8',
-                }}>
-                <span className="text-[10px] font-bold truncate" style={{ color: d.isToday ? 'rgba(255,255,255,0.5)' : '#888' }}>
-                  {d.isToday ? 'TODAY' : dayName}
-                </span>
-                <span className="text-sm" style={{ opacity: d.dayType ? 1 : 0.4 }}>{dayTypeIcon(d.dayType)}</span>
-                <span className="text-[9px] font-semibold text-center leading-tight truncate w-full"
-                  style={{ color: d.isToday ? '#F7F4EE' : d.dayType ? '#444' : '#bbb' }}>
-                  {dayTypeShortLabel(d.dayType)}
-                </span>
+        {/* ── Right column on desktop: XP bar + week strip ────── */}
+        <div className="order-1 lg:order-2 flex flex-col gap-5">
+          {/* XP Bar */}
+          <div className="bg-white rounded-2xl border-2 border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base">⚡</span>
+                <span className="text-sm font-bold text-ink">Level {stats.level}</span>
+                <span className="text-xs text-muted">→ Level {stats.level + 1}</span>
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* No study day (rest day) */}
-      {!dayType ? (
-        <div className="bg-white rounded-3xl border-2 border-border p-8 text-center">
-          <p className="text-3xl mb-3">😌</p>
-          <p className="font-quicksand font-bold text-ink text-xl mb-1">No routine day today</p>
-          <p className="text-sm text-muted mb-5">Today's a rest day in your schedule. Feel free to practice anyway!</p>
-          <button onClick={openSettings}
-            className="text-xs font-semibold text-muted hover:text-ink transition-colors underline">
-            See routine settings
-          </button>
-        </div>
-      ) : (
-        /* ── Single bordered card: navy header + checklist + footer ── */
-        <div className="rounded-3xl overflow-hidden" style={{ border: '2px solid #E8E3D8' }}>
-
-          {/* Navy header */}
-          <div className="bg-navy px-6 py-5">
-            {allDone ? (
-              <>
-                <p className="text-[11px] text-white/40 font-semibold mb-1">TODAY · DAY {cycleDay} OF ROUTINE</p>
-                <p className="font-quicksand font-bold text-cream text-2xl mb-1">🎉 Plan complete!</p>
-                <p className="text-xs text-white/40">{doneCount} of {resolvedBlocks.length} activities done · nice work</p>
-              </>
-            ) : (
-              <>
-                <p className="text-[11px] text-white/40 font-semibold mb-1">TODAY · DAY {cycleDay} OF ROUTINE</p>
-                <p className="font-quicksand font-bold text-cream text-2xl mb-2">{dayTypeLabel(dayType)}</p>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-white/40 text-xs">⏱</span>
-                  <span className="text-xs text-white/40">{routine.minutesPerDay} min planned</span>
-                </div>
-              </>
-            )}
+              <span className="text-xs font-semibold text-muted">{stats.xpIntoLevel} / {stats.xpNeeded} XP</span>
+            </div>
+            <div className="rounded-full overflow-hidden" style={{ background: '#F7F4EE', height: 10 }}>
+              <div className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#E8412C' }} />
+            </div>
           </div>
 
-          {/* Checklist */}
-          <div className="bg-cream p-4 flex flex-col gap-2.5">
-            {resolvedBlocks.map((b, i) => {
-              const checked = isChecked(i);
-              const isLoading = b.target === null;
-              return (
-                <div key={i}
-                  className="w-full bg-white rounded-2xl p-3.5 flex items-center gap-3 transition-all"
-                  style={{ border: checked ? '2px solid #86EFAC' : '2px solid #E8E3D8', opacity: isLoading ? 0.5 : 1 }}>
-
-                  {/* Step number */}
-                  <span className="text-xs font-bold text-muted w-4 flex-shrink-0 text-center">{i + 1}</span>
-
-                  {/* Checkbox */}
-                  <button onClick={() => !isLoading && toggleCheck(i)} aria-label="Mark complete" disabled={isLoading}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+          {/* Week ahead strip */}
+          {upcomingDays.length > 0 && (
+            <div className="grid w-full" style={{ gridTemplateColumns: `repeat(${upcomingDays.length}, minmax(0, 1fr))`, gap: 6 }}>
+              {upcomingDays.map((d, i) => {
+                const dayName = d.date.toLocaleDateString('en-US', { weekday: 'short' });
+                return (
+                  <div key={i}
+                    className="flex flex-col items-center gap-1 rounded-2xl px-1 py-2.5 min-w-0"
                     style={{
-                      background: checked ? '#16A34A' : '#fff',
-                      border: checked ? 'none' : '2px solid #C4BFBA',
+                      background: d.isToday ? '#1A1F36' : '#fff',
+                      border: d.isToday ? 'none' : '2px solid #E8E3D8',
                     }}>
-                    {checked && <span className="text-white text-sm font-bold">✓</span>}
-                  </button>
+                    <span className="text-[10px] font-bold truncate" style={{ color: d.isToday ? 'rgba(255,255,255,0.5)' : '#888' }}>
+                      {d.isToday ? 'TODAY' : dayName}
+                    </span>
+                    <span className="text-sm" style={{ opacity: d.dayType ? 1 : 0.4 }}>{dayTypeIcon(d.dayType)}</span>
+                    <span className="text-[9px] font-semibold text-center leading-tight truncate w-full"
+                      style={{ color: d.isToday ? '#F7F4EE' : d.dayType ? '#444' : '#bbb' }}>
+                      {dayTypeShortLabel(d.dayType)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-                  {/* Tappable label — navigates */}
-                  <button onClick={() => b.target && router.push(b.target.href)} disabled={isLoading} className="flex-1 min-w-0 text-left">
-                    <p className={`text-sm font-bold ${checked ? 'line-through text-muted' : 'text-ink'}`}>{b.label}</p>
-                    <p className={`text-xs truncate ${checked ? 'line-through text-muted' : 'text-muted'}`}>
-                      {isLoading ? 'Loading...' : `${b.minutes} min · Tap to open`}
-                    </p>
-                  </button>
-
-                  <button onClick={() => b.target && router.push(b.target.href)} disabled={isLoading} aria-label="Go to activity">
-                    <span className="text-muted text-base flex-shrink-0">→</span>
-                  </button>
-                </div>
-              );
-            })}
-
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-1.5">
-              <span className="text-xs text-muted">{doneCount} of {resolvedBlocks.length} done</span>
+        {/* ── Left column on desktop: Today's Plan ────────────── */}
+        <div className="order-2 lg:order-1">
+          {/* No study day (rest day) */}
+          {!dayType ? (
+            <div className="bg-white rounded-3xl border-2 border-border p-8 text-center">
+              <p className="text-3xl mb-3">😌</p>
+              <p className="font-quicksand font-bold text-ink text-xl mb-1">No routine day today</p>
+              <p className="text-sm text-muted mb-5">Today's a rest day in your schedule. Feel free to practice anyway!</p>
               <button onClick={openSettings}
                 className="text-xs font-semibold text-muted hover:text-ink transition-colors underline">
                 See routine settings
               </button>
             </div>
-          </div>
+          ) : (
+            /* ── Single bordered card: navy header + checklist + footer ── */
+            <div className="rounded-3xl overflow-hidden" style={{ border: '2px solid #E8E3D8' }}>
+
+              {/* Navy header */}
+              <div className="bg-navy px-6 py-5">
+                {allDone ? (
+                  <>
+                    <p className="text-[11px] text-white/40 font-semibold mb-1">TODAY · DAY {cycleDay} OF ROUTINE</p>
+                    <p className="font-quicksand font-bold text-cream text-2xl mb-1">🎉 Plan complete!</p>
+                    <p className="text-xs text-white/40">{doneCount} of {resolvedBlocks.length} activities done · nice work</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[11px] text-white/40 font-semibold mb-1">TODAY · DAY {cycleDay} OF ROUTINE</p>
+                    <p className="font-quicksand font-bold text-cream text-2xl mb-2">{dayTypeLabel(dayType)}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-white/40 text-xs">⏱</span>
+                      <span className="text-xs text-white/40">{routine.minutesPerDay} min planned</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Checklist */}
+              <div className="bg-cream p-4 flex flex-col gap-2.5">
+                {resolvedBlocks.map((b, i) => {
+                  const checked = isChecked(i);
+                  const isLoading = b.target === null;
+                  return (
+                    <div key={i}
+                      className="w-full bg-white rounded-2xl p-3.5 flex items-center gap-3 transition-all"
+                      style={{ border: checked ? '2px solid #86EFAC' : '2px solid #E8E3D8', opacity: isLoading ? 0.5 : 1 }}>
+
+                      {/* Step number */}
+                      <span className="text-xs font-bold text-muted w-4 flex-shrink-0 text-center">{i + 1}</span>
+
+                      {/* Checkbox */}
+                      <button onClick={() => !isLoading && toggleCheck(i)} aria-label="Mark complete" disabled={isLoading}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+                        style={{
+                          background: checked ? '#16A34A' : '#fff',
+                          border: checked ? 'none' : '2px solid #C4BFBA',
+                        }}>
+                        {checked && <span className="text-white text-sm font-bold">✓</span>}
+                      </button>
+
+                      {/* Tappable label — navigates */}
+                      <button onClick={() => b.target && router.push(b.target.href)} disabled={isLoading} className="flex-1 min-w-0 text-left">
+                        <p className={`text-sm font-bold ${checked ? 'line-through text-muted' : 'text-ink'}`}>{b.label}</p>
+                        <p className={`text-xs truncate ${checked ? 'line-through text-muted' : 'text-muted'}`}>
+                          {isLoading ? 'Loading...' : `${b.minutes} min · Tap to open`}
+                        </p>
+                      </button>
+
+                      <button onClick={() => b.target && router.push(b.target.href)} disabled={isLoading} aria-label="Go to activity">
+                        <span className="text-muted text-base flex-shrink-0">→</span>
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-1.5">
+                  <span className="text-xs text-muted">{doneCount} of {resolvedBlocks.length} done</span>
+                  <button onClick={openSettings}
+                    className="text-xs font-semibold text-muted hover:text-ink transition-colors underline">
+                    See routine settings
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ── Settings modal ─────────────────────────────────────── */}
       {showSettings && (

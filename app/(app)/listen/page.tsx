@@ -39,7 +39,7 @@ export default function ListenPage() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
       <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Listening</h1>
       <p className="text-sm text-muted mb-6">Listen to Korean conversations and answer questions</p>
 
@@ -49,6 +49,12 @@ export default function ListenPage() {
           value={category}
           onChange={e => setCategory(e.target.value)}
           className="w-full sm:w-64 px-4 py-3 rounded-2xl border-2 border-border bg-white text-sm font-bold text-ink appearance-none outline-none focus:border-ink transition-colors cursor-pointer"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 16px center',
+            paddingRight: 40,
+          }}
         >
           {CATEGORIES.map(c => (
             <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
@@ -76,7 +82,7 @@ export default function ListenPage() {
           <p className="text-muted text-sm">No exercises in this category yet.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filtered.map(ex => {
             const dc = DIFFICULTY_COLORS[ex.difficulty];
             const done = ex.completed_at !== null;

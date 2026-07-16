@@ -66,13 +66,13 @@ export default function PatternsPage() {
   const categories = Array.from(new Set(filtered.map(p => p.category)));
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
 
       <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Patterns</h1>
       <p className="text-sm text-muted mb-6">Master the frames of everyday Korean speech</p>
 
       {/* Tier filter tabs */}
-      <div className="flex gap-2 mb-7">
+      <div className="flex gap-2 mb-7 max-w-lg">
         {(['All', ...TIER_ORDER] as const).map(tier => {
           const isActive = activeTier === tier;
           const c = tier !== 'All' ? TIER_COLORS[tier] : null;
@@ -112,7 +112,7 @@ export default function PatternsPage() {
               </div>
 
               {/* Pattern cards */}
-              <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {catPatterns.map(p => <PatternCard key={p.id} pattern={p} />)}
               </div>
             </div>

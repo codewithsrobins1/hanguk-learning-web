@@ -49,7 +49,7 @@ export default function ShadowPage() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
       <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Shadowing</h1>
       <p className="text-sm text-muted mb-6">Practice real Korean conversations</p>
 
