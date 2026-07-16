@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { NAV_ITEMS, NavItem } from '@/lib/nav-config';
 import { ICONS } from '@/assets/icons';
@@ -199,7 +200,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* ── Main content ──────────────────────────────────────── */}
       <main className="flex-1 md:ml-60 min-h-screen pt-14 md:pt-0">
-        {children}
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
       </main>
     </div>
   );

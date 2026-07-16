@@ -1,7 +1,9 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useDialogues } from '@/hooks/useShadowing';
+import { staggerContainer, staggerItem } from '@/lib/motion-variants';
 
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'] as const;
 
@@ -124,32 +126,39 @@ export default function ShadowPage() {
                 <div className="flex-1 h-px bg-border" />
                 <span className="text-xs text-muted font-semibold">{items.length}</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                initial="hidden"
+                animate="visible"
+                variants={staggerContainer}
+              >
                 {items.map(d => (
-                  <Link key={d.id} href={`/shadow/${d.id}`}
-                    className="bg-white border-[1.5px] border-border rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-extrabold text-[18px] text-ink mb-0.5">{d.title}</p>
-                      <p className="text-[16px] text-muted mb-1" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{d.title_ko}</p>
-                      <p className="text-xs text-muted mb-1">{d.category}</p>
-                      {d.completed_at ? (
-                        <div className="flex items-center gap-2">
-                          {d.best_score != null && (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                              style={{ background: `${scoreColor(d.best_score)}18`, color: scoreColor(d.best_score) }}>
-                              Best: {d.best_score}%
-                            </span>
-                          )}
-                          <span className="text-[11px] text-muted">{formatMonthYear(d.completed_at)}</span>
-                        </div>
-                      ) : (
-                        <p className="text-[11px] font-semibold" style={{ color: '#D97B6C' }}>Not completed</p>
-                      )}
-                    </div>
-                    <span className="text-muted text-lg flex-shrink-0">→</span>
-                  </Link>
+                  <motion.div key={d.id} variants={staggerItem}>
+                    <Link href={`/shadow/${d.id}`}
+                      className="bg-white border-[1.5px] border-border rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-extrabold text-[18px] text-ink mb-0.5">{d.title}</p>
+                        <p className="text-[16px] text-muted mb-1" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{d.title_ko}</p>
+                        <p className="text-xs text-muted mb-1">{d.category}</p>
+                        {d.completed_at ? (
+                          <div className="flex items-center gap-2">
+                            {d.best_score != null && (
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                                style={{ background: `${scoreColor(d.best_score)}18`, color: scoreColor(d.best_score) }}>
+                                Best: {d.best_score}%
+                              </span>
+                            )}
+                            <span className="text-[11px] text-muted">{formatMonthYear(d.completed_at)}</span>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] font-semibold" style={{ color: '#D97B6C' }}>Not completed</p>
+                        )}
+                      </div>
+                      <span className="text-muted text-lg flex-shrink-0">→</span>
+                    </Link>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           );
         })

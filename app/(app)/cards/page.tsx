@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useFlashcardSets } from '@/hooks/useFlashcards';
 import ProgressBar from '@/components/ProgressBar';
+import { staggerContainer, staggerItem } from '@/lib/motion-variants';
 
 const iconColors: Record<string, string> = {
   Verbs: '#FDE8E4', Nouns: '#EFF6FF',
@@ -44,7 +46,7 @@ export default function VocabPage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
       <h1 className="font-quicksand font-bold text-ink text-3xl mb-5">Vocab</h1>
 
       {/* Search + Filter */}
@@ -84,28 +86,35 @@ export default function VocabPage() {
             className="text-xs font-bold text-ink underline mt-1">Clear filters</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-3"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
           {filtered.map(set => (
-            <Link key={set.id} href={`/cards/${set.id}`}
-              className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-border hover:border-ink transition-colors group">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-                style={{ backgroundColor: iconColors[set.category] || '#E8E3D8' }}>
-                {set.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-ink text-sm mb-1">{set.title}</p>
-                <p className="text-[11px] font-semibold text-red mb-2">
-                  {set.mastery_count || 0} / {set.card_count} MASTERED
-                </p>
-                <ProgressBar
-                  progress={set.card_count > 0 ? (set.mastery_count || 0) / set.card_count : 0}
-                  color="#E8412C"
-                />
-              </div>
-              <span className="text-xl text-muted group-hover:text-ink transition-colors">›</span>
-            </Link>
+            <motion.div key={set.id} variants={staggerItem}>
+              <Link href={`/cards/${set.id}`}
+                className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-border hover:border-ink transition-colors group">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
+                  style={{ backgroundColor: iconColors[set.category] || '#E8E3D8' }}>
+                  {set.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-ink text-sm mb-1">{set.title}</p>
+                  <p className="text-[11px] font-semibold text-red mb-2">
+                    {set.mastery_count || 0} / {set.card_count} MASTERED
+                  </p>
+                  <ProgressBar
+                    progress={set.card_count > 0 ? (set.mastery_count || 0) / set.card_count : 0}
+                    color="#E8412C"
+                  />
+                </div>
+                <span className="text-xl text-muted group-hover:text-ink transition-colors">›</span>
+              </Link>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

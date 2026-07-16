@@ -1,7 +1,9 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useListeningExercises } from '@/hooks/useListening';
+import { staggerContainer, staggerItem } from '@/lib/motion-variants';
 
 const CATEGORIES = ['All', 'Daily Life', 'Food', 'Counting & Numbers', 'Music', 'Study', 'Gaming', 'Family', 'Travel', 'Culture'];
 
@@ -82,41 +84,48 @@ export default function ListenPage() {
           <p className="text-muted text-sm">No exercises in this category yet.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-3"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
           {filtered.map(ex => {
             const dc = DIFFICULTY_COLORS[ex.difficulty];
             const done = ex.completed_at !== null;
             return (
-              <Link key={ex.id} href={`/listen/${ex.id}`}
-                className="bg-white border-2 border-border rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
-                      style={{ background: dc.bg, color: dc.text, border: `1px solid ${dc.border}` }}>
-                      {ex.difficulty}
-                    </span>
-                    <span className="text-[11px] text-muted font-medium">{ex.category}</span>
+              <motion.div key={ex.id} variants={staggerItem}>
+                <Link href={`/listen/${ex.id}`}
+                  className="bg-white border-2 border-border rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+                        style={{ background: dc.bg, color: dc.text, border: `1px solid ${dc.border}` }}>
+                        {ex.difficulty}
+                      </span>
+                      <span className="text-[11px] text-muted font-medium">{ex.category}</span>
+                    </div>
+                    <p className="font-quicksand font-bold text-ink text-base truncate">{ex.title}</p>
+                    <p className="text-xs text-muted mb-1.5" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{ex.title_ko}</p>
+                    {done && ex.score !== null && ex.total !== null ? (
+                      <p className="text-[11px] font-bold" style={{ color: scoreColor(ex.score, ex.total) }}>
+                        {ex.score}/{ex.total} correct · {formatMonthYear(ex.completed_at!)}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] font-semibold" style={{ color: '#D97B6C' }}>Not completed</p>
+                    )}
                   </div>
-                  <p className="font-quicksand font-bold text-ink text-base truncate">{ex.title}</p>
-                  <p className="text-xs text-muted mb-1.5" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{ex.title_ko}</p>
-                  {done && ex.score !== null && ex.total !== null ? (
-                    <p className="text-[11px] font-bold" style={{ color: scoreColor(ex.score, ex.total) }}>
-                      {ex.score}/{ex.total} correct · {formatMonthYear(ex.completed_at!)}
-                    </p>
-                  ) : (
-                    <p className="text-[11px] font-semibold" style={{ color: '#D97B6C' }}>Not completed</p>
-                  )}
-                </div>
-                <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <span className="text-2xl">🎧</span>
-                  {done && (
-                    <div className="w-2 h-2 rounded-full" style={{ background: scoreColor(ex.score!, ex.total!) }} />
-                  )}
-                </div>
-              </Link>
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    <span className="text-2xl">🎧</span>
+                    {done && (
+                      <div className="w-2 h-2 rounded-full" style={{ background: scoreColor(ex.score!, ex.total!) }} />
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );

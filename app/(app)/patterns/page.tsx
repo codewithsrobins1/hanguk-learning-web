@@ -1,7 +1,9 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { usePatterns, PatternWithProgress } from '@/hooks/usePatterns';
+import { staggerContainer, staggerItem } from '@/lib/motion-variants';
 
 const TIER_ORDER  = ['Survival', 'Conversational', 'Fluency'] as const;
 const TIER_COLORS = {
@@ -112,9 +114,18 @@ export default function PatternsPage() {
               </div>
 
               {/* Pattern cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {catPatterns.map(p => <PatternCard key={p.id} pattern={p} />)}
-              </div>
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                initial="hidden"
+                animate="visible"
+                variants={staggerContainer}
+              >
+                {catPatterns.map(p => (
+                  <motion.div key={p.id} variants={staggerItem}>
+                    <PatternCard pattern={p} />
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
           );
         })}
