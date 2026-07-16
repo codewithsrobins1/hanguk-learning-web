@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/generate-topik-audio.js)",
+      "Bash(mkdir -p \"app/\\(app\\)/tests/placement\" \"app/\\(app\\)/tests/[testId]/results\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\srobi\\OneDrive\\Desktop\\repos\\hanguk-learning-web\\app\\(app)\\tests\\[testId]"
+    ]
+  }
+}

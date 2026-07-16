@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useUserStats } from '@/hooks/useUserStats';
+import { useTopikProgress } from '@/hooks/useTopik';
 import { sendPasswordResetEmail, deleteUser } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -12,6 +13,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, profile, signOut, refreshProfile } = useAuth();
   const { stats } = useUserStats();
+  const { progress: topikProgress } = useTopikProgress();
+  const topikLevel = topikProgress?.highest_level_passed ?? 0;
 
   const [editingName, setEditingName] = useState(false);
   const [displayName, setDisplayName] = useState(
@@ -97,9 +100,20 @@ export default function ProfilePage() {
                 className="text-sm font-bold text-ink bg-cream rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-navy"
               />
             ) : (
-              <p className="text-sm font-bold text-ink">
-                {profile?.display_name || profile?.username || 'Learner'}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-bold text-ink">
+                  {profile?.display_name || profile?.username || 'Learner'}
+                </p>
+                {topikLevel > 0 && (
+                  <span
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white flex-shrink-0"
+                    style={{ background: '#1A1F36', border: '1.5px solid #E8412C' }}
+                    title={`Passed TOPIK Level ${topikLevel}`}
+                  >
+                    🏅 TOPIK {topikLevel}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {editingName ? (

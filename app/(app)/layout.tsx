@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/listen', label: 'Listen', icon: '🎧' },
   { href: '/patterns', label: 'Patterns', icon: '🧩' },
   { href: '/grammar', label: 'Grammar', icon: '문' },
+  { href: '/tests', label: 'Tests', icon: '📝' },
   { href: '/profile', label: 'Profile', icon: '⚙️' },
 ];
 
