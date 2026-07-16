@@ -1,6 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { useUserStats } from '@/hooks/useUserStats';
 import { useGrammarLessons, useMilestoneResults } from '@/hooks/useGrammar';
@@ -584,7 +585,20 @@ export default function HomePage() {
                           background: checked ? '#16A34A' : '#fff',
                           border: checked ? 'none' : '2px solid #C4BFBA',
                         }}>
-                        {checked && <span className="text-white text-sm font-bold">✓</span>}
+                        {checked && (
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <motion.path
+                              d="M2.5 7.2L5.5 10.2L11.5 3.8"
+                              stroke="white"
+                              strokeWidth="2.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              initial={{ pathLength: 0 }}
+                              animate={{ pathLength: 1 }}
+                              transition={{ duration: 0.3, ease: 'easeOut' }}
+                            />
+                          </svg>
+                        )}
                       </button>
 
                       {/* Tappable label — navigates */}
