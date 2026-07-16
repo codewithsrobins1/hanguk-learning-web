@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { NAV_ITEMS, NavItem } from '@/lib/nav-config';
 import { ICONS } from '@/assets/icons';
+import LevelUpOverlay from '@/components/LevelUpOverlay';
 
 function NavLink({
   item,
@@ -209,6 +210,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </motion.div>
       </main>
+
+      <LevelUpOverlay />
     </div>
   );
 }

@@ -43,6 +43,11 @@ export async function addXp(userId: string, amount: number): Promise<void> {
   if (!snap.exists()) return;
   const currentXp: number = snap.data().xp ?? 0;
   const newXp = currentXp + amount;
+  const oldLevel = levelFromXp(currentXp);
   const newLevel = levelFromXp(newXp);
   await updateDoc(ref, { xp: newXp, level: newLevel });
+
+  if (newLevel > oldLevel && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('hanguk:levelup', { detail: { level: newLevel } }));
+  }
 }
