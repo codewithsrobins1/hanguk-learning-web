@@ -251,7 +251,7 @@ export default function GrammarPage() {
   if (!hasInterests) {
     return (
       <div className="max-w-xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-extrabold text-ink mb-1 text-center">Pick your interests.</h1>
+        <h1 className="font-quicksand font-bold text-ink text-2xl mb-1 text-center">Pick your interests.</h1>
         <p className="text-sm text-muted text-center mb-8">Select 2 to 4 — examples will match what you love.</p>
         <div className="flex flex-wrap gap-2.5 justify-center mb-10">
           {INTERESTS.map(i => {
@@ -293,7 +293,7 @@ export default function GrammarPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h1 className="text-3xl font-extrabold text-ink mb-1">Grammar</h1>
+          <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Grammar</h1>
           <p className="text-sm text-muted">{doneLessons}/{totalLessons} lessons · {doneMilestones} milestones passed</p>
         </div>
         <button onClick={() => router.push('/profile')}

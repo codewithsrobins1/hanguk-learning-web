@@ -472,7 +472,7 @@ export default function HomePage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-xs text-muted font-medium mb-1">안녕하세요!</p>
-          <h1 className="font-quicksand font-bold text-ink text-2xl">{displayName}</h1>
+          <h1 className="font-quicksand font-bold text-ink text-3xl">{displayName}</h1>
         </div>
         <div className="bg-navy rounded-2xl px-3.5 py-2 text-center min-w-[56px]">
           <p className="text-[9px] tracking-widest mb-0.5 font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>LVL</p>
