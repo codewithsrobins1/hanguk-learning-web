@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(node scripts/generate-topik-audio.js)",
-      "Bash(mkdir -p \"app/\\(app\\)/tests/placement\" \"app/\\(app\\)/tests/[testId]/results\")"
+      "Bash(mkdir -p \"app/\\(app\\)/tests/placement\" \"app/\\(app\\)/tests/[testId]/results\")",
+      "Bash(grep -n \"Main content\\\\|</main>\\\\|</div>$\" \"c:\\\\Users\\\\srobi\\\\OneDrive\\\\Desktop\\\\repos\\\\hanguk-learning-web\\\\app\\\\\\(app\\)\\\\layout.tsx\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\srobi\\OneDrive\\Desktop\\repos\\hanguk-learning-web\\app\\(app)\\tests\\[testId]"
