@@ -3,22 +3,52 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { NAV_ITEMS, NavItem } from '@/lib/nav-config';
+import { ICONS } from '@/assets/icons';
 
-const NAV_ITEMS = [
-  { href: '/home', label: 'Home', icon: '⌂' },
-  { href: '/hangul', label: 'Hangul', icon: '가' },
-  { href: '/cards', label: 'Vocab', icon: '⧉' },
-  { href: '/read', label: 'Read', icon: '≡' },
-  { href: '/shadow', label: 'Speak', icon: '💬' },
-  { href: '/listen', label: 'Listen', icon: '🎧' },
-  { href: '/patterns', label: 'Patterns', icon: '🧩' },
-  { href: '/grammar', label: 'Grammar', icon: '문' },
-  { href: '/tests', label: 'Tests', icon: '📝' },
-  { href: '/profile', label: 'Profile', icon: '⚙️' },
-];
+function NavLink({
+  item,
+  active,
+  locked,
+  mobile,
+}: {
+  item: NavItem;
+  active: boolean;
+  locked: boolean;
+  mobile?: boolean;
+}) {
+  const baseClass = mobile
+    ? 'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all'
+    : 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all';
+  const inactiveClass = mobile
+    ? 'text-white/55 hover:bg-white/8 hover:text-white/80'
+    : 'text-white/50 hover:bg-white/8 hover:text-white/80';
+  const stateClass = active
+    ? 'bg-white/15 text-white'
+    : locked
+      ? 'text-white/30 cursor-not-allowed'
+      : inactiveClass;
+
+  const content = (
+    <>
+      <span className="text-lg w-6 text-center">{item.icon}</span>
+      {item.label}
+      {locked && <span className="ml-auto text-xs">{ICONS.ui.lock}</span>}
+    </>
+  );
+
+  if (locked) {
+    return <div className={`${baseClass} ${stateClass}`}>{content}</div>;
+  }
+  return (
+    <Link href={item.href} className={`${baseClass} ${stateClass}`}>
+      {content}
+    </Link>
+  );
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,6 +80,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
     );
 
+  const isPremiumUser = profile?.premium !== false;
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => item.mandatory || (profile?.nav_preferences?.[item.href] ?? item.enabled)
+  );
+
   return (
     <div className="flex min-h-screen bg-cream">
       {/* ── Desktop sidebar ───────────────────────────────────── */}
@@ -70,23 +105,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         {/* Nav items */}
         <nav className="flex flex-col gap-1 flex-1">
-          {NAV_ITEMS.map((item) => {
+          {visibleItems.map((item) => {
             const active =
               pathname === item.href || pathname.startsWith(item.href + '/');
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  active
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/50 hover:bg-white/8 hover:text-white/80'
-                }`}
-              >
-                <span className="text-lg w-6 text-center">{item.icon}</span>
-                {item.label}
-              </Link>
-            );
+            const locked = item.premium && !isPremiumUser;
+            return <NavLink key={item.href} item={item} active={active} locked={locked} />;
           })}
         </nav>
       </aside>
@@ -162,24 +185,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
             {/* Nav items */}
             <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
-              {NAV_ITEMS.map((item) => {
+              {visibleItems.map((item) => {
                 const active =
                   pathname === item.href ||
                   pathname.startsWith(item.href + '/');
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
-                      active
-                        ? 'bg-white/15 text-white'
-                        : 'text-white/55 hover:bg-white/8 hover:text-white/80'
-                    }`}
-                  >
-                    <span className="text-lg w-6 text-center">{item.icon}</span>
-                    {item.label}
-                  </Link>
-                );
+                const locked = item.premium && !isPremiumUser;
+                return <NavLink key={item.href} item={item} active={active} locked={locked} mobile />;
               })}
             </nav>
           </div>

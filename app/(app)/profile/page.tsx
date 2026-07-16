@@ -5,9 +5,11 @@ import { useAuth } from '@/lib/auth';
 import { useUserStats } from '@/hooks/useUserStats';
 import { useTopikProgress } from '@/hooks/useTopik';
 import { sendPasswordResetEmail, deleteUser } from 'firebase/auth';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import ProgressBar from '@/components/ProgressBar';
+import ToggleSwitch from '@/components/ToggleSwitch';
+import { NAV_ITEMS } from '@/lib/nav-config';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -46,6 +48,15 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await signOut();
     router.replace('/login');
+  };
+
+  const isPremiumUser = profile?.premium !== false;
+  const handleToggleNav = async (href: string, value: boolean) => {
+    if (!user) return;
+    await updateDoc(doc(db, 'profiles', user.uid), {
+      [`nav_preferences.${href}`]: value,
+    });
+    await refreshProfile();
   };
 
   const handleDeleteAccount = async () => {
@@ -233,6 +244,35 @@ export default function ProfilePage() {
             />
           </div>
         </div>
+      </div>
+
+      {/* ── Customize Navigation ─────────────────────────────── */}
+      <p className="text-[11px] font-bold text-muted tracking-widest mb-2">
+        CUSTOMIZE NAVIGATION
+      </p>
+      <div className="bg-white rounded-2xl border border-border overflow-hidden mb-6">
+        {NAV_ITEMS.filter((item) => !item.mandatory).map((item, i, arr) => {
+          const locked = item.premium && !isPremiumUser;
+          const on = profile?.nav_preferences?.[item.href] ?? item.enabled;
+          return (
+            <div
+              key={item.href}
+              className={`flex items-center justify-between px-4 py-3.5 ${
+                i < arr.length - 1 ? 'border-b border-border' : ''
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg w-6 text-center">{item.icon}</span>
+                <p className="text-sm font-bold text-ink">{item.label}</p>
+              </div>
+              {locked ? (
+                <span className="text-xs font-semibold text-muted">🔒 Premium feature</span>
+              ) : (
+                <ToggleSwitch checked={on} onChange={(v) => handleToggleNav(item.href, v)} />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* ── Account ──────────────────────────────────────────── */}

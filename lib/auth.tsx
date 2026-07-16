@@ -28,6 +28,8 @@ type Profile = {
   last_active_date: string | null;
   interests: string[];
   dialogue_sessions: number;
+  premium?: boolean;
+  nav_preferences?: Record<string, boolean>;
   goals: {
     targets:  Record<string, number>;
     set_at:   string;
@@ -132,6 +134,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         level: 1,
         interests: [],
         dialogue_sessions: 0,
+        premium: true,
+        nav_preferences: {},
         created_at: serverTimestamp(),
       });
       return { error: null };
