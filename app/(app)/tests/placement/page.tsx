@@ -181,8 +181,12 @@ export default function PlacementTestPage() {
   return (
     <div className="max-w-xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
-        <p className="text-xs font-bold text-muted">Question {qIndex + 1} of {TOTAL_QUESTIONS}</p>
-        {saving && <p className="text-xs text-muted">Saving…</p>}
+        <button onClick={() => router.push('/tests')} className="text-2xl text-muted hover:text-ink transition-colors">←</button>
+        <div className="text-center">
+          <p className="text-xs font-bold text-muted">Question {qIndex + 1} of {TOTAL_QUESTIONS}</p>
+          {saving && <p className="text-[10px] text-muted mt-0.5">Saving…</p>}
+        </div>
+        <div className="w-6" />
       </div>
 
       <div
@@ -195,7 +199,8 @@ export default function PlacementTestPage() {
         />
       </div>
 
-      <div className="bg-white rounded-3xl border border-border p-5 mb-5">
+      <div className="rounded-3xl p-5 mb-5" style={{ background: '#EFF6FF', border: '2px solid #1A1F36' }}>
+        <p className="text-[11px] font-bold tracking-widest mb-3" style={{ color: '#1A1F36' }}>QUESTION</p>
         {current.q.passage && (
           <p
             className="text-ink leading-relaxed mb-4"

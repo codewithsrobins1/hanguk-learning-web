@@ -280,7 +280,8 @@ export default function TopikTestSessionPage() {
           progressLabel={`Question ${readingIndex + 1} of ${readingQuestions.length}`}
         />
         <div className="max-w-xl mx-auto px-6 py-6">
-          <div className="bg-white rounded-3xl border border-border p-5 mb-5">
+          <div className="rounded-3xl p-5 mb-5" style={{ background: '#EFF6FF', border: '2px solid #1A1F36' }}>
+            <p className="text-[11px] font-bold tracking-widest mb-3" style={{ color: '#1A1F36' }}>QUESTION</p>
             {readingQ.passage && (
               <p
                 className="text-ink leading-relaxed mb-4"
@@ -373,7 +374,8 @@ export default function TopikTestSessionPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-3xl border border-border p-5 mb-5">
+        <div className="rounded-3xl p-5 mb-5" style={{ background: '#EFF6FF', border: '2px solid #1A1F36' }}>
+          <p className="text-[11px] font-bold tracking-widest mb-3" style={{ color: '#1A1F36' }}>QUESTION</p>
           <p
             className="font-bold text-ink leading-snug"
             style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 20 }}
