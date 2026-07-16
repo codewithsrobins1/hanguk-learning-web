@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import {
   usePattern,
@@ -567,12 +568,14 @@ export default function PatternPracticePage() {
 
           {/* Feedback */}
           {answerState !== 'idle' && (
-            <div
+            <motion.div
               className="rounded-2xl p-4 border-2"
               style={{
                 background: answerState === 'correct' ? '#EAF3DE' : '#FFF0EE',
                 borderColor: answerState === 'correct' ? '#86EFAC' : '#FCA5A5',
               }}
+              animate={answerState === 'correct' ? { scale: [1, 1.02, 1] } : undefined}
+              transition={{ duration: 0.3 }}
             >
               <p
                 className="font-bold text-sm mb-1"
@@ -598,7 +601,7 @@ export default function PatternPracticePage() {
                   {currentQ.sentence_translation}
                 </p>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Options */}

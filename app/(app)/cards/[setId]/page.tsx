@@ -1,6 +1,7 @@
 'use client';
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
@@ -315,9 +316,11 @@ export default function VocabSessionPage() {
         </div>
 
         {/* Vocab card */}
-        <div
+        <motion.div
           className={`rounded-3xl p-8 mb-5 flex flex-col items-center justify-center min-h-[220px] transition-all ${shake ? 'shake' : ''}`}
           style={{ background: cardBg, border: cardBorder }}
+          animate={answerState === 'correct' ? { scale: [1, 1.02, 1] } : undefined}
+          transition={{ duration: 0.3 }}
         >
           {answerState === 'idle' ? (
             <>
@@ -364,7 +367,7 @@ export default function VocabSessionPage() {
               </button>
             </>
           )}
-        </div>
+        </motion.div>
 
         {/* Show translation */}
         <button
