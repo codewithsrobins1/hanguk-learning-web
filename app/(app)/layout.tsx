@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
-import { NAV_ITEMS, NavItem } from '@/lib/nav-config';
+import { NAV_ITEMS, NavItem, navPrefKey } from '@/lib/nav-config';
 import { ICONS } from '@/assets/icons';
 import LevelUpOverlay from '@/components/LevelUpOverlay';
 
@@ -84,7 +84,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const isPremiumUser = profile?.premium !== false;
   const visibleItems = NAV_ITEMS.filter(
-    (item) => item.mandatory || (profile?.nav_preferences?.[item.href] ?? item.enabled)
+    (item) => item.mandatory || (profile?.nav_preferences?.[navPrefKey(item.href)] ?? item.enabled)
   );
 
   return (

@@ -9,7 +9,7 @@ import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import ProgressBar from '@/components/ProgressBar';
 import ToggleSwitch from '@/components/ToggleSwitch';
-import { NAV_ITEMS } from '@/lib/nav-config';
+import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function ProfilePage() {
   const handleToggleNav = async (href: string, value: boolean) => {
     if (!user) return;
     await updateDoc(doc(db, 'profiles', user.uid), {
-      [`nav_preferences.${href}`]: value,
+      [`nav_preferences.${navPrefKey(href)}`]: value,
     });
     await refreshProfile();
   };
@@ -253,7 +253,7 @@ export default function ProfilePage() {
       <div className="bg-white rounded-2xl border border-border overflow-hidden mb-6">
         {NAV_ITEMS.filter((item) => !item.mandatory).map((item, i, arr) => {
           const locked = item.premium && !isPremiumUser;
-          const on = profile?.nav_preferences?.[item.href] ?? item.enabled;
+          const on = profile?.nav_preferences?.[navPrefKey(item.href)] ?? item.enabled;
           return (
             <div
               key={item.href}
