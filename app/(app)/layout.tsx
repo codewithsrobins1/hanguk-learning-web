@@ -35,14 +35,14 @@ function NavLink({
       stateClass = 'bg-white/15 text-white';
     } else {
       stateClass = '';
-      activeStyle = { background: 'rgba(232,65,44,0.15)', color: '#E8412C' };
+      activeStyle = { background: 'rgba(249,115,22,0.15)', color: '#F97316' };
     }
   }
 
   const content = (
     <>
       {active && mobile && (
-        <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: '#E8412C' }} />
+        <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: '#F97316' }} />
       )}
       <span className="text-lg w-6 text-center">{item.icon}</span>
       {item.label}

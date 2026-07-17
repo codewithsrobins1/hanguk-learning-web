@@ -97,12 +97,14 @@ export default function ListenPage() {
             return (
               <motion.div key={ex.id} variants={staggerItem}>
                 <Link href={`/listen/${ex.id}`}
-                  className="bg-white rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors"
+                  className="relative bg-white rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors"
                   style={{
                     boxShadow: '0 3px 14px rgba(26,31,54,0.07)',
                     border: '2px solid #E8E3D8',
-                    borderLeft: perfect ? '3px solid #34A853' : '2px solid #E8E3D8',
                   }}>
+                  {perfect && (
+                    <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: '#34A853' }} />
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"

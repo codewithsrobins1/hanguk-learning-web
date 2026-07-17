@@ -105,13 +105,15 @@ export default function ReadPage() {
               <motion.div key={p.id} variants={staggerItem}>
                 <Link
                   href={`/read/${p.id}`}
-                  className="bg-white rounded-2xl p-4 hover:border-ink transition-colors group"
+                  className="relative bg-white rounded-2xl p-4 hover:border-ink transition-colors group block"
                   style={{
                     boxShadow: '0 3px 14px rgba(26,31,54,0.07)',
                     border: '1px solid #E8E3D8',
-                    borderLeft: p.done ? '3px solid #34A853' : '1px solid #E8E3D8',
                   }}
                 >
+                  {p.done && (
+                    <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: '#34A853' }} />
+                  )}
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <p className="text-xl font-extrabold text-ink mb-0.5" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{p.title}</p>

@@ -93,12 +93,14 @@ export default function VocabPage() {
             return (
             <motion.div key={set.id} variants={staggerItem}>
               <Link href={`/cards/${set.id}`}
-                className="bg-white rounded-2xl p-4 flex items-center gap-4 hover:border-ink transition-colors group"
+                className="relative bg-white rounded-2xl p-4 flex items-center gap-4 hover:border-ink transition-colors group"
                 style={{
                   boxShadow: '0 3px 14px rgba(26,31,54,0.07)',
-                  border: '1px solid transparent',
-                  borderLeft: isComplete ? '3px solid #34A853' : '1px solid #E8E3D8',
+                  border: '1px solid #E8E3D8',
                 }}>
+                {isComplete && (
+                  <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: '#34A853' }} />
+                )}
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
                   style={{ backgroundColor: categoryColor(set.category) }}>
                   {set.icon}
