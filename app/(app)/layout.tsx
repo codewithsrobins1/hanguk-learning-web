@@ -20,19 +20,30 @@ function NavLink({
   mobile?: boolean;
 }) {
   const baseClass = mobile
-    ? 'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all'
-    : 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all';
+    ? 'relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all'
+    : 'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all';
   const inactiveClass = mobile
     ? 'text-white/55 hover:bg-white/8 hover:text-white/80'
     : 'text-white/50 hover:bg-white/8 hover:text-white/80';
-  const stateClass = active
-    ? 'bg-white/15 text-white'
-    : locked
-      ? 'text-white/30 cursor-not-allowed'
-      : inactiveClass;
+
+  let stateClass = inactiveClass;
+  let activeStyle: React.CSSProperties | undefined;
+  if (locked) {
+    stateClass = 'text-white/30 cursor-not-allowed';
+  } else if (active) {
+    if (mobile) {
+      stateClass = 'bg-white/15 text-white';
+    } else {
+      stateClass = '';
+      activeStyle = { background: 'rgba(232,65,44,0.15)', color: '#E8412C' };
+    }
+  }
 
   const content = (
     <>
+      {active && mobile && (
+        <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: '#E8412C' }} />
+      )}
       <span className="text-lg w-6 text-center">{item.icon}</span>
       {item.label}
       {locked && <span className="ml-auto text-xs">{ICONS.ui.lock}</span>}
@@ -43,7 +54,7 @@ function NavLink({
     return <div className={`${baseClass} ${stateClass}`}>{content}</div>;
   }
   return (
-    <Link href={item.href} className={`${baseClass} ${stateClass}`}>
+    <Link href={item.href} className={`${baseClass} ${stateClass}`} style={activeStyle}>
       {content}
     </Link>
   );

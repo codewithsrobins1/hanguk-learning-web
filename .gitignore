@@ -47,3 +47,6 @@ next-env.d.ts
 # Admin/sensitive SQL scripts
 helpfulScripts.sql
 *.sql
+
+# Design import scratch (decoded .dc.html mockups)
+.design-import/
