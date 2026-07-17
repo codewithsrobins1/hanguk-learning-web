@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTopikTests, savePlacementResult, TopikReadingQuestion } from '@/hooks/useTopik';
+import { CIRCLED } from '@/lib/format';
 
 const TOTAL_QUESTIONS = 18;
 
@@ -230,7 +231,7 @@ export default function PlacementTestPage() {
               }`}
               style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 19 }}
             >
-              {opt}
+              <span style={{ color: '#E8412C' }}>{CIRCLED[oi]}</span> {opt}
             </button>
           );
         })}

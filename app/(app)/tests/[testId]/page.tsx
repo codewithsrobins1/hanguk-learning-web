@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useTopikTest, saveTopikAttempt } from '@/hooks/useTopik';
 import { addXp } from '@/lib/xp';
+import { CIRCLED } from '@/lib/format';
 
 const TEST_DURATION_SECONDS = 25 * 60;
 
@@ -310,7 +311,7 @@ export default function TopikTestSessionPage() {
                   }`}
                   style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 19 }}
                 >
-                  {opt}
+                  <span style={{ color: '#E8412C' }}>{CIRCLED[oi]}</span> {opt}
                 </button>
               );
             })}
@@ -396,7 +397,7 @@ export default function TopikTestSessionPage() {
                 }`}
                 style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 19 }}
               >
-                {opt}
+                <span style={{ color: '#E8412C' }}>{CIRCLED[oi]}</span> {opt}
               </button>
             );
           })}

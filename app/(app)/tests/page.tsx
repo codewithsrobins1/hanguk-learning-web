@@ -10,6 +10,7 @@ import {
   topikTestId,
   DotColor,
 } from '@/hooks/useTopik';
+import TopikJourney from '@/components/TopikJourney';
 
 const LEVELS = [
   { level: 1, section: 'TOPIK I' },
@@ -54,10 +55,12 @@ export default function TestsPage() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-2xl lg:max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
       <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Tests</h1>
       <p className="text-sm text-muted mb-6">Practice tests calibrated to real TOPIK proficiency levels</p>
 
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 lg:items-start">
+      <div>
       {/* Placement hero card */}
       <div className="bg-navy rounded-3xl p-6 mb-8">
         <p className="text-3xl mb-2">🎯</p>
@@ -132,6 +135,12 @@ export default function TestsPage() {
             </Link>
           );
         })}
+      </div>
+      </div>
+
+      <div className="hidden lg:block">
+        <TopikJourney progress={progress} title="Your TOPIK Journey" />
+      </div>
       </div>
     </div>
   );

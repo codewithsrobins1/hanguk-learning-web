@@ -9,6 +9,8 @@ import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import ProgressBar from '@/components/ProgressBar';
 import ToggleSwitch from '@/components/ToggleSwitch';
+import TopikSeal from '@/components/TopikSeal';
+import TopikJourney from '@/components/TopikJourney';
 import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
 
 export default function ProfilePage() {
@@ -116,12 +118,8 @@ export default function ProfilePage() {
                   {profile?.display_name || profile?.username || 'Learner'}
                 </p>
                 {topikLevel > 0 && (
-                  <span
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white flex-shrink-0"
-                    style={{ background: '#1A1F36', border: '1.5px solid #E8412C' }}
-                    title={`Passed TOPIK Level ${topikLevel}`}
-                  >
-                    🏅 TOPIK {topikLevel}
+                  <span title={`Passed TOPIK Level ${topikLevel}`}>
+                    <TopikSeal level={topikLevel} size={40} />
                   </span>
                 )}
               </div>
@@ -244,6 +242,14 @@ export default function ProfilePage() {
             />
           </div>
         </div>
+      </div>
+
+      {/* ── TOPIK Status ─────────────────────────────────────── */}
+      <p className="text-[11px] font-bold text-muted tracking-widest mb-2">
+        TOPIK STATUS
+      </p>
+      <div className="mb-6">
+        <TopikJourney progress={topikProgress} />
       </div>
 
       {/* ── Customize Navigation ─────────────────────────────── */}
