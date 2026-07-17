@@ -34,7 +34,10 @@ function PatternCard({ pattern }: { pattern: PatternWithProgress }) {
   return (
     <Link href={`/patterns/${pattern.id}`}
       className="bg-white rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-ink transition-colors"
-      style={{ border: done ? '2px solid #86EFAC' : '2px solid #E8E3D8' }}>
+      style={{
+        border: done ? '2px solid #86EFAC' : '2px solid #E8E3D8',
+        boxShadow: '0 3px 14px rgba(26,31,54,0.07)',
+      }}>
       <div className="flex-1 min-w-0">
         <p className="font-quicksand font-bold text-ink text-base mb-0.5"
           style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>

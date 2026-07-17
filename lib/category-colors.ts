@@ -30,3 +30,16 @@ export function categoryColor(category: string): string {
   if (CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
   return FALLBACK_PALETTE[hashString(category) % FALLBACK_PALETTE.length];
 }
+
+function hexToRgba(hex: string, alpha: number): string {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Light-tint pill (bg) + saturated text pair derived from the same
+// per-category color, for badges rather than solid icon tiles.
+export function categoryPill(category: string): { bg: string; text: string } {
+  const color = categoryColor(category);
+  return { bg: hexToRgba(color, 0.12), text: color };
+}

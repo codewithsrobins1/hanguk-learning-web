@@ -93,10 +93,16 @@ export default function ListenPage() {
           {filtered.map(ex => {
             const dc = DIFFICULTY_COLORS[ex.difficulty];
             const done = ex.completed_at !== null;
+            const perfect = done && ex.score === ex.total;
             return (
               <motion.div key={ex.id} variants={staggerItem}>
                 <Link href={`/listen/${ex.id}`}
-                  className="bg-white border-2 border-border rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors">
+                  className="bg-white rounded-3xl px-5 py-4 flex items-center justify-between gap-3 hover:border-ink transition-colors"
+                  style={{
+                    boxShadow: '0 3px 14px rgba(26,31,54,0.07)',
+                    border: '2px solid #E8E3D8',
+                    borderLeft: perfect ? '3px solid #34A853' : '2px solid #E8E3D8',
+                  }}>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full"

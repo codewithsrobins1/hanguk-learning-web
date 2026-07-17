@@ -5,11 +5,7 @@ import { motion } from 'framer-motion';
 import { useFlashcardSets } from '@/hooks/useFlashcards';
 import ProgressBar from '@/components/ProgressBar';
 import { staggerContainer, staggerItem } from '@/lib/motion-variants';
-
-const iconColors: Record<string, string> = {
-  Verbs: '#FDE8E4', Nouns: '#EFF6FF',
-  Food: '#FFF7ED', Music: '#F5F3FF', Travel: '#FFF0EE',
-};
+import { categoryColor } from '@/lib/category-colors';
 
 const selectStyle = {
   backgroundColor: '#fff',
@@ -92,12 +88,19 @@ export default function VocabPage() {
           animate="visible"
           variants={staggerContainer}
         >
-          {filtered.map(set => (
+          {filtered.map(set => {
+            const isComplete = (set.mastery_count ?? 0) >= set.card_count && set.card_count > 0;
+            return (
             <motion.div key={set.id} variants={staggerItem}>
               <Link href={`/cards/${set.id}`}
-                className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm border border-border hover:border-ink transition-colors group">
+                className="bg-white rounded-2xl p-4 flex items-center gap-4 hover:border-ink transition-colors group"
+                style={{
+                  boxShadow: '0 3px 14px rgba(26,31,54,0.07)',
+                  border: '1px solid transparent',
+                  borderLeft: isComplete ? '3px solid #34A853' : '1px solid #E8E3D8',
+                }}>
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-                  style={{ backgroundColor: iconColors[set.category] || '#E8E3D8' }}>
+                  style={{ backgroundColor: categoryColor(set.category) }}>
                   {set.icon}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -113,7 +116,8 @@ export default function VocabPage() {
                 <span className="text-xl text-muted group-hover:text-ink transition-colors">›</span>
               </Link>
             </motion.div>
-          ))}
+            );
+          })}
         </motion.div>
       )}
     </div>
