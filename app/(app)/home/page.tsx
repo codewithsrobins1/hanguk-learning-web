@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { useUserStats } from '@/hooks/useUserStats';
 import { useTopikProgress } from '@/hooks/useTopik';
 import TopikSeal from '@/components/TopikSeal';
+import ProgressBar from '@/components/ProgressBar';
 import { useGrammarLessons, useMilestoneResults } from '@/hooks/useGrammar';
 import { useFlashcardSets } from '@/hooks/useFlashcards';
 import { usePassages } from '@/hooks/usePassages';
@@ -537,6 +538,39 @@ export default function HomePage() {
               })}
             </div>
           )}
+
+          {/* Desktop-only extras */}
+          <div className="hidden lg:flex lg:flex-col gap-5">
+            <div className="bg-white rounded-2xl p-5" style={{ boxShadow: '0 6px 20px rgba(26,31,54,0.06)' }}>
+              <p className="font-quicksand font-bold text-ink text-base mb-4">Weekly Progress</p>
+              <div className="grid grid-cols-2 gap-3.5">
+                {[
+                  { label: 'Vocab', done: stats.cardsKnown, total: stats.totalCards, color: '#E8412C' },
+                  { label: 'Reading', done: stats.passagesDone, total: stats.totalPassages, color: '#1A1F36' },
+                  { label: 'Speaking', done: stats.dialoguesDone, total: stats.totalDialogues, color: '#E8412C' },
+                  { label: 'Listening', done: stats.listeningDone, total: stats.totalListening, color: '#1A1F36' },
+                ].map((m) => (
+                  <div key={m.label}>
+                    <p className="text-xs text-muted mb-1.5">{m.label}</p>
+                    <ProgressBar progress={m.total > 0 ? m.done / m.total : 0} color={m.color} height={7} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-navy rounded-2xl p-6 flex flex-col gap-2.5">
+              <p className="font-quicksand font-bold text-cream text-base">Ready for TOPIK I?</p>
+              <p className="text-white/60 text-xs leading-relaxed">
+                Take a free placement test to see which level fits you best.
+              </p>
+              <button
+                onClick={() => router.push('/tests')}
+                className="mt-1 py-2.5 rounded-xl bg-red text-white font-bold text-xs hover:opacity-90 transition-opacity"
+              >
+                Go to Tests Hub
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* ── Left column on desktop: Today's Plan ────────────── */}
