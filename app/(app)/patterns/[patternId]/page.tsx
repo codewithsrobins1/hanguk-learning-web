@@ -22,6 +22,18 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 
+// Fisher-Yates shuffle of [0,1,2,3] — used to randomize option display
+// order each question, since generated option lists otherwise tend to
+// place the correct answer first.
+function shuffledIndices(): number[] {
+  const indices = [0, 1, 2, 3];
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return indices;
+}
+
 // ── Draggable chip ────────────────────────────────────────────────
 function Chip({
   id,
@@ -171,21 +183,6 @@ function PatternIntro({
       </div>
 
       <div className="flex-1 px-5 py-6 flex flex-col gap-5 max-w-xl mx-auto w-full">
-        {/* EN toggle */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowEn((s) => !s)}
-            className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
-            style={{
-              background: showEn ? '#1A1F36' : '#fff',
-              color: showEn ? '#F7F4EE' : '#888',
-              border: '1.5px solid #E8E3D8',
-            }}
-          >
-            {showEn ? '한 Hide EN' : 'EN Show'}
-          </button>
-        </div>
-
         {/* Explanation */}
         <div className="bg-white rounded-2xl border-2 border-border p-5">
           <p className="text-[12px] font-bold text-muted tracking-widest mb-2">
@@ -240,9 +237,22 @@ function PatternIntro({
         {/* Examples */}
         {pattern.examples && pattern.examples.length > 0 && (
           <div className="bg-white rounded-2xl border-2 border-border p-5">
-            <p className="text-[12px] font-bold text-muted tracking-widest mb-3">
-              EXAMPLES
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[12px] font-bold text-muted tracking-widest">
+                EXAMPLES
+              </p>
+              <button
+                onClick={() => setShowEn((s) => !s)}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
+                style={{
+                  background: showEn ? '#1A1F36' : '#fff',
+                  color: showEn ? '#F7F4EE' : '#888',
+                  border: '1.5px solid #E8E3D8',
+                }}
+              >
+                {showEn ? '한 Hide EN' : 'EN Show'}
+              </button>
+            </div>
             <div className="flex flex-col gap-3">
               {pattern.examples.map((ex, i) => (
                 <div key={i} className="flex flex-col gap-0.5">
@@ -295,6 +305,11 @@ export default function PatternPracticePage() {
   const [roundDone, setRoundDone] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [optionOrder, setOptionOrder] = useState<number[]>(shuffledIndices);
+
+  useEffect(() => {
+    setOptionOrder(shuffledIndices());
+  }, [roundIndex, qIndex]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -366,7 +381,7 @@ export default function PatternPracticePage() {
 
   const placeAnswer = (optionIndex: number) => {
     setSlotFilled(optionIndex);
-    const correct = optionIndex === currentQ.answer_index;
+    const correct = optionOrder[optionIndex] === currentQ.answer_index;
     setAnswerState(correct ? 'correct' : 'wrong');
     if (correct) setScore((s) => s + 1);
   };
@@ -475,11 +490,27 @@ export default function PatternPracticePage() {
   }
 
   const filledOption =
-    slotFilled !== null ? currentQ.options[slotFilled] : undefined;
+    slotFilled !== null ? currentQ.options[optionOrder[slotFilled]] : undefined;
   const filledEn =
-    slotFilled !== null && slotFilled === currentQ.answer_index
+    slotFilled !== null && optionOrder[slotFilled] === currentQ.answer_index
       ? currentQ.slot_translation
       : undefined;
+
+  // Blank out the correct option's text within the actual target
+  // sentence, rather than showing a generic drop-zone + the pattern's
+  // default frame suffix — the latter breaks whenever an option is a
+  // conjugated phrase (e.g. "먹을 수 있어요") rather than a bare stem,
+  // since it doesn't match the pattern's static "...할 수 있어요"
+  // template at all. `slot` is the dictionary form (e.g. "먹다") and
+  // never appears verbatim in the conjugated sentence — the option
+  // text at answer_index does, in ~90% of generated questions.
+  const correctOptionText = currentQ.options[currentQ.answer_index];
+  const slotStart = currentQ.full_sentence.indexOf(correctOptionText);
+  const hasCleanSplit = slotStart !== -1;
+  const sentenceBefore = hasCleanSplit ? currentQ.full_sentence.slice(0, slotStart) : '';
+  const sentenceAfter = hasCleanSplit
+    ? currentQ.full_sentence.slice(slotStart + correctOptionText.length)
+    : '';
 
   // ── Practice session ──────────────────────────────────────────
   return (
@@ -569,21 +600,46 @@ export default function PatternPracticePage() {
             <p className="text-[10px] font-bold text-muted tracking-widest mb-2">
               COMPLETE THE PATTERN
             </p>
-            <div className="bg-white rounded-2xl p-4 border-2 border-border flex items-center gap-3 flex-wrap">
-              <DropSlot
-                filled={slotFilled !== null}
-                slotKorean={filledOption}
-                slotEnglish={filledEn}
-                showEn={showEn}
-                isCorrect={answerState === 'correct'}
-                isWrong={answerState === 'wrong'}
-              />
-              <p
-                className="text-xl font-bold text-ink"
-                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-              >
-                {pattern.frame.replace('...', '').trim()}
-              </p>
+            <div className="bg-white rounded-2xl p-4 border-2 border-border flex items-center gap-2 flex-wrap">
+              {hasCleanSplit ? (
+                <>
+                  {sentenceBefore && (
+                    <p className="text-xl font-bold text-ink" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
+                      {sentenceBefore}
+                    </p>
+                  )}
+                  <DropSlot
+                    filled={slotFilled !== null}
+                    slotKorean={filledOption}
+                    slotEnglish={filledEn}
+                    showEn={showEn}
+                    isCorrect={answerState === 'correct'}
+                    isWrong={answerState === 'wrong'}
+                  />
+                  {sentenceAfter && (
+                    <p className="text-xl font-bold text-ink" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
+                      {sentenceAfter}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <DropSlot
+                    filled={slotFilled !== null}
+                    slotKorean={filledOption}
+                    slotEnglish={filledEn}
+                    showEn={showEn}
+                    isCorrect={answerState === 'correct'}
+                    isWrong={answerState === 'wrong'}
+                  />
+                  <p
+                    className="text-xl font-bold text-ink"
+                    style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+                  >
+                    {pattern.frame.replace('...', '').trim()}
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -631,13 +687,13 @@ export default function PatternPracticePage() {
               OPTIONS — tap or drag
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {currentQ.options.map((opt, i) => (
+              {optionOrder.map((originalIndex, i) => (
                 <div key={i} onClick={() => handleChipTap(i)}>
                   <Chip
                     id={`opt-${i}`}
-                    korean={opt}
-                    english={currentQ.slot_translation}
-                    showEn={showEn}
+                    korean={currentQ.options[originalIndex]}
+                    english=""
+                    showEn={false}
                     disabled={answerState !== 'idle'}
                     dimmed={slotFilled === i}
                   />
@@ -687,7 +743,7 @@ export default function PatternPracticePage() {
         {draggingId
           ? (() => {
               const i = parseInt(draggingId.replace('opt-', ''));
-              const opt = currentQ.options[i];
+              const opt = currentQ.options[optionOrder[i]];
               return (
                 <div
                   className="rounded-xl text-center px-4 py-3 shadow-xl"
