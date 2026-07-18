@@ -7,7 +7,7 @@ import { addXp } from '@/lib/xp';
 
 const SPEEDS = [0.5, 0.75, 1] as const;
 type Speed = typeof SPEEDS[number];
-type Phase = 'playing' | 'question' | 'answered';
+type Phase = 'ready' | 'playing' | 'question' | 'answered';
 
 export default function ListenExercisePage() {
   const { exerciseId } = useParams<{ exerciseId: string }>();
@@ -16,7 +16,7 @@ export default function ListenExercisePage() {
   const { exercise, loading }    = useListeningExercise(exerciseId);
 
   const [segmentIndex,   setSegmentIndex]   = useState(0);
-  const [phase,          setPhase]          = useState<Phase>('playing');
+  const [phase,          setPhase]          = useState<Phase>('ready');
   const [selected,       setSelected]       = useState<number | null>(null);
   const [answers,        setAnswers]        = useState<Record<number, number>>({});
   const [done,           setDone]           = useState(false);
@@ -25,7 +25,7 @@ export default function ListenExercisePage() {
   const [audioError,     setAudioError]    = useState(false);
   const [hasPlayed,      setHasPlayed]     = useState(false);
   const [isPlaying,      setIsPlaying]     = useState(false);
-  const [speed,          setSpeed]         = useState<Speed>(1);
+  const [speed,          setSpeed]         = useState<Speed>(0.75);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const segment  = exercise?.segments[segmentIndex];
@@ -58,9 +58,10 @@ export default function ListenExercisePage() {
     });
   }, []);
 
-  // Auto-play when segment changes
+  // Reset to a "ready" state when the segment changes — wait for the
+  // user to tap Start rather than auto-playing immediately.
   useEffect(() => {
-    setPhase('playing');
+    setPhase('ready');
     setSelected(null);
     setHasPlayed(false);
     setIsPlaying(false);
@@ -69,10 +70,14 @@ export default function ListenExercisePage() {
       audioRef.current.pause();
       audioRef.current = null;
     }
+  }, [segmentIndex, segment?.audio_url]);
+
+  const handleStart = () => {
     if (segment?.audio_url) {
+      setPhase('playing');
       playAudio(segment.audio_url, speed);
     }
-  }, [segmentIndex, segment?.audio_url]);
+  };
 
   const handleReplay = () => {
     if (segment?.audio_url) {
@@ -249,7 +254,7 @@ export default function ListenExercisePage() {
       {/* Audio player card */}
       <div className="bg-navy rounded-3xl p-7 mb-6 flex flex-col items-center gap-4">
         <p className="text-sm text-white/40 font-semibold tracking-wider uppercase">
-          {isPlaying ? 'Now playing...' : hasPlayed ? 'Part ' + (segmentIndex + 1) : 'Get ready...'}
+          {isPlaying ? 'Now playing...' : hasPlayed ? 'Part ' + (segmentIndex + 1) : 'Ready when you are'}
         </p>
 
         {/* Speaker icon */}
@@ -284,8 +289,14 @@ export default function ListenExercisePage() {
             ))}
           </div>
 
-          {/* Replay */}
-          {hasPlayed && (
+          {/* Start / Replay */}
+          {phase === 'ready' ? (
+            <button onClick={handleStart}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-sm font-bold transition-all"
+              style={{ background: '#E8412C', color: '#fff' }}>
+              ▶ Start
+            </button>
+          ) : hasPlayed && (
             <button onClick={handleReplay} disabled={isPlaying}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
               style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>

@@ -475,21 +475,15 @@ export default function HomePage() {
     <div className="max-w-xl lg:max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-xs text-muted font-medium mb-1">안녕하세요!</p>
-          <div className="flex items-center gap-2">
-            <h1 className="font-quicksand font-bold text-ink text-3xl">{displayName}</h1>
-            {topikLevel > 0 && (
-              <span title={`Passed TOPIK Level ${topikLevel}`}>
-                <TopikSeal level={topikLevel} size={26} />
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="bg-navy rounded-2xl px-3.5 py-2 text-center min-w-[56px]">
-          <p className="text-[9px] tracking-widest mb-0.5 font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>LVL</p>
-          <p className="text-cream font-quicksand font-bold text-lg leading-none">{stats.level}</p>
+      <div className="mb-4">
+        <p className="text-xs text-muted font-medium mb-1">안녕하세요!</p>
+        <div className="flex items-center gap-2">
+          <h1 className="font-quicksand font-bold text-ink text-3xl">{displayName}</h1>
+          {topikLevel > 0 && (
+            <span title={`Passed TOPIK Level ${topikLevel}`}>
+              <TopikSeal level={topikLevel} size={26} />
+            </span>
+          )}
         </div>
       </div>
 
@@ -507,10 +501,13 @@ export default function HomePage() {
               </div>
               <span className="text-xs font-semibold text-muted">{stats.xpIntoLevel} / {stats.xpNeeded} XP</span>
             </div>
-            <div className="rounded-full overflow-hidden" style={{ background: '#F7F4EE', height: 10 }}>
+            <div className="rounded-full overflow-hidden mb-1" style={{ background: '#F7F4EE', height: 10 }}>
               <div className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#E8412C' }} />
             </div>
+            <p className="text-[11px] text-muted">
+              {stats.xpNeeded - stats.xpIntoLevel} XP to level up · {stats.xp} XP total
+            </p>
           </div>
 
           {/* Week ahead strip */}

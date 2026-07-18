@@ -7,7 +7,6 @@ import { useTopikProgress } from '@/hooks/useTopik';
 import { sendPasswordResetEmail, deleteUser } from 'firebase/auth';
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import ProgressBar from '@/components/ProgressBar';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import TopikSeal from '@/components/TopikSeal';
 import TopikJourney from '@/components/TopikJourney';
@@ -194,54 +193,10 @@ export default function ProfilePage() {
             }}
           />
         </div>
-        <p className="text-[11px] text-muted mb-4">
+        <p className="text-[11px] text-muted">
           {stats.xpNeeded - stats.xpIntoLevel} XP to level up · {stats.xp} XP
           total
         </p>
-
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-cream rounded-xl p-3">
-            <p className="text-[10px] font-bold text-muted tracking-wider mb-1">
-              VOCAB
-            </p>
-            <p className="text-xl font-extrabold text-ink mb-0.5">
-              {stats.cardsKnown}
-              <span className="text-xs font-semibold text-muted">
-                {' '}
-                / {stats.totalCards}
-              </span>
-            </p>
-            <p className="text-[10px] text-muted mb-2">cards known</p>
-            <ProgressBar
-              progress={
-                stats.totalCards > 0 ? stats.cardsKnown / stats.totalCards : 0
-              }
-              color="#E8412C"
-            />
-          </div>
-          <div className="bg-cream rounded-xl p-3">
-            <p className="text-[10px] font-bold text-muted tracking-wider mb-1">
-              READING
-            </p>
-            <p className="text-xl font-extrabold text-ink mb-0.5">
-              {stats.passagesDone}
-              <span className="text-xs font-semibold text-muted">
-                {' '}
-                / {stats.totalPassages}
-              </span>
-            </p>
-            <p className="text-[10px] text-muted mb-2">passages done</p>
-            <ProgressBar
-              progress={
-                stats.totalPassages > 0
-                  ? stats.passagesDone / stats.totalPassages
-                  : 0
-              }
-              color="#3B82F6"
-            />
-          </div>
-        </div>
       </div>
 
       {/* ── TOPIK Status ─────────────────────────────────────── */}
