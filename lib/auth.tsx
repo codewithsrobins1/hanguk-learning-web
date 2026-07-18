@@ -16,6 +16,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { getWeekStartISO } from './weekly';
 
 type Profile = {
   id: string;
@@ -30,19 +31,18 @@ type Profile = {
   dialogue_sessions: number;
   premium?: boolean;
   nav_preferences?: Record<string, boolean>;
+  weekly_reset_at?: string | null;
+  ai_insight?: {
+    summary: string;
+    recommendations: string[];
+    categories: string[];
+    week_start: string;
+    generated_at: any;
+  } | null;
   goals: {
     targets:  Record<string, number>;
     set_at:   string;
     baseline: Record<string, number>;
-  } | null;
-  routine: {
-    daysPerWeek:   number;
-    minutesPerDay: number;
-    priority:      string;
-    level:         string;
-    selectedDays:  number[];
-    cycle:         string[];
-    created_at:    string;
   } | null;
 };
 
@@ -85,6 +85,19 @@ const updateActivity = async (userId: string) => {
   await updateDoc(ref, { last_active_date: today, current_streak: newStreak, longest_streak: newLongest });
 };
 
+// Lazily rolls the weekly-progress boundary forward to the most recent
+// Monday, mirroring the streak-reset pattern above (no backend cron exists
+// in this app, so "resets every Monday" means "on next app load after Monday").
+const ensureWeeklyReset = async (userId: string) => {
+  const weekStart = getWeekStartISO();
+  const ref = doc(db, 'profiles', userId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+  const p = snap.data() as Profile;
+  if (p.weekly_reset_at && p.weekly_reset_at >= weekStart) return;
+  await updateDoc(ref, { weekly_reset_at: weekStart });
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -94,9 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
+        await updateActivity(firebaseUser.uid);
+        await ensureWeeklyReset(firebaseUser.uid);
         const p = await fetchProfile(firebaseUser.uid);
         setProfile(p);
-        await updateActivity(firebaseUser.uid);
       } else {
         setProfile(null);
       }
@@ -136,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         dialogue_sessions: 0,
         premium: true,
         nav_preferences: {},
+        weekly_reset_at: getWeekStartISO(),
         created_at: serverTimestamp(),
       });
       return { error: null };
