@@ -97,7 +97,7 @@ function buildAnsweredSentence(cloze: string, word: string, color: string) {
   );
 }
 
-type AnswerState = 'idle' | 'correct' | 'wrong';
+type AnswerState = 'idle' | 'correct' | 'wrong' | 'unknown';
 
 export default function VocabSessionPage() {
   const { setId } = useParams<{ setId: string }>();
@@ -254,6 +254,13 @@ export default function VocabSessionPage() {
     await saveProgress(card.id, setId, correct);
   };
 
+  const handleDontKnow = async () => {
+    if (answerState !== 'idle') return;
+    setChosenOption(null);
+    setAnswerState('unknown');
+    await saveProgress(card.id, setId, false);
+  };
+
   const handleNext = async () => {
     if (index + 1 >= shuffledCards.length) {
       if (user) {
@@ -281,14 +288,18 @@ export default function VocabSessionPage() {
       ? '#F0FFF4'
       : answerState === 'wrong'
         ? '#FFF5F5'
-        : '#1A1F36';
+        : answerState === 'unknown'
+          ? '#F7F4EE'
+          : '#1A1F36';
 
   const cardBorder =
     answerState === 'correct'
       ? '2px solid #86EFAC'
       : answerState === 'wrong'
         ? '2px solid #FCA5A5'
-        : 'none';
+        : answerState === 'unknown'
+          ? '2px solid #E8E3D8'
+          : 'none';
 
   const fullSentence =
     card.cloze_sentence?.replace('___', card.cloze_answer) ?? '';
@@ -381,10 +392,18 @@ export default function VocabSessionPage() {
               <p
                 className="text-[11px] tracking-widest mb-5 font-bold"
                 style={{
-                  color: answerState === 'correct' ? '#16A34A' : '#E8412C',
+                  color: answerState === 'correct'
+                    ? '#16A34A'
+                    : answerState === 'wrong'
+                      ? '#E8412C'
+                      : '#888888',
                 }}
               >
-                {answerState === 'correct' ? '✓ CORRECT' : '✗ INCORRECT'}
+                {answerState === 'correct'
+                  ? '✓ CORRECT'
+                  : answerState === 'wrong'
+                    ? '✗ INCORRECT'
+                    : "HERE'S THE ANSWER"}
               </p>
               <p
                 className="text-2xl font-semibold text-center leading-10 mb-3"
@@ -393,7 +412,11 @@ export default function VocabSessionPage() {
                 {buildAnsweredSentence(
                   card.cloze_sentence ?? '',
                   card.cloze_answer,
-                  answerState === 'correct' ? '#16A34A' : '#E8412C'
+                  answerState === 'correct'
+                    ? '#16A34A'
+                    : answerState === 'wrong'
+                      ? '#E8412C'
+                      : '#F97316'
                 )}
               </p>
               <button
@@ -425,8 +448,8 @@ export default function VocabSessionPage() {
           </div>
         )}
 
-        {/* Wrong answer hint */}
-        {answerState === 'wrong' && (
+        {/* Wrong / don't-know answer hint */}
+        {(answerState === 'wrong' || answerState === 'unknown') && (
           <div className="bg-white rounded-2xl border-2 border-green px-5 py-3 mb-4 text-center">
             <p className="text-xs text-muted mb-1">Correct answer</p>
             <p
@@ -440,18 +463,26 @@ export default function VocabSessionPage() {
 
         {/* Word bank */}
         {answerState === 'idle' && (
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {options.map((opt, i) => (
-              <button
-                key={i}
-                onClick={() => handleAnswer(opt)}
-                className="py-4 rounded-2xl border-2 border-border bg-white font-bold text-xl text-ink hover:border-ink transition-all active:scale-95"
-                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              {options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleAnswer(opt)}
+                  className="py-4 rounded-2xl border-2 border-border bg-white font-bold text-xl text-ink hover:border-ink transition-all active:scale-95"
+                  style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleDontKnow}
+              className="w-full py-3 rounded-2xl border-2 border-border bg-white font-semibold text-sm text-muted hover:border-ink hover:text-ink transition-all mb-6"
+            >
+              I don't know this one
+            </button>
+          </>
         )}
 
         {/* Post-answer chips */}
