@@ -10,7 +10,7 @@ type ProgressBarProps = {
 
 export default function ProgressBar({
   progress,
-  color = '#E8412C',
+  color = '#F97316',
   height = 3,
   className = '',
 }: ProgressBarProps) {

@@ -62,7 +62,7 @@ function HangulModal({ onClose }: { onClose: () => void }) {
               >
                 {c.char}
               </span>
-              <span className="text-[9px] font-semibold text-red">
+              <span className="text-[9px] font-semibold text-orange">
                 {c.romanization}
               </span>
             </div>
@@ -173,7 +173,7 @@ export default function VocabSessionPage() {
   if (loading || reviewLoading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
       </div>
     );
 

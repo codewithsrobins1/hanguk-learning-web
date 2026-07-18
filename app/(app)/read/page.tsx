@@ -84,7 +84,7 @@ export default function ReadPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center py-16 gap-2">

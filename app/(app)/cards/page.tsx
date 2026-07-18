@@ -72,7 +72,7 @@ export default function VocabPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center py-16 gap-2">
@@ -107,12 +107,12 @@ export default function VocabPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-ink text-sm mb-1">{set.title}</p>
-                  <p className="text-[11px] font-semibold text-red mb-2">
+                  <p className="text-[11px] font-semibold text-orange mb-2">
                     {set.mastery_count || 0} / {set.card_count} MASTERED
                   </p>
                   <ProgressBar
                     progress={set.card_count > 0 ? (set.mastery_count || 0) / set.card_count : 0}
-                    color="#E8412C"
+                    color="#F97316"
                   />
                 </div>
                 <span className="text-xl text-muted group-hover:text-ink transition-colors">›</span>

@@ -230,7 +230,7 @@ export default function HangulSessionPage() {
               >
                 {card.char}
               </p>
-              <p className="text-3xl font-extrabold text-red mb-2">
+              <p className="text-3xl font-extrabold text-orange mb-2">
                 {card.romanization}
               </p>
               <p className="text-sm text-muted">{card.sound}</p>

@@ -167,7 +167,7 @@ export default function GrammarLessonPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -300,7 +300,7 @@ export default function GrammarLessonPage() {
                 return (
                   <div key={i} className={`flex gap-2 ${isA ? '' : 'flex-row-reverse'}`}>
                     <div className="flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full text-[10px] font-extrabold text-white mt-1"
-                      style={{ background: isA ? '#1A1F36' : '#E8412C' }}>
+                      style={{ background: isA ? '#1A1F36' : '#F97316' }}>
                       {line.speaker}
                     </div>
                     <div className={`max-w-[80%] px-3 py-2 rounded-xl ${isA ? 'rounded-tl-none' : 'rounded-tr-none'} bg-white border border-border`}>
@@ -369,7 +369,7 @@ export default function GrammarLessonPage() {
           {!submitted ? (
             <button onClick={handleSubmit} disabled={!allAnswered}
               className={`w-full py-4 rounded-xl font-bold transition-colors ${
-                allAnswered ? 'bg-red text-white hover:opacity-90' : 'bg-border text-muted cursor-not-allowed'
+                allAnswered ? 'bg-orange text-white hover:opacity-90' : 'bg-border text-muted cursor-not-allowed'
               }`}>
               Submit →
             </button>

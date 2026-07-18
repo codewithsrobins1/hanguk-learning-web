@@ -50,7 +50,7 @@ export default function TestsPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -75,7 +75,7 @@ export default function TestsPage() {
         )}
         <button
           onClick={() => router.push('/tests/placement')}
-          className="btn-press-red w-full py-3.5 rounded-2xl bg-red text-white font-quicksand font-bold text-sm"
+          className="btn-press-orange w-full py-3.5 rounded-2xl bg-orange text-white font-quicksand font-bold text-sm"
         >
           {placement ? 'Retake Placement Test →' : 'Start Placement Test →'}
         </button>

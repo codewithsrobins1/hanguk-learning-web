@@ -119,7 +119,7 @@ export default function PlacementTestPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -138,7 +138,7 @@ export default function PlacementTestPage() {
         <button
           onClick={handleStart}
           disabled={pool.length === 0}
-          className="btn-press-red w-full max-w-xs py-4 rounded-2xl bg-red text-white font-quicksand font-bold text-base disabled:opacity-50"
+          className="btn-press-orange w-full max-w-xs py-4 rounded-2xl bg-orange text-white font-quicksand font-bold text-base disabled:opacity-50"
         >
           Start Placement Test →
         </button>
@@ -156,7 +156,7 @@ export default function PlacementTestPage() {
   if (phase === 'done') {
     return (
       <div className="max-w-xl mx-auto px-6 py-10 flex flex-col items-center text-center">
-        <div className="w-28 h-28 rounded-full bg-navy flex flex-col items-center justify-center mb-6" style={{ border: '4px solid #E8412C' }}>
+        <div className="w-28 h-28 rounded-full bg-navy flex flex-col items-center justify-center mb-6" style={{ border: '4px solid #F97316' }}>
           <span className="text-white/50 text-[10px] font-bold tracking-widest">TOPIK</span>
           <span className="text-cream font-quicksand font-extrabold text-3xl leading-none mt-1">{recommendedLevel}</span>
         </div>
@@ -231,7 +231,7 @@ export default function PlacementTestPage() {
               }`}
               style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 19 }}
             >
-              <span style={{ color: '#E8412C' }}>{CIRCLED[oi]}</span> {opt}
+              <span style={{ color: '#F97316' }}>{CIRCLED[oi]}</span> {opt}
             </button>
           );
         })}

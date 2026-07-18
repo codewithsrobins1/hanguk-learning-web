@@ -54,7 +54,7 @@ export default function HangulReferencePage() {
               <span className="font-bold text-ink text-2xl" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
                 {c.char}
               </span>
-              <span className="font-bold text-red text-xs">{c.romanization}</span>
+              <span className="font-bold text-orange text-xs">{c.romanization}</span>
               {isExpanded && c.example && (
                 <span className="text-[10px] text-muted leading-tight mt-0.5">
                   {c.example.word}<br />({c.example.romanization} — {c.example.meaning})

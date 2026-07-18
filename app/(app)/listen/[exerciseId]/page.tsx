@@ -120,7 +120,7 @@ export default function ListenExercisePage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -190,7 +190,7 @@ export default function ListenExercisePage() {
                     return (
                       <div key={li} className={`flex gap-2 ${isA ? '' : 'flex-row-reverse'}`}>
                         <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold text-white"
-                          style={{ background: isA ? '#1A1F36' : '#E8412C' }}>
+                          style={{ background: isA ? '#1A1F36' : '#F97316' }}>
                           {line.speaker}
                         </div>
                         <div className={`max-w-[80%] px-3 py-2 rounded-2xl ${isA ? 'rounded-tl-none' : 'rounded-tr-none'} bg-cream`}>
@@ -260,12 +260,12 @@ export default function ListenExercisePage() {
         {/* Speaker icon */}
         <div className="relative">
           <div className="w-20 h-20 rounded-full flex items-center justify-center"
-            style={{ background: isPlaying ? '#E8412C' : 'rgba(255,255,255,0.1)' }}>
+            style={{ background: isPlaying ? '#F97316' : 'rgba(255,255,255,0.1)' }}>
             <span className="text-4xl">{isPlaying ? '🔊' : '🎧'}</span>
           </div>
           {isPlaying && (
             <div className="absolute inset-0 rounded-full animate-ping"
-              style={{ background: 'rgba(232,65,44,0.25)' }} />
+              style={{ background: 'rgba(249,115,22,0.25)' }} />
           )}
         </div>
 
@@ -293,7 +293,7 @@ export default function ListenExercisePage() {
           {phase === 'ready' ? (
             <button onClick={handleStart}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-sm font-bold transition-all"
-              style={{ background: '#E8412C', color: '#fff' }}>
+              style={{ background: '#F97316', color: '#fff' }}>
               ▶ Start
             </button>
           ) : hasPlayed && (

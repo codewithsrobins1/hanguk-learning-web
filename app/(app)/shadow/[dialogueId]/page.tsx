@@ -171,7 +171,7 @@ export default function ShadowSessionPage() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
       </div>
     );
 
@@ -331,9 +331,9 @@ export default function ShadowSessionPage() {
           onClick={() => setShowTranslation((s) => !s)}
           className="px-3 py-2 rounded-xl font-bold text-sm flex-shrink-0"
           style={{
-            background: showTranslation ? '#E8412C' : 'rgba(255,255,255,0.12)',
+            background: showTranslation ? '#F97316' : 'rgba(255,255,255,0.12)',
             border: showTranslation
-              ? '1.5px solid #E8412C'
+              ? '1.5px solid #F97316'
               : '1.5px solid rgba(255,255,255,0.18)',
             color: '#F7F4EE',
           }}
@@ -346,7 +346,7 @@ export default function ShadowSessionPage() {
       <div style={{ background: '#E8E3D8', height: 4, flexShrink: 0 }}>
         <div
           style={{
-            background: '#E8412C',
+            background: '#F97316',
             height: 4,
             width: `${((currentLine + 1) / dialogue.lines.length) * 100}%`,
             transition: 'width 0.3s',
@@ -387,7 +387,7 @@ export default function ShadowSessionPage() {
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
-                    background: isA ? '#1A1F36' : '#E8412C',
+                    background: isA ? '#1A1F36' : '#F97316',
                     marginTop: 3,
                   }}
                 >
@@ -409,7 +409,7 @@ export default function ShadowSessionPage() {
                     background: isCurrent
                       ? isA
                         ? '#1A1F36'
-                        : '#E8412C'
+                        : '#F97316'
                       : '#fff',
                     border: isCurrent
                       ? '2.5px solid transparent'
@@ -417,7 +417,7 @@ export default function ShadowSessionPage() {
                     boxShadow: isCurrent
                       ? '0 4px 16px rgba(0,0,0,0.15)'
                       : 'none',
-                    outline: isCurrent ? '2.5px solid #E8412C' : 'none',
+                    outline: isCurrent ? '2.5px solid #F97316' : 'none',
                     outlineOffset: 2,
                   }}
                 >
@@ -518,8 +518,8 @@ export default function ShadowSessionPage() {
               {recordState === 'idle' && (
                 <button
                   onClick={startRecording}
-                  className="btn-press-red flex-1 py-3.5 rounded-2xl font-quicksand font-bold text-sm text-cream flex items-center justify-center gap-2"
-                  style={{ background: '#E8412C' }}
+                  className="btn-press-orange flex-1 py-3.5 rounded-2xl font-quicksand font-bold text-sm text-cream flex items-center justify-center gap-2"
+                  style={{ background: '#F97316' }}
                 >
                   🎤 Tap to Record
                 </button>
@@ -532,8 +532,8 @@ export default function ShadowSessionPage() {
               {recordState === 'recording' && (
                 <button
                   onClick={stopRecording}
-                  className="btn-press-red flex-1 py-3.5 rounded-2xl font-quicksand font-bold text-sm text-white flex items-center justify-center gap-2 animate-pulse"
-                  style={{ background: '#E8412C' }}
+                  className="btn-press-orange flex-1 py-3.5 rounded-2xl font-quicksand font-bold text-sm text-white flex items-center justify-center gap-2 animate-pulse"
+                  style={{ background: '#F97316' }}
                 >
                   ⏹ Stop Recording
                 </button>

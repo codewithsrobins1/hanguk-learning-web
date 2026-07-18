@@ -19,6 +19,8 @@ const config: Config = {
         card:      '#FFFFFF',
         red:       '#E8412C',
         redLight:  '#FFF0EE',
+        orange:    '#F97316',
+        orangeLight:'#FFF3E8',
         green:     '#22C55E',
         greenLight:'#F0FFF4',
         navy:      '#1A1F36',

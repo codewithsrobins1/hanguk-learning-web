@@ -30,7 +30,7 @@ function SummaryCard({
       </div>
       <Link
         href={href}
-        className="self-start mt-1 px-4 py-2.5 rounded-xl bg-red text-white font-bold text-xs hover:opacity-90 transition-opacity"
+        className="self-start mt-1 px-4 py-2.5 rounded-xl bg-orange text-white font-bold text-xs hover:opacity-90 transition-opacity"
       >
         View all →
       </Link>
@@ -63,7 +63,7 @@ export default function HangulPage() {
         <p className="font-quicksand font-bold text-ink text-base mb-3">Ready to practice?</p>
         <Link
           href="/hangul/session"
-          className="btn-press-red block text-center w-full py-4 rounded-2xl bg-red text-white font-quicksand font-bold text-base"
+          className="btn-press-orange block text-center w-full py-4 rounded-2xl bg-orange text-white font-quicksand font-bold text-base"
         >
           Start Hangul Practice →
         </Link>

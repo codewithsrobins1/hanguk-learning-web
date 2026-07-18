@@ -46,7 +46,7 @@ export default function ShadowPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -112,7 +112,7 @@ export default function ShadowPage() {
         <div className="text-center mt-16">
           <p className="text-muted text-sm">No dialogues match your filters.</p>
           <button onClick={() => { setDifficulty(null); setCategory('All'); }}
-            className="mt-4 text-xs font-bold text-red hover:opacity-75 transition-opacity">
+            className="mt-4 text-xs font-bold text-orange hover:opacity-75 transition-opacity">
             Clear filters
           </button>
         </div>

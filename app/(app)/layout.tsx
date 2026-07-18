@@ -104,7 +104,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden md:flex flex-col w-60 min-h-screen bg-navy fixed left-0 top-0 bottom-0 z-40 px-4 py-6">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-9 h-9 bg-red rounded-xl flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 bg-orange rounded-xl flex items-center justify-center flex-shrink-0">
             <span
               className="text-white text-base font-bold"
               style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
@@ -133,7 +133,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         style={{ height: 56 }}
       >
         <Link href="/home" className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-red rounded-lg flex items-center justify-center">
+          <div className="w-7 h-7 bg-orange rounded-lg flex items-center justify-center">
             <span
               className="text-white text-sm font-bold"
               style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
@@ -175,7 +175,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Link href="/home" className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-red rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-orange rounded-lg flex items-center justify-center">
                   <span
                     className="text-white text-sm font-bold"
                     style={{ fontFamily: 'Noto Sans KR, sans-serif' }}

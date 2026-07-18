@@ -312,7 +312,7 @@ export default function HomePage() {
               <button onClick={() => setStep(0)} className="text-muted hover:text-ink text-lg">✕</button>
             </div>
             <div className="rounded-full overflow-hidden mb-8" style={{ background: '#E8E3D8', height: 5 }}>
-              <div className="h-full rounded-full transition-all duration-300" style={{ width: `${(step / TOTAL_STEPS) * 100}%`, background: '#E8412C' }} />
+              <div className="h-full rounded-full transition-all duration-300" style={{ width: `${(step / TOTAL_STEPS) * 100}%`, background: '#F97316' }} />
             </div>
 
             {/* Step 1: Which days */}
@@ -456,7 +456,7 @@ export default function HomePage() {
                     ← Back
                   </button>
                   <button onClick={handleFinishOnboarding} disabled={saving}
-                    className="btn-press-red flex-1 bg-red text-white py-4 rounded-2xl font-quicksand font-bold text-base disabled:opacity-50">
+                    className="btn-press-orange flex-1 bg-orange text-white py-4 rounded-2xl font-quicksand font-bold text-base disabled:opacity-50">
                     {saving ? 'Building...' : 'Build My Routine →'}
                   </button>
                 </div>
@@ -503,7 +503,7 @@ export default function HomePage() {
             </div>
             <div className="rounded-full overflow-hidden mb-1" style={{ background: '#F7F4EE', height: 10 }}>
               <div className="h-full rounded-full transition-all duration-700"
-                style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#E8412C' }} />
+                style={{ width: `${Math.round(stats.xpProgress * 100)}%`, background: '#F97316' }} />
             </div>
             <p className="text-[11px] text-muted">
               {stats.xpNeeded - stats.xpIntoLevel} XP to level up · {stats.xp} XP total
@@ -542,9 +542,9 @@ export default function HomePage() {
               <p className="font-quicksand font-bold text-ink text-base mb-4">Weekly Progress</p>
               <div className="grid grid-cols-2 gap-3.5">
                 {[
-                  { label: 'Vocab', done: stats.cardsKnown, total: stats.totalCards, color: '#E8412C' },
+                  { label: 'Vocab', done: stats.cardsKnown, total: stats.totalCards, color: '#F97316' },
                   { label: 'Reading', done: stats.passagesDone, total: stats.totalPassages, color: '#1A1F36' },
-                  { label: 'Speaking', done: stats.dialoguesDone, total: stats.totalDialogues, color: '#E8412C' },
+                  { label: 'Speaking', done: stats.dialoguesDone, total: stats.totalDialogues, color: '#F97316' },
                   { label: 'Listening', done: stats.listeningDone, total: stats.totalListening, color: '#1A1F36' },
                 ].map((m) => (
                   <div key={m.label}>
@@ -562,7 +562,7 @@ export default function HomePage() {
               </p>
               <button
                 onClick={() => router.push('/tests')}
-                className="mt-1 py-2.5 rounded-xl bg-red text-white font-bold text-xs hover:opacity-90 transition-opacity"
+                className="mt-1 py-2.5 rounded-xl bg-orange text-white font-bold text-xs hover:opacity-90 transition-opacity"
               >
                 Go to Tests Hub
               </button>
@@ -712,11 +712,11 @@ export default function HomePage() {
             </div>
 
             <button onClick={handleConfirmSettings} disabled={editDays.length === 0}
-              className="btn-press-red w-full bg-red text-white py-3.5 rounded-2xl font-quicksand font-bold text-sm mb-2 disabled:opacity-40">
+              className="btn-press-orange w-full bg-orange text-white py-3.5 rounded-2xl font-quicksand font-bold text-sm mb-2 disabled:opacity-40">
               Confirm changes
             </button>
             <button onClick={() => setShowResetConfirm(true)}
-              className="w-full py-3 rounded-2xl text-sm font-semibold text-red hover:bg-redLight transition-colors mb-1">
+              className="w-full py-3 rounded-2xl text-sm font-semibold text-orange hover:bg-orangeLight transition-colors mb-1">
               Reset routine
             </button>
             <button onClick={() => setShowSettings(false)}
@@ -739,7 +739,7 @@ export default function HomePage() {
               This will delete your current routine completely. You'll go through the setup questions again from scratch.
             </p>
             <button onClick={handleResetRoutine}
-              className="btn-press-red w-full bg-red text-white py-3.5 rounded-2xl font-quicksand font-bold text-sm mb-2">
+              className="btn-press-orange w-full bg-orange text-white py-3.5 rounded-2xl font-quicksand font-bold text-sm mb-2">
               Yes, reset my routine
             </button>
             <button onClick={() => setShowResetConfirm(false)}

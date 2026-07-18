@@ -32,15 +32,15 @@ h1, h2, h3 { font-family: var(--font-quicksand); }
 }
 .btn-press:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.btn-press-red {
+.btn-press-orange {
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 0 4px 0 #a82c1a;
+  box-shadow: 0 4px 0 #C2570A;
 }
-.btn-press-red:active:not(:disabled) {
+.btn-press-orange:active:not(:disabled) {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 #a82c1a;
+  box-shadow: 0 1px 0 #C2570A;
 }
-.btn-press-red:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-press-orange:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .btn-press-navy {
   transition: transform 0.1s ease, box-shadow 0.1s ease;

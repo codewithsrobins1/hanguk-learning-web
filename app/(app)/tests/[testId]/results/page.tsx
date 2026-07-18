@@ -56,7 +56,7 @@ export default function TopikResultsPage() {
 
   if (!result || loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -129,7 +129,7 @@ export default function TopikResultsPage() {
         {canRetry && (
           <button
             onClick={() => router.push(`/tests/${nextTestId}`)}
-            className="btn-press-red w-full py-4 rounded-2xl bg-red text-white font-quicksand font-bold text-base"
+            className="btn-press-orange w-full py-4 rounded-2xl bg-orange text-white font-quicksand font-bold text-base"
           >
             Try Test {nextVersionForLevel(lp)} →
           </button>

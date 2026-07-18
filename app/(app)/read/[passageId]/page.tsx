@@ -4,13 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { usePassageDetail, useSavePassageProgress } from '@/hooks/usePassages';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
-
-const catColors: Record<string, { bg: string; text: string }> = {
-  'Daily Life': { bg: '#EFF6FF', text: '#3B82F6' },
-  Food: { bg: '#FFF7ED', text: '#F97316' },
-  Music: { bg: '#F5F3FF', text: '#8B5CF6' },
-  Travel: { bg: '#FFF0EE', text: '#E8412C' },
-};
+import { categoryPill } from '@/lib/category-colors';
 
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
@@ -29,11 +23,11 @@ export default function PassagePage() {
   if (loading || !passage)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
       </div>
     );
 
-  const cat = catColors[passage.category] || { bg: '#E8E3D8', text: '#888' };
+  const cat = categoryPill(passage.category);
   const hasQuiz = questions.length > 0;
   const allAnswered = hasQuiz && Object.keys(selected).length === questions.length;
   const score = submitted
@@ -99,7 +93,7 @@ export default function PassagePage() {
             onClick={() => setActiveLine(activeLine === i ? null : i)}
             className={`w-full text-left p-3 rounded-xl border-l-[3px] mb-1 transition-colors ${
               activeLine === i
-                ? 'border-red bg-redLight'
+                ? 'border-orange bg-orangeLight'
                 : 'border-transparent hover:bg-cream'
             }`}
           >
@@ -110,7 +104,7 @@ export default function PassagePage() {
               {line.korean}
             </p>
             {showTranslation && (
-              <p className="text-xs text-red mt-1">{line.translation}</p>
+              <p className="text-xs text-orange mt-1">{line.translation}</p>
             )}
           </button>
         ))}
@@ -199,7 +193,7 @@ export default function PassagePage() {
           disabled={!allAnswered}
           className={`w-full py-4 rounded-xl font-bold transition-colors ${
             allAnswered
-              ? 'bg-red text-white hover:opacity-90'
+              ? 'bg-orange text-white hover:opacity-90'
               : 'bg-border text-muted cursor-not-allowed'
           }`}
         >

@@ -52,7 +52,7 @@ export default function MilestonePage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -112,7 +112,7 @@ export default function MilestonePage() {
           onClick={handleSubmit}
           disabled={!allAnswered}
           className={`w-full py-4 rounded-xl font-bold transition-colors ${
-            allAnswered ? 'bg-red text-white hover:opacity-90' : 'bg-border text-muted cursor-not-allowed'
+            allAnswered ? 'bg-orange text-white hover:opacity-90' : 'bg-border text-muted cursor-not-allowed'
           }`}
         >
           Submit →

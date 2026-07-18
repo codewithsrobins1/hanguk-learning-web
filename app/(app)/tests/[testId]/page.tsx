@@ -169,7 +169,7 @@ export default function TopikTestSessionPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-red border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -233,7 +233,7 @@ export default function TopikTestSessionPage() {
             <button
               onClick={handleLeave}
               className="flex-1 py-3 rounded-xl font-bold text-sm text-white"
-              style={{ background: '#E8412C' }}
+              style={{ background: '#F97316' }}
             >
               Leave
             </button>
@@ -260,7 +260,7 @@ export default function TopikTestSessionPage() {
           </div>
           <button
             onClick={() => setPhase('listening')}
-            className="btn-press-red w-full max-w-xs py-4 rounded-2xl bg-red text-white font-quicksand font-bold text-base"
+            className="btn-press-orange w-full max-w-xs py-4 rounded-2xl bg-orange text-white font-quicksand font-bold text-base"
           >
             Start Listening →
           </button>
@@ -311,7 +311,7 @@ export default function TopikTestSessionPage() {
                   }`}
                   style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 19 }}
                 >
-                  <span style={{ color: '#E8412C' }}>{CIRCLED[oi]}</span> {opt}
+                  <span style={{ color: '#F97316' }}>{CIRCLED[oi]}</span> {opt}
                 </button>
               );
             })}
@@ -355,7 +355,7 @@ export default function TopikTestSessionPage() {
           <div className="relative">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center"
-              style={{ background: isPlaying ? '#E8412C' : 'rgba(255,255,255,0.1)' }}
+              style={{ background: isPlaying ? '#F97316' : 'rgba(255,255,255,0.1)' }}
             >
               <span className="text-3xl">{isPlaying ? '🔊' : '🎧'}</span>
             </div>
@@ -397,7 +397,7 @@ export default function TopikTestSessionPage() {
                 }`}
                 style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 19 }}
               >
-                <span style={{ color: '#E8412C' }}>{CIRCLED[oi]}</span> {opt}
+                <span style={{ color: '#F97316' }}>{CIRCLED[oi]}</span> {opt}
               </button>
             );
           })}
@@ -413,7 +413,7 @@ export default function TopikTestSessionPage() {
           </button>
           <button
             onClick={() => (isLastListening ? handleSubmit() : setListeningIndex((i) => i + 1))}
-            className="btn-press-red flex-1 py-3.5 rounded-2xl bg-red text-white font-quicksand font-bold text-sm"
+            className="btn-press-orange flex-1 py-3.5 rounded-2xl bg-orange text-white font-quicksand font-bold text-sm"
           >
             {isLastListening ? 'Submit Test →' : 'Next →'}
           </button>
