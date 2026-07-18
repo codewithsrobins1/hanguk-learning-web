@@ -1,111 +1,73 @@
 'use client';
-import { useState } from 'react';
 import Link from 'next/link';
-import { hangulVowels, hangulConsonants, allHangul } from '@/data/hangul';
+import { hangulVowels, hangulConsonants } from '@/data/hangul';
+
+function SummaryCard({
+  title,
+  count,
+  chars,
+  href,
+}: {
+  title: string;
+  count: string;
+  chars: string[];
+  href: string;
+}) {
+  return (
+    <div className="bg-navy rounded-3xl p-6 flex flex-col gap-3.5">
+      <p className="text-white/50 text-xs font-semibold tracking-wider">{title}</p>
+      <p className="font-quicksand font-bold text-cream text-xl">{count}</p>
+      <div className="flex gap-2 flex-wrap">
+        {chars.map((c) => (
+          <span
+            key={c}
+            className="bg-cream text-ink font-bold px-3 py-1.5 rounded-full text-sm"
+            style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+          >
+            {c}
+          </span>
+        ))}
+      </div>
+      <Link
+        href={href}
+        className="self-start mt-1 px-4 py-2.5 rounded-xl bg-red text-white font-bold text-xs hover:opacity-90 transition-opacity"
+      >
+        View all →
+      </Link>
+    </div>
+  );
+}
 
 export default function HangulPage() {
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const focusData = selected
-    ? allHangul.find((c) => c.char === selected)
-    : hangulConsonants.find((c) => c.char === 'ㅎ');
-
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
-      <h1 className="font-quicksand font-bold text-ink text-3xl mb-6">Hangul</h1>
+    <div className="max-w-2xl mx-auto px-6 py-8 flex flex-col gap-4">
+      <div>
+        <h1 className="font-quicksand font-bold text-ink text-3xl mb-1">Hangul</h1>
+        <p className="text-sm text-muted">Learn the Korean alphabet</p>
+      </div>
 
-      {/* Study CTA */}
-      <div className="bg-navy rounded-2xl p-5 mb-6 flex items-center justify-between">
-        <div>
-          <p className="text-cream font-extrabold text-base mb-0.5">
-            Study Hangul
-          </p>
-          <p className="text-gray-400 text-xs">Vowels & Consonants</p>
-        </div>
+      <SummaryCard
+        title="모음 · VOWELS"
+        count={`${hangulVowels.length} vowels`}
+        chars={hangulVowels.slice(0, 5).map((c) => c.char)}
+        href="/hangul/reference?tab=vowels"
+      />
+      <SummaryCard
+        title="자음 · CONSONANTS"
+        count={`${hangulConsonants.length} consonants`}
+        chars={hangulConsonants.slice(0, 5).map((c) => c.char)}
+        href="/hangul/reference?tab=consonants"
+      />
+
+      <div className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #1A1F36' }}>
+        <p className="font-quicksand font-bold text-ink text-base mb-3">Ready to practice?</p>
         <Link
           href="/hangul/session"
-          className="px-5 py-2.5 rounded-xl font-bold text-sm transition-opacity hover:opacity-90 flex-shrink-0"
-          style={{ backgroundColor: '#E8412C', color: '#fff' }}
+          className="btn-press-red block text-center w-full py-4 rounded-2xl bg-red text-white font-quicksand font-bold text-base"
         >
-          Study →
+          Start Hangul Practice →
         </Link>
       </div>
-
-      {/* Focus character */}
-      <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-border mb-6">
-        <p className="text-[10px] font-bold text-muted tracking-widest mb-4">
-          FOCUS CHARACTER
-        </p>
-        <p
-          className="text-[80px] font-bold text-ink leading-none mb-3"
-          style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-        >
-          {focusData?.char}
-        </p>
-        <p className="text-xl font-extrabold text-red mb-1">
-          {focusData?.romanization}
-        </p>
-        <p className="text-sm text-muted">{focusData?.sound}</p>
-      </div>
-
-      {/* Vowels */}
-      <p className="text-sm font-bold text-muted tracking-wider mb-3">VOWELS</p>
-      <div className="flex flex-wrap gap-2 mb-6">
-        {hangulVowels.map((c) => (
-          <button
-            key={c.char}
-            onClick={() => setSelected(c.char)}
-            className={`w-[18%] py-2.5 rounded-xl border-[1.5px] flex flex-col items-center transition-colors ${
-              selected === c.char
-                ? 'bg-ink border-ink text-cream'
-                : 'bg-white border-border hover:border-ink'
-            }`}
-          >
-            <span
-              className="text-lg"
-              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-            >
-              {c.char}
-            </span>
-            <span
-              className={`text-[9px] mt-0.5 ${selected === c.char ? 'text-gray-400' : 'text-muted'}`}
-            >
-              {c.romanization}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Consonants */}
-      <p className="text-sm font-bold text-muted tracking-wider mb-3">
-        CONSONANTS
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {hangulConsonants.map((c) => (
-          <button
-            key={c.char}
-            onClick={() => setSelected(c.char)}
-            className={`w-[18%] py-2.5 rounded-xl border-[1.5px] flex flex-col items-center transition-colors ${
-              selected === c.char
-                ? 'bg-ink border-ink text-cream'
-                : 'bg-white border-border hover:border-ink'
-            }`}
-          >
-            <span
-              className="text-lg"
-              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-            >
-              {c.char}
-            </span>
-            <span
-              className={`text-[9px] mt-0.5 ${selected === c.char ? 'text-gray-400' : 'text-muted'}`}
-            >
-              {c.romanization}
-            </span>
-          </button>
-        ))}
-      </div>
-      <div className="h-8" />
     </div>
   );
 }

@@ -69,6 +69,7 @@ export type HangulCharacter = {
   char: string;
   romanization: string;
   sound: string;
+  example?: { word: string; romanization: string; meaning: string };
 };
 
 export type DialogueLine = {
