@@ -22,6 +22,16 @@ export type PatternRound = {
   questions: PatternQuestion[];
 };
 
+export type PatternExample = {
+  korean:      string;
+  translation: string;
+};
+
+export type PatternStemExample = {
+  base: string;
+  stem: string;
+};
+
 export type Pattern = {
   id:                string;
   category:          string;
@@ -30,6 +40,9 @@ export type Pattern = {
   frame:             string;
   frame_translation: string;
   explanation:       string;
+  rule?:             string;
+  examples?:         PatternExample[];
+  stem_examples?:    PatternStemExample[];
   rounds:            PatternRound[];
 };
 

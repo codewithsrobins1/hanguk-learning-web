@@ -7,6 +7,7 @@ import {
   usePattern,
   savePatternProgress,
   PatternQuestion,
+  Pattern,
 } from '@/hooks/usePatterns';
 import {
   DndContext,
@@ -141,7 +142,7 @@ function PatternIntro({
   pattern,
   onStart,
 }: {
-  pattern: any;
+  pattern: Pattern;
   onStart: () => void;
 }) {
   const [showEn, setShowEn] = useState(false);
@@ -213,17 +214,37 @@ function PatternIntro({
             >
               {pattern.rule}
             </p>
+            {pattern.stem_examples && pattern.stem_examples.length > 0 && (
+              <div className="bg-white rounded-xl overflow-hidden mt-4">
+                {pattern.stem_examples.map((ex, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3"
+                    style={{ borderBottom: i < pattern.stem_examples!.length - 1 ? '1px solid #FFF1E0' : 'none' }}
+                  >
+                    <span className="font-bold text-ink" style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 15 }}>
+                      {ex.base}
+                    </span>
+                    <span className="text-xs text-muted">→</span>
+                    <span className="font-bold" style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 15, color: '#B45309' }}>
+                      {ex.stem}
+                    </span>
+                    <span className="text-xs text-muted">+ {pattern.frame.replace('...', '').trim()}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* Examples */}
-        {pattern.examples?.length > 0 && (
+        {pattern.examples && pattern.examples.length > 0 && (
           <div className="bg-white rounded-2xl border-2 border-border p-5">
             <p className="text-[12px] font-bold text-muted tracking-widest mb-3">
               EXAMPLES
             </p>
             <div className="flex flex-col gap-3">
-              {pattern.examples.map((ex: any, i: number) => (
+              {pattern.examples.map((ex, i) => (
                 <div key={i} className="flex flex-col gap-0.5">
                   <p
                     className="text-xl font-bold text-ink"
@@ -234,7 +255,7 @@ function PatternIntro({
                   {showEn && (
                     <p className="text-sm text-muted">{ex.translation}</p>
                   )}
-                  {i < pattern.examples.length - 1 && (
+                  {i < pattern.examples!.length - 1 && (
                     <div className="h-px bg-border mt-2" />
                   )}
                 </div>
