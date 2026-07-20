@@ -21,6 +21,19 @@ body {
 /* ── Quicksand headings ───────────────────────── */
 h1, h2, h3 { font-family: var(--font-quicksand); }
 
+/* ── Shared micro-animations ──────────────────── */
+@keyframes shake {
+  10%, 90% { transform: translateX(-3px); }
+  20%, 80% { transform: translateX(5px); }
+  30%, 50%, 70% { transform: translateX(-9px); }
+  40%, 60% { transform: translateX(9px); }
+}
+.shake { animation: shake 0.5s; }
+
+@keyframes blobFloatA { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, -30px) scale(1.1); } }
+@keyframes blobFloatB { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-30px, 40px) scale(1.08); } }
+@keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
 /* ── Pressable buttons ────────────────────────── */
 .btn-press {
   transition: transform 0.1s ease, box-shadow 0.1s ease;

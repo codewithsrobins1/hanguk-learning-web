@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import PasswordToggleButton from '@/components/PasswordToggleButton';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,10 +76,7 @@ export default function LoginPage() {
                   className="input-field"
                   style={{ paddingRight: 48 }}
                 />
-                <button type="button" onClick={() => setShowPw(p => !p)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors text-sm font-semibold">
-                  {showPw ? 'Hide' : 'Show'}
-                </button>
+                <PasswordToggleButton visible={showPw} onToggle={() => setShowPw(p => !p)} />
               </div>
             </div>
 

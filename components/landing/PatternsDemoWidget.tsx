@@ -48,7 +48,7 @@ export default function PatternsDemoWidget() {
       setIndex((i) => (i + 1) % QUESTIONS.length);
       setAnswerState('idle');
       setChosen(null);
-    }, 1400);
+    }, 1800);
     return () => clearTimeout(t);
   }, [answerState]);
 
@@ -58,16 +58,36 @@ export default function PatternsDemoWidget() {
     setAnswerState(opt === q.answer ? 'correct' : 'wrong');
   };
 
+  const rowStyle = (opt: string) => {
+    if (answerState === 'idle') {
+      return { background: '#fff', borderColor: 'rgba(26,31,54,0.08)', color: '#1A1F36', opacity: 1 };
+    }
+    if (chosen === opt) {
+      return answerState === 'correct'
+        ? { background: '#EAF6EE', borderColor: '#8FD3A8', color: '#1E8E3E', opacity: 1 }
+        : { background: '#FCEBE9', borderColor: '#F2A79D', color: '#C0392B', opacity: 1 };
+    }
+    if (answerState === 'wrong' && opt === q.answer) {
+      return { background: '#EAF6EE', borderColor: '#8FD3A8', color: '#1E8E3E', opacity: 1 };
+    }
+    return { background: '#F7F4EE', borderColor: 'rgba(26,31,54,0.05)', color: '#BBB', opacity: 0.55 };
+  };
+
   return (
-    <div className="bg-white rounded-3xl border-2 border-border p-6">
+    <div className="bg-white rounded-3xl border border-black/[0.07] p-6" style={{ boxShadow: '0 10px 30px rgba(26,31,54,0.06)' }}>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[11px] font-bold text-muted tracking-widest">PATTERNS · COMPLETE THE SENTENCE</p>
-        <span className="px-2.5 py-1 rounded-full bg-orangeLight text-orange text-[11px] font-bold" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
+        <p className="text-[11px] font-bold text-orange tracking-widest">PATTERNS · COMPLETE THE SENTENCE</p>
+        <span className="px-2.5 py-1 rounded-full bg-orangeLight text-orange text-[10px] font-bold" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
           {q.frame}
         </span>
       </div>
 
-      <div className="rounded-2xl bg-navy p-6 mb-4 min-h-[110px] flex flex-col items-center justify-center gap-2">
+      <div
+        className={`rounded-2xl bg-navy px-5 py-4 mb-4 flex flex-col items-center gap-2 transition-shadow duration-200 ${answerState === 'wrong' ? 'shake' : ''}`}
+        style={{
+          boxShadow: answerState === 'correct' ? '0 0 0 3px #8FD3A8' : answerState === 'wrong' ? '0 0 0 3px #F2A79D' : 'none',
+        }}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={index}
@@ -77,52 +97,41 @@ export default function PatternsDemoWidget() {
             transition={{ duration: 0.25 }}
             className="text-center"
           >
-            <p className="text-xs text-white/40 mb-2">{q.context}</p>
-            <p className="text-xl font-semibold leading-9" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
-              {answerState === 'idle' ? (
-                <span className="text-cream">
-                  {before}
-                  <span className="text-orange">___</span>
-                  {after}
-                </span>
-              ) : (
-                <span className="text-cream">
-                  {before}
-                  <span style={{ color: answerState === 'correct' ? '#4ADE80' : '#FCA5A5' }}>{q.answer}</span>
-                  {after}
-                </span>
-              )}
+            <p className="text-xs text-white/50 mb-1.5" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{q.context}</p>
+            <p className="text-lg font-bold text-cream" style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>
+              {before}
+              <span style={{ borderBottom: '2px solid rgba(255,255,255,0.5)', padding: '0 8px' }}>
+                {answerState === 'idle' ? '___' : q.answer}
+              </span>
+              {after}
             </p>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <p className="text-xs text-muted text-center mb-4 h-4">
-        {answerState !== 'idle' ? q.translation : ' '}
+      <p className="text-xs text-red text-center font-semibold mb-4 h-4">
+        {answerState === 'wrong' ? `Correct answer: ${q.answer}` : ' '}
       </p>
 
-      <div className="grid grid-cols-1 gap-2.5">
+      <div className="flex flex-col gap-2">
         {q.options.map((opt) => {
-          const isCorrect = answerState !== 'idle' && opt === q.answer;
-          const isWrongChoice = answerState === 'wrong' && opt === chosen;
+          const s = rowStyle(opt);
           return (
             <button
               key={opt}
               onClick={() => handleAnswer(opt)}
               disabled={answerState !== 'idle'}
-              className="py-3 rounded-xl border-2 font-bold text-sm transition-all text-center"
-              style={{
-                fontFamily: 'Noto Sans KR, sans-serif',
-                background: isCorrect ? '#F0FFF4' : isWrongChoice ? '#FFF5F5' : '#fff',
-                borderColor: isCorrect ? '#86EFAC' : isWrongChoice ? '#FCA5A5' : '#E8E3D8',
-                color: isCorrect ? '#16A34A' : isWrongChoice ? '#E8412C' : '#111',
-              }}
+              className="py-3 px-4 rounded-xl border font-bold text-sm text-left transition-all"
+              style={{ fontFamily: 'Noto Sans KR, sans-serif', background: s.background, borderColor: s.borderColor, color: s.color, opacity: s.opacity }}
             >
               {opt}
             </button>
           );
         })}
       </div>
+      <p className="text-xs text-muted text-center mt-3 h-4">
+        {answerState !== 'idle' ? q.translation : ' '}
+      </p>
     </div>
   );
 }

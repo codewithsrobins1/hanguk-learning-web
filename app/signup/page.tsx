@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import PasswordToggleButton from '@/components/PasswordToggleButton';
 
 const SPECIAL_CHARS    = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
 const HAS_NUMBER       = /\d/;
@@ -37,6 +38,8 @@ export default function SignupPage() {
   const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
   const [showReqs, setShowReqs] = useState(false);
+  const [showPw,   setShowPw]   = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   const requirements = getRequirements(password, confirm);
   const allMet = requirements.every(r => r.met);
@@ -105,12 +108,14 @@ export default function SignupPage() {
               <label className="block text-xs font-bold text-inkLight mb-2 tracking-wider uppercase">Password</label>
               <div className="input-wrapper">
                 <span className="input-icon">🔒</span>
-                <input type="password" value={password}
+                <input type={showPw ? 'text' : 'password'} value={password}
                   onChange={e => setPassword(e.target.value)}
                   onFocus={() => setShowReqs(true)}
                   placeholder="••••••••"
+                  style={{ paddingRight: 48 }}
                   className={`input-field ${password.length > 0 && !allMet ? 'input-field-error' : ''}`}
                 />
+                <PasswordToggleButton visible={showPw} onToggle={() => setShowPw(p => !p)} />
               </div>
             </div>
 
@@ -119,11 +124,13 @@ export default function SignupPage() {
               <label className="block text-xs font-bold text-inkLight mb-2 tracking-wider uppercase">Confirm Password</label>
               <div className="input-wrapper">
                 <span className="input-icon">🔒</span>
-                <input type="password" value={confirm}
+                <input type={showConfirmPw ? 'text' : 'password'} value={confirm}
                   onChange={e => setConfirm(e.target.value)}
                   placeholder="••••••••"
+                  style={{ paddingRight: 48 }}
                   className={`input-field ${confirm.length > 0 && password !== confirm ? 'input-field-error' : ''}`}
                 />
+                <PasswordToggleButton visible={showConfirmPw} onToggle={() => setShowConfirmPw(p => !p)} />
               </div>
             </div>
 

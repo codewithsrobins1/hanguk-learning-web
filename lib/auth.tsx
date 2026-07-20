@@ -12,7 +12,7 @@ function validateSignUpInputs(email: string, password: string, username: string)
   return null;
 }
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -103,10 +103,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // While a signUp() is in flight, the Auth SDK's onAuthStateChanged fires
+  // as soon as the account is created — which can race ahead of signUp()'s
+  // own profile-document write and fetch a not-yet-existent profile (null).
+  // This flag lets signUp() own setting `profile` for that transition.
+  const signingUpRef = useRef(false);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
+        if (signingUpRef.current) { setLoading(false); return; }
         await updateActivity(firebaseUser.uid);
         await ensureWeeklyReset(firebaseUser.uid);
         const p = await fetchProfile(firebaseUser.uid);
@@ -135,9 +142,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, username: string) => {
     const validationError = validateSignUpInputs(email, password, username);
     if (validationError) return { error: validationError };
+    signingUpRef.current = true;
     try {
       const { user: newUser } = await createUserWithEmailAndPassword(auth, email, password);
-      await setDoc(doc(db, 'profiles', newUser.uid), {
+      const newProfile: Profile = {
         id: newUser.uid,
         username,
         display_name: username,
@@ -151,14 +159,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         premium: true,
         nav_preferences: {},
         weekly_reset_at: getWeekStartISO(),
-        created_at: serverTimestamp(),
-      });
+        goals: null,
+      };
+      await setDoc(doc(db, 'profiles', newUser.uid), { ...newProfile, created_at: serverTimestamp() });
+      setProfile(newProfile);
       return { error: null };
     } catch (err: any) {
       const code = err?.code;
       if (code === 'auth/email-already-in-use') return { error: 'An account with this email already exists.' };
       if (code === 'auth/invalid-email') return { error: 'Please enter a valid email address.' };
       return { error: 'Something went wrong. Please try again.' };
+    } finally {
+      signingUpRef.current = false;
     }
   };
 
