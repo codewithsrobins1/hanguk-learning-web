@@ -1,50 +1,36 @@
 # 한국 Hanguk — Korean Learning App
 
-A web-based Korean language learning app. Practice Hangul characters, study vocabulary with flashcards, and build reading comprehension — all backed by Firebase.
+A full-stack Korean language learning platform covering all six core skills — vocabulary, grammar patterns, reading, listening, speaking, and TOPIK exam prep — with AI-generated content, spaced-practice mechanics, and a gamified progress system.
 
-## 🚀 Quick Start
-
-### 1. Install
-```bash
-npm install
-```
-
-### 2. Environment Variables
-Rename `.env.local.example` to `.env.local` and fill in your Firebase project values:
-```
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-```
-
-### 3. Seed the Database
-```bash
-npm install firebase-admin
-# Place serviceAccountKey.json in the project root
-node firebase-seed/index.js
-```
-
-### 4. Run
-```bash
-npm run dev
-```
+**[Live demo →](https://hanguk-learning-web.vercel.app)** — no sign-up required, try the interactive Vocab and Patterns exercises straight from the landing page.
 
 ---
 
 ## 📱 Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔤 Hangul Chart | Interactive vowel and consonant reference with focus character panel |
-| 🃏 Flashcard Sessions | Flip cards, mark known/still learning, track mastery per set |
-| 📖 Reading Practice | Korean passages with tap-to-highlight lines and translation toggle |
-| ❓ Comprehension Quizzes | 4-option quizzes after each passage with Korean/English toggle |
-| 🔥 Streak Tracking | Daily streak auto-updates on login |
-| 📊 Progress Dashboard | Overview of Hangul, vocab, and reading progress on home screen |
-| 🌐 Word of the Day | Random flashcard on the home screen, flippable |
+### Learning modules
+| Module | Description |
+|--------|-------------|
+| 🃏 **Vocab** | Cloze-style flashcards that force active recall — fill in the blank inside a real sentence, not just flip a card. Includes a dedicated "review mastered cards" mode. |
+| 文 **Patterns** | Grammar patterns practiced inside full sentences rather than isolated rules, with a stem-conjugation breakdown table for patterns that attach to verb/adjective stems. |
+| 📖 **Reading** | Short passages at multiple levels with comprehension quizzes and inline translation toggles. |
+| 🎧 **Listening** | Native-paced audio (AI-generated) with adjustable playback speed and replay. |
+| 💬 **Speaking** | Shadow real dialogue and get instant pronunciation feedback — audio is transcribed and graded automatically. |
+| 🏅 **TOPIK Practice Tests** | Full-length, level-gated practice exams scored like the real exam, plus a placement test for new learners. |
+| 가 **Hangul** | Interactive vowel/consonant reference and a dedicated character-writing practice session. |
+
+### Progress & motivation
+- **XP and leveling** with animated level-up celebrations
+- **Weekly Progress** dashboard scoped to real activity (not lifetime totals) — resets every Monday or on demand, respects each user's enabled/disabled sections
+- **AI-generated weekly recap** — a short Claude-written summary of the past week's activity plus two concrete recommendations, cached and regenerated once per week
+- **TOPIK readiness card** that adapts its copy based on whether you've attempted, passed, or never tried a test
+- Daily streak tracking with a lazy client-side reset (no backend cron)
+- Per-user nav customization — hide/show any learning module from Settings
+
+### Platform
+- Public marketing/demo landing page with two live, self-contained exercise widgets — visitors can try real interaction patterns from the app with zero signup
+- Fully responsive, mobile + desktop layouts throughout
+- Separate isolated Firebase environments for Production and QA, deployed automatically from dedicated Git branches
 
 ---
 
@@ -52,12 +38,28 @@ npm run dev
 
 | Technology | Purpose |
 |------------|---------|
-| **Next.js 15** | React framework with App Router |
-| **TypeScript** | Type-safe throughout |
-| **Tailwind CSS** | Utility-first styling |
-| **Firebase Auth** | Email/password authentication, no email verification |
+| **Next.js 16** (App Router) | React framework, server + client components, API routes |
+| **React 19** + **TypeScript** | Type-safe UI throughout |
+| **Tailwind CSS** | Utility-first styling on a custom design token system |
+| **Framer Motion** | Micro-interactions — page transitions, staggered reveals, level-up animations, drag interactions |
+| **@dnd-kit** | Drag-and-drop for pattern-matching exercises |
+| **Firebase Auth** | Email/password authentication |
 | **Firestore** | NoSQL document database for all content and user data |
-| **Firebase Admin SDK** | Server-side seed scripts |
+| **Firebase Admin SDK** | Server-side content generation and migration scripts |
+| **Anthropic Claude API** | Generates grammar/vocab/reading/test content offline; writes the personalized weekly AI recap live |
+| **OpenAI API** | Whisper transcription for speaking practice, TTS for listening audio generation |
+| **Vercel** | Hosting, with separate Production/Preview deployments per branch |
+
+---
+
+## 🏗 Architecture notes
+
+A few things worth calling out for anyone reading the code:
+
+- **AI content pipeline**: most learning content (patterns, vocab cloze sentences, TOPIK tests, listening/dialogue audio) is generated offline via one-off scripts in `scripts/` that call Claude/OpenAI and write directly to Firestore — the app itself never calls an LLM to render static content, keeping runtime cost and latency at zero for anything except the live AI weekly recap.
+- **No backend cron**: streak resets and weekly-progress resets are both handled with a lazy client-side pattern — checked and rolled forward on each app load rather than a scheduled function, since there's no server runtime to host one.
+- **Environment isolation**: Production and QA run on fully separate Firebase projects (separate Auth pools, separate Firestore data) selected via Vercel's per-branch environment variables, so QA testing never touches real user data.
+- **Nav-aware everywhere**: which learning modules a user has enabled isn't just a sidebar toggle — Weekly Progress, the AI recap, and the home dashboard all filter against the same preference so a hidden module disappears consistently across the app.
 
 ---
 
@@ -65,70 +67,65 @@ npm run dev
 
 ```
 app/
-  (app)/              ← authenticated route group (sidebar layout)
-    home/             ← dashboard
-    cards/            ← flashcard sets + study session
-    read/             ← passages + quiz
-    hangul/           ← character chart + study session
-    profile/          ← user stats + sign out
-  login/
-  signup/
+  (app)/                 ← authenticated route group (sidebar layout)
+    home/                ← dashboard: XP, weekly progress, AI recap
+    cards/                ← vocab sets, detail view, study/review sessions
+    patterns/             ← grammar pattern hub + practice
+    read/                 ← passages + comprehension quizzes
+    listen/                ← listening exercises
+    shadow/                ← speaking/shadowing sessions
+    grammar/               ← grammar lessons + milestone quizzes
+    tests/                  ← TOPIK practice tests + placement test
+    hangul/                 ← character reference + writing practice
+    profile/                ← stats, settings, account management
+  api/
+    grammar/generate/        ← Claude-generated personalized lesson content
+    shadow/evaluate/          ← Whisper transcription + Claude pronunciation grading
+    home/insights/             ← Claude-generated weekly progress recap
+  login/, signup/               ← auth pages
+  page.tsx                       ← public landing page (logged out) / redirect (logged in)
 
-components/           ← FlipCard, ProgressBar, Pill
-hooks/                ← useFlashcards, usePassages, useUserStats
-lib/                  ← firebase.ts, auth.tsx
-data/                 ← hangul.ts (static character data)
-types/                ← shared TypeScript types
-firebase-seed/        ← modular content files + seed runner
+components/
+  landing/                        ← marketing page + interactive demo widgets
+  ...                              ← shared UI (ProgressBar, TopikSeal, LevelUpOverlay, etc.)
+
+hooks/                              ← per-feature Firestore data hooks
+lib/                                 ← firebase.ts, auth.tsx, xp.ts, category-colors.ts, nav-config.ts
+scripts/                              ← AI content generation + one-off data migrations
+firebase-seed/                         ← foundational seed data (flashcards, passages, questions)
+types/                                  ← shared TypeScript types
 ```
 
 ---
 
-## 🗄️ Database Structure
+## 🗄️ Data Model
 
 ```
-Firestore Collections:
+Content (shared, read by all users):
+  /patterns/{id}                — embeds rounds[] of practice questions
+  /flashcard_sets/{id}, /flashcards/{id}
+  /passages/{id}, /comprehension_questions/{id}
+  /dialogues/{id}
+  /listening_exercises/{id}
+  /grammar_lessons/{id}, /grammar_questions/{id}
+  /topik_tests/{id}
 
-Public (readable by all authenticated users):
-  /flashcard_sets/{setId}
-  /flashcards/{cardId}
-  /passages/{passageId}
-  /comprehension_questions/{questionId}
-
-Private (owner only):
-  /profiles/{uid}
+Per-user (owner only):
+  /profiles/{uid}                — XP, streaks, nav prefs, cached AI recap
   /user_card_progress/{uid}_{cardId}
+  /user_pattern_progress/{uid}_{patternId}
   /user_passage_progress/{uid}_{passageId}
+  /user_dialogue_progress/{uid}_{dialogueId}
+  /user_listening_progress/{uid}_{exerciseId}
+  /user_grammar_progress/{uid}_{lessonId}
+  /topik_progress/{uid}, /topik_attempts/{...}, /placement_attempts/{uid}
 ```
-
----
-
-## ✏️ Adding New Content
-
-Content is managed through the `firebase-seed/` directory. Edit the relevant file and re-run the seed — no app deployment needed.
-
-```
-firebase-seed/
-  index.js            ← seed runner
-  flashcard-sets.js   ← add new sets
-  flashcards.js       ← add new cards
-  passages.js         ← add new passages
-  questions.js        ← add new quiz questions
-```
-
-```bash
-node firebase-seed/index.js
-```
-
-Re-running is safe — existing user progress is never overwritten.
-See `FIREBASE_UPDATES.ts` for full instructions including user management.
 
 ---
 
 ## 🔐 Authentication
 
-- Email/password via Firebase Auth
-- No email verification required
-- Password requirements: 8+ characters, 1 number, 1 special character
+- Email/password via Firebase Auth, no email verification required
+- Live password-strength checklist (8+ characters, 1 number, 1 special character, confirm-match) with real-time checkmarks
 - HTML/script injection validated on both client and server
 - Session persisted via Firebase's built-in browser persistence
