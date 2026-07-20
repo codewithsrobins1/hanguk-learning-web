@@ -196,7 +196,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/signup"
-            className="btn-press-navy bg-navy text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
+            className="btn-press-orange bg-orange text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
           >
             Get Started
           </Link>
