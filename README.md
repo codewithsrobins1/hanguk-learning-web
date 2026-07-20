@@ -9,17 +9,19 @@ A full-stack Korean language learning platform covering all six core skills — 
 ## 📱 Features
 
 ### Learning modules
-| Module | Description |
-|--------|-------------|
-| 🃏 **Vocab** | Cloze-style flashcards that force active recall — fill in the blank inside a real sentence, not just flip a card. Includes a dedicated "review mastered cards" mode. |
-| 文 **Patterns** | Grammar patterns practiced inside full sentences rather than isolated rules, with a stem-conjugation breakdown table for patterns that attach to verb/adjective stems. |
-| 📖 **Reading** | Short passages at multiple levels with comprehension quizzes and inline translation toggles. |
-| 🎧 **Listening** | Native-paced audio (AI-generated) with adjustable playback speed and replay. |
-| 💬 **Speaking** | Shadow real dialogue and get instant pronunciation feedback — audio is transcribed and graded automatically. |
-| 🏅 **TOPIK Practice Tests** | Full-length, level-gated practice exams scored like the real exam, plus a placement test for new learners. |
-| 가 **Hangul** | Interactive vowel/consonant reference and a dedicated character-writing practice session. |
+
+| Module                      | Description                                                                                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🃏 **Vocab**                | Cloze-style flashcards that force active recall — fill in the blank inside a real sentence, not just flip a card. Includes a dedicated "review mastered cards" mode.   |
+| 文 **Patterns**             | Grammar patterns practiced inside full sentences rather than isolated rules, with a stem-conjugation breakdown table for patterns that attach to verb/adjective stems. |
+| 📖 **Reading**              | Short passages at multiple levels with comprehension quizzes and inline translation toggles.                                                                           |
+| 🎧 **Listening**            | Native-paced audio (AI-generated) with adjustable playback speed and replay.                                                                                           |
+| 💬 **Speaking**             | Shadow real dialogue and get instant pronunciation feedback — audio is transcribed and graded automatically.                                                           |
+| 🏅 **TOPIK Practice Tests** | Full-length, level-gated practice exams scored like the real exam, plus a placement test for new learners.                                                             |
+| 가 **Hangul**               | Interactive vowel/consonant reference and a dedicated character-writing practice session.                                                                              |
 
 ### Progress & motivation
+
 - **XP and leveling** with animated level-up celebrations
 - **Weekly Progress** dashboard scoped to real activity (not lifetime totals) — resets every Monday or on demand, respects each user's enabled/disabled sections
 - **AI-generated weekly recap** — a short Claude-written summary of the past week's activity plus two concrete recommendations, cached and regenerated once per week
@@ -28,6 +30,7 @@ A full-stack Korean language learning platform covering all six core skills — 
 - Per-user nav customization — hide/show any learning module from Settings
 
 ### Platform
+
 - Public marketing/demo landing page with two live, self-contained exercise widgets — visitors can try real interaction patterns from the app with zero signup
 - Fully responsive, mobile + desktop layouts throughout
 - Separate isolated Firebase environments for Production and QA, deployed automatically from dedicated Git branches
@@ -36,19 +39,19 @@ A full-stack Korean language learning platform covering all six core skills — 
 
 ## 🛠 Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| **Next.js 16** (App Router) | React framework, server + client components, API routes |
-| **React 19** + **TypeScript** | Type-safe UI throughout |
-| **Tailwind CSS** | Utility-first styling on a custom design token system |
-| **Framer Motion** | Micro-interactions — page transitions, staggered reveals, level-up animations, drag interactions |
-| **@dnd-kit** | Drag-and-drop for pattern-matching exercises |
-| **Firebase Auth** | Email/password authentication |
-| **Firestore** | NoSQL document database for all content and user data |
-| **Firebase Admin SDK** | Server-side content generation and migration scripts |
-| **Anthropic Claude API** | Generates grammar/vocab/reading/test content offline; writes the personalized weekly AI recap live |
-| **OpenAI API** | Whisper transcription for speaking practice, TTS for listening audio generation |
-| **Vercel** | Hosting, with separate Production/Preview deployments per branch |
+| Technology                    | Purpose                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Next.js 16** (App Router)   | React framework, server + client components, API routes                                            |
+| **React 19** + **TypeScript** | Type-safe UI throughout                                                                            |
+| **Tailwind CSS**              | Utility-first styling on a custom design token system                                              |
+| **Framer Motion**             | Micro-interactions — page transitions, staggered reveals, level-up animations, drag interactions   |
+| **@dnd-kit**                  | Drag-and-drop for pattern-matching exercises                                                       |
+| **Firebase Auth**             | Email/password authentication                                                                      |
+| **Firestore**                 | NoSQL document database for all content and user data                                              |
+| **Firebase Admin SDK**        | Server-side content generation and migration scripts                                               |
+| **Anthropic Claude API**      | Generates grammar/vocab/reading/test content offline; writes the personalized weekly AI recap live |
+| **OpenAI API**                | Whisper transcription for speaking practice, TTS for listening audio generation                    |
+| **Vercel**                    | Hosting, with separate Production/Preview deployments per branch                                   |
 
 ---
 
@@ -95,37 +98,3 @@ scripts/                              ← AI content generation + one-off data m
 firebase-seed/                         ← foundational seed data (flashcards, passages, questions)
 types/                                  ← shared TypeScript types
 ```
-
----
-
-## 🗄️ Data Model
-
-```
-Content (shared, read by all users):
-  /patterns/{id}                — embeds rounds[] of practice questions
-  /flashcard_sets/{id}, /flashcards/{id}
-  /passages/{id}, /comprehension_questions/{id}
-  /dialogues/{id}
-  /listening_exercises/{id}
-  /grammar_lessons/{id}, /grammar_questions/{id}
-  /topik_tests/{id}
-
-Per-user (owner only):
-  /profiles/{uid}                — XP, streaks, nav prefs, cached AI recap
-  /user_card_progress/{uid}_{cardId}
-  /user_pattern_progress/{uid}_{patternId}
-  /user_passage_progress/{uid}_{passageId}
-  /user_dialogue_progress/{uid}_{dialogueId}
-  /user_listening_progress/{uid}_{exerciseId}
-  /user_grammar_progress/{uid}_{lessonId}
-  /topik_progress/{uid}, /topik_attempts/{...}, /placement_attempts/{uid}
-```
-
----
-
-## 🔐 Authentication
-
-- Email/password via Firebase Auth, no email verification required
-- Live password-strength checklist (8+ characters, 1 number, 1 special character, confirm-match) with real-time checkmarks
-- HTML/script injection validated on both client and server
-- Session persisted via Firebase's built-in browser persistence
