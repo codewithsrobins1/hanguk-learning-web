@@ -5,6 +5,7 @@ import { usePassageDetail, useSavePassageProgress } from '@/hooks/usePassages';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import { categoryPill } from '@/lib/category-colors';
+import ReportIssueButton from '@/components/ReportIssueButton';
 
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
@@ -184,6 +185,21 @@ export default function PassagePage() {
               );
             })}
           </div>
+          {submitted && (
+            <div className="flex justify-end mt-3">
+              <ReportIssueButton
+                module="read"
+                content_id={passageId}
+                item_index={qi}
+                snapshot={{
+                  question: q.question,
+                  options: q.options,
+                  answer: q.options[q.answer_index],
+                  chosen: selected[qi] !== undefined ? q.options[selected[qi]] : undefined,
+                }}
+              />
+            </div>
+          )}
         </div>
       ))}
 

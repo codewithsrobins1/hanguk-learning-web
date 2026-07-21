@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useMilestoneQuestions, saveMilestoneResult, parseMilestoneId } from '@/hooks/useGrammar';
 import { addXp } from '@/lib/xp';
+import ReportIssueButton from '@/components/ReportIssueButton';
 
 const LEVEL_LABELS: Record<string, string> = {
   beg: 'Beginner',
@@ -103,6 +104,21 @@ export default function MilestonePage() {
               );
             })}
           </div>
+          {submitted && (
+            <div className="flex justify-end mt-3">
+              <ReportIssueButton
+                module="grammar_milestone"
+                content_id={milestoneId}
+                item_index={qi}
+                snapshot={{
+                  prompt: q.prompt,
+                  options: q.options,
+                  answer: q.options[q.answer_index],
+                  chosen: selected[qi] !== undefined ? q.options[selected[qi]] : undefined,
+                }}
+              />
+            </div>
+          )}
         </div>
       ))}
 

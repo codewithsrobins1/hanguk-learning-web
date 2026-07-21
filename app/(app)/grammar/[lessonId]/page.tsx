@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useGrammarLesson, saveGrammarProgress } from '@/hooks/useGrammar';
 import { addXp } from '@/lib/xp';
+import ReportIssueButton from '@/components/ReportIssueButton';
 
 const LEVEL_COLORS = {
   Beginner:     { bg: '#F0FFF4', text: '#16A34A' },
@@ -363,6 +364,21 @@ export default function GrammarLessonPage() {
                   );
                 })}
               </div>
+              {submitted && (
+                <div className="flex justify-end mt-3">
+                  <ReportIssueButton
+                    module="grammar"
+                    content_id={lessonId}
+                    item_index={qi}
+                    snapshot={{
+                      prompt: q.prompt,
+                      options: q.options,
+                      answer: q.options[q.answer_index],
+                      chosen: selected[qi] !== undefined ? q.options[selected[qi]] : undefined,
+                    }}
+                  />
+                </div>
+              )}
             </div>
           ))}
 

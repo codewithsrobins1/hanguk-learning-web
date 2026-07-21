@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useDialogue, saveDialogueProgress } from '@/hooks/useShadowing';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
+import ReportIssueButton from '@/components/ReportIssueButton';
 
 type RecordState = 'idle' | 'requesting' | 'recording' | 'processing';
 
@@ -511,6 +512,21 @@ export default function ShadowSessionPage() {
             Microphone access denied — enable it in your browser settings.
           </p>
         )}
+
+        <div className="flex justify-center">
+          <ReportIssueButton
+            module="shadow"
+            content_id={dialogueId}
+            item_index={currentLine}
+            snapshot={{
+              korean: dialogue.lines[currentLine]?.korean,
+              translation: dialogue.lines[currentLine]?.translation,
+              transcript: lineResult?.transcript,
+              feedback: lineResult?.feedback,
+              score: lineResult?.score,
+            }}
+          />
+        </div>
 
         <div className="flex gap-3">
           {!isAnswered ? (

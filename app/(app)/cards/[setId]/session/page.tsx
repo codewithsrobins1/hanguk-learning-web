@@ -8,6 +8,7 @@ import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import ProgressBar from '@/components/ProgressBar';
+import ReportIssueButton from '@/components/ReportIssueButton';
 import { FlashcardWithCloze } from '@/types';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
 
@@ -530,6 +531,22 @@ export default function VocabSessionPage() {
             {index + 1 >= shuffledCards.length ? 'Finish ✓' : 'Next →'}
           </button>
         )}
+
+        <div className="flex justify-center mt-4">
+          <ReportIssueButton
+            module="vocab"
+            content_id={setId}
+            item_id={card.id}
+            item_index={index}
+            snapshot={{
+              sentence: card.cloze_sentence,
+              answer: card.cloze_answer,
+              distractors: card.cloze_distractors,
+              translation: card.translation,
+              chosen_option: chosenOption,
+            }}
+          />
+        </div>
       </div>
     </>
   );

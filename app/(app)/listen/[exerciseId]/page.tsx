@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useListeningExercise, saveListeningProgress } from '@/hooks/useListening';
 import { addXp } from '@/lib/xp';
+import ReportIssueButton from '@/components/ReportIssueButton';
 
 const SPEEDS = [0.5, 0.75, 1] as const;
 type Speed = typeof SPEEDS[number];
@@ -347,6 +348,20 @@ export default function ListenExercisePage() {
                     ? '✓ Correct!'
                     : `✗ The answer was "${segment.options[segment.answer_index]}"`}
                 </p>
+              </div>
+
+              <div className="flex justify-center mb-4">
+                <ReportIssueButton
+                  module="listen"
+                  content_id={exerciseId}
+                  item_index={segmentIndex}
+                  snapshot={{
+                    question: segment.question,
+                    options: segment.options,
+                    answer: segment.options[segment.answer_index],
+                    chosen: selected !== null ? segment.options[selected] : undefined,
+                  }}
+                />
               </div>
 
               <button onClick={handleNext}

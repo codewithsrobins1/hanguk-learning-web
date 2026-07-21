@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { useTopikTest, saveTopikAttempt } from '@/hooks/useTopik';
 import { addXp } from '@/lib/xp';
 import { CIRCLED } from '@/lib/format';
+import ReportIssueButton from '@/components/ReportIssueButton';
 
 const TEST_DURATION_SECONDS = 25 * 60;
 
@@ -317,6 +318,22 @@ export default function TopikTestSessionPage() {
             })}
           </div>
 
+          <div className="flex justify-center mb-4">
+            <ReportIssueButton
+              module="tests"
+              content_id={testId}
+              item_index={readingIndex}
+              section="reading"
+              snapshot={{
+                question: readingQ.question,
+                passage: readingQ.passage,
+                options: readingQ.options,
+                answer: readingQ.options[readingQ.answer_index],
+                chosen: selected !== null ? readingQ.options[selected] : undefined,
+              }}
+            />
+          </div>
+
           <div className="flex gap-3">
             <button
               onClick={() => setReadingIndex((i) => Math.max(0, i - 1))}
@@ -401,6 +418,21 @@ export default function TopikTestSessionPage() {
               </button>
             );
           })}
+        </div>
+
+        <div className="flex justify-center mb-4">
+          <ReportIssueButton
+            module="tests"
+            content_id={testId}
+            item_index={listeningIndex}
+            section="listening"
+            snapshot={{
+              question: listeningQ.question,
+              options: listeningQ.options,
+              answer: listeningQ.options[listeningQ.answer_index],
+              chosen: selectedL !== null ? listeningQ.options[selectedL] : undefined,
+            }}
+          />
         </div>
 
         <div className="flex gap-3">

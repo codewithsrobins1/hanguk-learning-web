@@ -59,5 +59,10 @@ service cloud.firestore {
     match /placement_attempts/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    // Users can only file reports (write-once), not read/edit/delete anyone's —
+    // reviewed manually via the Firebase console or an admin script.
+    match /issue_reports/{docId} {
+      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
+    }
   }
 }

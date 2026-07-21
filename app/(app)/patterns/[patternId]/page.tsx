@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
+import ReportIssueButton from '@/components/ReportIssueButton';
 import {
   usePattern,
   savePatternProgress,
@@ -700,6 +701,21 @@ export default function PatternPracticePage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="flex justify-center">
+            <ReportIssueButton
+              module="patterns"
+              content_id={patternId}
+              item_index={qIndex}
+              section={`round-${roundIndex}`}
+              snapshot={{
+                context: currentQ.context,
+                full_sentence: currentQ.full_sentence,
+                options: currentQ.options,
+                answer: currentQ.options[currentQ.answer_index],
+              }}
+            />
           </div>
         </div>
 
