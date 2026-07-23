@@ -4,6 +4,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import ReportIssueButton from '@/components/ReportIssueButton';
+import { playCorrect, playIncorrect } from '@/lib/sounds';
+import SoundToggleButton from '@/components/SoundToggleButton';
 import {
   usePattern,
   savePatternProgress,
@@ -384,7 +386,7 @@ export default function PatternPracticePage() {
     setSlotFilled(optionIndex);
     const correct = optionOrder[optionIndex] === currentQ.answer_index;
     setAnswerState(correct ? 'correct' : 'wrong');
-    if (correct) setScore((s) => s + 1);
+    if (correct) { setScore((s) => s + 1); playCorrect(); } else { playIncorrect(); }
   };
 
   const handleRetry = () => {
@@ -544,19 +546,22 @@ export default function PatternPracticePage() {
                 {pattern.frame}
               </p>
             </div>
-            <button
-              onClick={() => setShowEn((s) => !s)}
-              className="text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
-              style={{
-                background: showEn
-                  ? 'rgba(255,255,255,0.25)'
-                  : 'rgba(255,255,255,0.12)',
-                color: 'rgba(255,255,255,0.8)',
-                border: '1px solid rgba(255,255,255,0.2)',
-              }}
-            >
-              {showEn ? '한' : 'EN'}
-            </button>
+            <div className="flex items-center gap-2">
+              <SoundToggleButton className="text-base transition-colors" />
+              <button
+                onClick={() => setShowEn((s) => !s)}
+                className="text-xs font-bold px-2.5 py-1.5 rounded-lg transition-all"
+                style={{
+                  background: showEn
+                    ? 'rgba(255,255,255,0.25)'
+                    : 'rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.8)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                }}
+              >
+                {showEn ? '한' : 'EN'}
+              </button>
+            </div>
           </div>
           {showEn && (
             <p className="text-white/40 text-sm text-center">

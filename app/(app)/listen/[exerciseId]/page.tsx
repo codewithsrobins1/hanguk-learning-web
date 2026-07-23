@@ -5,6 +5,8 @@ import { useAuth } from '@/lib/auth';
 import { useListeningExercise, saveListeningProgress } from '@/hooks/useListening';
 import { addXp } from '@/lib/xp';
 import ReportIssueButton from '@/components/ReportIssueButton';
+import { playCorrect, playIncorrect } from '@/lib/sounds';
+import SoundToggleButton from '@/components/SoundToggleButton';
 
 const SPEEDS = [0.5, 0.75, 1] as const;
 type Speed = typeof SPEEDS[number];
@@ -99,6 +101,8 @@ export default function ListenExercisePage() {
     setSelected(idx);
     setAnswers(prev => ({ ...prev, [segmentIndex]: idx }));
     setPhase('answered');
+    if (segment && idx === segment.answer_index) playCorrect();
+    else playIncorrect();
   };
 
   const handleNext = async () => {
@@ -233,7 +237,7 @@ export default function ListenExercisePage() {
           <p className="font-quicksand font-bold text-ink text-base">{exercise.title}</p>
           <p className="text-sm text-muted">Part {segmentIndex + 1} of {exercise.segments.length}</p>
         </div>
-        <div className="w-8" />
+        <SoundToggleButton className="text-lg text-muted hover:text-ink transition-colors w-8 text-right" />
       </div>
 
       {/* Progress dots */}

@@ -3,7 +3,7 @@ import { db } from './firebase';
 
 export type IssueReport = {
   user_id: string;
-  module: 'vocab' | 'patterns' | 'read' | 'listen' | 'grammar' | 'grammar_milestone' | 'tests' | 'shadow';
+  module: 'vocab' | 'patterns' | 'read' | 'listen' | 'grammar' | 'grammar_milestone' | 'tests' | 'shadow' | 'numbers';
   content_id: string;   // setId / patternId / passageId / exerciseId / lessonId / milestoneId / testId / dialogueId
   item_id?: string;     // specific card/question id, when one exists
   item_index?: number;  // position within the content (question index, round, line, etc.)

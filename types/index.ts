@@ -94,4 +94,5 @@ export type FlashcardWithCloze = Flashcard & {
   cloze_answer:      string;   // e.g. "배우고"
   cloze_distractors: string[]; // e.g. ["먹고", "자고", "가고"]
   cloze_translation: string;   // e.g. "I want to learn Korean."
+  audio_url?:        string;   // generated TTS of the full (answer-filled) sentence
 };

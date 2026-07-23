@@ -5,6 +5,8 @@ import { useDialogue, saveDialogueProgress } from '@/hooks/useShadowing';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import ReportIssueButton from '@/components/ReportIssueButton';
+import { playCorrect, playIncorrect } from '@/lib/sounds';
+import SoundToggleButton from '@/components/SoundToggleButton';
 
 type RecordState = 'idle' | 'requesting' | 'recording' | 'processing';
 
@@ -112,6 +114,8 @@ export default function ShadowSessionPage() {
             transcript: data.transcript,
           },
         }));
+        if (data.score >= 61) playCorrect();
+        else playIncorrect();
       } catch {
         setResults((prev) => ({
           ...prev,
@@ -328,19 +332,22 @@ export default function ShadowSessionPage() {
             {dialogue.title_ko}
           </p>
         </div>
-        <button
-          onClick={() => setShowTranslation((s) => !s)}
-          className="px-3 py-2 rounded-xl font-bold text-sm flex-shrink-0"
-          style={{
-            background: showTranslation ? '#F97316' : 'rgba(255,255,255,0.12)',
-            border: showTranslation
-              ? '1.5px solid #F97316'
-              : '1.5px solid rgba(255,255,255,0.18)',
-            color: '#F7F4EE',
-          }}
-        >
-          {showTranslation ? 'Hide EN' : 'Show EN'}
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <SoundToggleButton className="text-lg" />
+          <button
+            onClick={() => setShowTranslation((s) => !s)}
+            className="px-3 py-2 rounded-xl font-bold text-sm flex-shrink-0"
+            style={{
+              background: showTranslation ? '#F97316' : 'rgba(255,255,255,0.12)',
+              border: showTranslation
+                ? '1.5px solid #F97316'
+                : '1.5px solid rgba(255,255,255,0.18)',
+              color: '#F7F4EE',
+            }}
+          >
+            {showTranslation ? 'Hide EN' : 'Show EN'}
+          </button>
+        </div>
       </div>
 
       {/* Progress bar */}

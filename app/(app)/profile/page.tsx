@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useUserStats } from '@/hooks/useUserStats';
@@ -11,6 +11,7 @@ import ToggleSwitch from '@/components/ToggleSwitch';
 import TopikSeal from '@/components/TopikSeal';
 import TopikJourney from '@/components/TopikJourney';
 import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
+import { isSoundMuted, setSoundMuted } from '@/lib/sounds';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -27,6 +28,9 @@ export default function ProfilePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [saving, setSaving] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+
+  useEffect(() => { setSoundOn(!isSoundMuted()); }, []);
 
   const handleSaveName = async () => {
     if (!user || !displayName.trim()) return;
@@ -234,6 +238,26 @@ export default function ProfilePage() {
             </div>
           );
         })}
+      </div>
+
+      {/* ── Preferences ──────────────────────────────────────── */}
+      <p className="text-[11px] font-bold text-muted tracking-widest mb-2">
+        PREFERENCES
+      </p>
+      <div className="bg-white rounded-2xl border border-border overflow-hidden mb-6">
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <span className="text-lg w-6 text-center">🔊</span>
+            <div>
+              <p className="text-sm font-bold text-ink">Sound effects</p>
+              <p className="text-xs text-muted">A little ding or buzz on correct/incorrect answers</p>
+            </div>
+          </div>
+          <ToggleSwitch
+            checked={soundOn}
+            onChange={(v) => { setSoundOn(v); setSoundMuted(!v); }}
+          />
+        </div>
       </div>
 
       {/* ── Account ──────────────────────────────────────────── */}

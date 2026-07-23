@@ -3,6 +3,7 @@ export const ICONS = {
   nav: {
     home: '⌂',
     hangul: '가',
+    numbers: '수',
     vocab: '⧉',
     read: '≡',
     speak: '💬',

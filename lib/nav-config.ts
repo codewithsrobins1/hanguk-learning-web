@@ -18,6 +18,7 @@ export function navPrefKey(href: string) {
 export const NAV_ITEMS: NavItem[] = [
   { href: '/home', label: 'Home', icon: ICONS.nav.home, enabled: true, premium: false, mandatory: true },
   { href: '/hangul', label: 'Hangul', icon: ICONS.nav.hangul, enabled: true, premium: false },
+  { href: '/numbers', label: 'Numbers', icon: ICONS.nav.numbers, enabled: true, premium: false },
   { href: '/cards', label: 'Vocab', icon: ICONS.nav.vocab, enabled: true, premium: false },
   { href: '/read', label: 'Read', icon: ICONS.nav.read, enabled: true, premium: false },
   { href: '/shadow', label: 'Speak', icon: ICONS.nav.speak, enabled: true, premium: false },

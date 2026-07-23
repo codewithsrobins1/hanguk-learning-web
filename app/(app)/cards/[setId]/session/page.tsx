@@ -9,6 +9,8 @@ import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import ProgressBar from '@/components/ProgressBar';
 import ReportIssueButton from '@/components/ReportIssueButton';
+import { playCorrect, playIncorrect } from '@/lib/sounds';
+import SoundToggleButton from '@/components/SoundToggleButton';
 import { FlashcardWithCloze } from '@/types';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
 
@@ -74,13 +76,26 @@ function HangulModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function speakKorean(text: string) {
+function speakWithBrowserTts(text: string) {
   if (typeof window === 'undefined') return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'ko-KR';
   u.rate = 0.9;
   window.speechSynthesis.speak(u);
+}
+
+// Prefers the pre-generated TTS clip (real voice, consistent quality)
+// over the browser's native SpeechSynthesis, which varies wildly by
+// device/OS and often has no decent Korean voice installed at all.
+// Falls back to it only if a card hasn't been regenerated yet.
+function speakKorean(text: string, audioUrl?: string) {
+  if (typeof window === 'undefined') return;
+  if (audioUrl) {
+    new Audio(audioUrl).play().catch(() => speakWithBrowserTts(text));
+    return;
+  }
+  speakWithBrowserTts(text);
 }
 
 function buildAnsweredSentence(cloze: string, word: string, color: string) {
@@ -247,10 +262,12 @@ export default function VocabSessionPage() {
     if (correct) {
       setAnswerState('correct');
       setKnown((k) => [...k, index]);
+      playCorrect();
     } else {
       setAnswerState('wrong');
       setShake(true);
       setTimeout(() => setShake(false), 500);
+      playIncorrect();
     }
     await saveProgress(card.id, setId, correct);
   };
@@ -346,6 +363,7 @@ export default function VocabSessionPage() {
           <span className="text-xs font-semibold text-muted mr-1">
             {index + 1} / {shuffledCards.length}
           </span>
+          <SoundToggleButton className="text-lg text-muted hover:text-ink transition-colors mr-1" />
           <button
             onClick={() => setShowHangul(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cream border border-border hover:border-ink transition-colors"
@@ -421,7 +439,7 @@ export default function VocabSessionPage() {
                 )}
               </p>
               <button
-                onClick={() => speakKorean(fullSentence)}
+                onClick={() => speakKorean(fullSentence, card.audio_url)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs hover:opacity-90 transition-opacity mt-2"
                 style={{ background: '#1A1F36', color: '#F7F4EE' }}
               >
