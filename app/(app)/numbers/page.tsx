@@ -27,22 +27,6 @@ export default function NumbersPage() {
         <p className="text-[16px] text-muted">Korean has two number systems — here's when to use each one.</p>
       </div>
 
-      {/* When to use each */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-navy rounded-2xl p-5">
-          <p className="text-white/50 text-[13px] font-bold tracking-widest mb-1.5">한자어 · SINO-KOREAN</p>
-          <p className="text-cream text-[16px] leading-relaxed">
-            Dates, money, phone numbers, minutes, floor numbers — and any number over 99.
-          </p>
-        </div>
-        <div className="bg-white rounded-2xl p-5" style={{ border: '2px solid #1A1F36' }}>
-          <p className="text-muted text-[13px] font-bold tracking-widest mb-1.5">고유어 · NATIVE KOREAN</p>
-          <p className="text-ink text-[16px] leading-relaxed">
-            Counting objects or people, someone's age, and the hour on a clock. Caps out at 99 — there's no native word for 100.
-          </p>
-        </div>
-      </div>
-
       {/* Toggle */}
       <div className="flex bg-white rounded-2xl border-2 border-border p-1.5 gap-1.5 sticky top-4 z-10">
         <button
@@ -60,6 +44,23 @@ export default function NumbersPage() {
           Native Korean
         </button>
       </div>
+
+      {/* When to use it — follows the toggle, one column */}
+      {system === 'sino' ? (
+        <div className="bg-navy rounded-2xl p-5">
+          <p className="text-white/50 text-[13px] font-bold tracking-widest mb-1.5">한자어 · SINO-KOREAN</p>
+          <p className="text-cream text-[16px] leading-relaxed">
+            Dates, money, phone numbers, minutes, floor numbers — and any number over 99.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl p-5" style={{ border: '2px solid #1A1F36' }}>
+          <p className="text-muted text-[13px] font-bold tracking-widest mb-1.5">고유어 · NATIVE KOREAN</p>
+          <p className="text-ink text-[16px] leading-relaxed">
+            Counting objects or people, someone's age, and the hour on a clock. Caps out at 99 — there's no native word for 100.
+          </p>
+        </div>
+      )}
 
       {/* ── Sino-Korean ─────────────────────────────────────── */}
       {system === 'sino' && (
