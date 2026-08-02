@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { playCorrect, playIncorrect, playLessonComplete } from '@/lib/sounds';
 import SoundToggleButton from '@/components/SoundToggleButton';
 import ReportIssueButton from '@/components/ReportIssueButton';
 import ProgressBar from '@/components/ProgressBar';
@@ -119,6 +119,7 @@ export default function NumbersPracticePage() {
         await addXp(user.uid, xp);
         await refreshProfile();
       }
+      playLessonComplete();
       setDone(true);
       return;
     }

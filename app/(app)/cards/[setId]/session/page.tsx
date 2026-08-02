@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import ProgressBar from '@/components/ProgressBar';
 import ReportIssueButton from '@/components/ReportIssueButton';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { playCorrect, playIncorrect, playLessonComplete } from '@/lib/sounds';
 import SoundToggleButton from '@/components/SoundToggleButton';
 import { FlashcardWithCloze } from '@/types';
 import { hangulVowels, hangulConsonants } from '@/data/hangul';
@@ -290,6 +290,7 @@ export default function VocabSessionPage() {
         await addXp(user.uid, xp);
         await refreshProfile();
       }
+      playLessonComplete();
       setDone(true);
       return;
     }

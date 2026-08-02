@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import ReportIssueButton from '@/components/ReportIssueButton';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { playCorrect, playIncorrect, playLessonComplete } from '@/lib/sounds';
 import SoundToggleButton from '@/components/SoundToggleButton';
 import {
   usePattern,
@@ -403,6 +403,7 @@ export default function PatternPracticePage() {
     } else {
       const completedRounds = roundIndex + 1;
       if (user) await savePatternProgress(user.uid, patternId, completedRounds);
+      playLessonComplete();
       if (roundIndex + 1 >= rounds.length) setAllDone(true);
       else setRoundDone(true);
     }

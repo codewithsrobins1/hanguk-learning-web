@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import { categoryPill } from '@/lib/category-colors';
 import ReportIssueButton from '@/components/ReportIssueButton';
+import { playLessonComplete } from '@/lib/sounds';
 
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
@@ -38,6 +39,7 @@ export default function PassagePage() {
   const handleSubmit = async () => {
     if (!allAnswered) return;
     setSubmitted(true);
+    playLessonComplete();
     const s = questions.filter((q, i) => selected[i] === q.answer_index).length;
     await saveProgress(passageId, s, questions.length);
     if (user) {

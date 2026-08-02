@@ -5,7 +5,7 @@ import { useDialogue, saveDialogueProgress } from '@/hooks/useShadowing';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import ReportIssueButton from '@/components/ReportIssueButton';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { playCorrect, playIncorrect, playLessonComplete } from '@/lib/sounds';
 import SoundToggleButton from '@/components/SoundToggleButton';
 
 type RecordState = 'idle' | 'requesting' | 'recording' | 'processing';
@@ -157,6 +157,7 @@ export default function ShadowSessionPage() {
         await refreshProfile();
         if (sessionScore != null) setNewBest(true);
       }
+      playLessonComplete();
       setSessionDone(true);
     } else {
       setCurrentLine(next);

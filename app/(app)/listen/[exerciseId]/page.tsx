@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { useListeningExercise, saveListeningProgress } from '@/hooks/useListening';
 import { addXp } from '@/lib/xp';
 import ReportIssueButton from '@/components/ReportIssueButton';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { playCorrect, playIncorrect, playLessonComplete } from '@/lib/sounds';
 import SoundToggleButton from '@/components/SoundToggleButton';
 
 const SPEEDS = [0.5, 0.75, 1] as const;
@@ -117,6 +117,7 @@ export default function ListenExercisePage() {
         await addXp(user.uid, xp);
         await refreshProfile();
       }
+      playLessonComplete();
       setDone(true);
     } else {
       setSegmentIndex(i => i + 1);

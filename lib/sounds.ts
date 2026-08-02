@@ -57,6 +57,36 @@ export function playCorrect() {
   });
 }
 
+/** Bigger celebratory fanfare for finishing a whole lesson/session — a
+ *  step up from playCorrect's single ding, played once at the results
+ *  screen rather than per-question. Not used on TOPIK tests, which stay
+ *  silent throughout by design. */
+export function playLessonComplete() {
+  if (isSoundMuted()) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  // C5 → E5 → G5 → C6, a bright ascending major arpeggio
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = 'sine';
+    const start = ctx.currentTime + i * 0.12;
+    osc.frequency.setValueAtTime(freq, start);
+
+    const peak = i === 3 ? 0.26 : 0.2;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(peak, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
+
+    osc.start(start);
+    osc.stop(start + 0.6);
+  });
+}
+
 /** Low dull thud for a wrong / still learning answer */
 export function playIncorrect() {
   if (isSoundMuted()) return;

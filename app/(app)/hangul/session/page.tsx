@@ -5,7 +5,7 @@ import { hangulVowels, hangulConsonants } from '@/data/hangul';
 import FlipCard from '@/components/FlipCard';
 import ProgressBar from '@/components/ProgressBar';
 import SoundToggleButton from '@/components/SoundToggleButton';
-import { playCorrect, playIncorrect } from '@/lib/sounds';
+import { playCorrect, playIncorrect, playLessonComplete } from '@/lib/sounds';
 import { addXp } from '@/lib/xp';
 import { useAuth } from '@/lib/auth';
 
@@ -45,6 +45,7 @@ export default function HangulSessionPage() {
         await addXp(user.uid, 10);
         await refreshProfile();
       }
+      playLessonComplete();
       setDone(true);
       return;
     }

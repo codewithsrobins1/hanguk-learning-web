@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useGrammarLesson, saveGrammarProgress } from '@/hooks/useGrammar';
 import { addXp } from '@/lib/xp';
+import { playLessonComplete } from '@/lib/sounds';
 import ReportIssueButton from '@/components/ReportIssueButton';
 
 const LEVEL_COLORS = {
@@ -155,6 +156,7 @@ export default function GrammarLessonPage() {
     const allAnswered = Object.keys(selected).length === questions.length;
     if (!allAnswered) return;
     setSubmitted(true);
+    playLessonComplete();
     const s = questions.filter((q, i) => selected[i] === q.answer_index).length;
     if (user) {
       await saveGrammarProgress(user.uid, lessonId, s, questions.length);

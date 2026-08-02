@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useMilestoneQuestions, saveMilestoneResult, parseMilestoneId } from '@/hooks/useGrammar';
 import { addXp } from '@/lib/xp';
+import { playLessonComplete } from '@/lib/sounds';
 import ReportIssueButton from '@/components/ReportIssueButton';
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -32,6 +33,7 @@ export default function MilestonePage() {
     if (!allAnswered) return;
     const s = questions.filter((q, i) => selected[i] === q.answer_index).length;
     setSubmitted(true);
+    playLessonComplete();
     if (user) {
       const didPass = await saveMilestoneResult(user.uid, milestoneId, s, questions.length);
       setPassed(didPass);
