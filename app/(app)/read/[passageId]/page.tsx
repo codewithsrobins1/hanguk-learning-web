@@ -1,12 +1,20 @@
 'use client';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { usePassageDetail, useSavePassageProgress } from '@/hooks/usePassages';
+import { usePassageDetail, useSavePassageProgress, useWordBank } from '@/hooks/usePassages';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import { categoryPill } from '@/lib/category-colors';
 import ReportIssueButton from '@/components/ReportIssueButton';
 import { playLessonComplete } from '@/lib/sounds';
+
+// Strips leading/trailing punctuation from a whitespace-split token before
+// it's saved to the word bank — the display text (with punctuation) is
+// untouched. Korean sentences here end with the period glued to the last
+// word (e.g. "왔어요."), so this keeps saved entries clean.
+function cleanWord(token: string) {
+  return token.replace(/^[.,!?"'“”‘’(（]+/, '').replace(/[.,!?"'“”‘’)）]+$/, '');
+}
 
 export default function PassagePage() {
   const { passageId } = useParams<{ passageId: string }>();
@@ -14,13 +22,15 @@ export default function PassagePage() {
   const { user } = useAuth();
   const { passage, questions, loading } = usePassageDetail(passageId);
   const saveProgress = useSavePassageProgress();
+  const { entries: wordBank, loading: wordBankLoading, addWord, removeWord } = useWordBank(passageId);
 
   const [showTranslation, setShowTranslation] = useState(false);
-  const [activeLine, setActiveLine] = useState<number | null>(null);
   const [selected, setSelected] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [translatedQ, setTranslatedQ] = useState<Record<number, boolean>>({});
   const [xpEarned, setXpEarned] = useState(0);
+  const [pendingWord, setPendingWord] = useState<{ key: string; word: string; sentence: string } | null>(null);
+  const [addingWordKey, setAddingWordKey] = useState<string | null>(null);
 
   if (loading || !passage)
     return (
@@ -48,6 +58,15 @@ export default function PassagePage() {
       setXpEarned(xp);
       await addXp(user.uid, xp);
     }
+  };
+
+  const handleConfirmAddWord = async () => {
+    if (!pendingWord) return;
+    const { key, word, sentence } = pendingWord;
+    setPendingWord(null);
+    setAddingWordKey(key);
+    await addWord(word, sentence);
+    setAddingWordKey(null);
   };
 
   return (
@@ -91,26 +110,98 @@ export default function PassagePage() {
       {/* Passage lines */}
       <div className="bg-white rounded-2xl p-4 mb-5 shadow-sm border border-border">
         {passage.lines.map((line, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveLine(activeLine === i ? null : i)}
-            className={`w-full text-left p-3 rounded-xl border-l-[3px] mb-1 transition-colors ${
-              activeLine === i
-                ? 'border-orange bg-orangeLight'
-                : 'border-transparent hover:bg-cream'
-            }`}
-          >
-            <p
-              className="text-lg font-semibold text-ink leading-7"
+          <div key={i} className="p-3 mb-1">
+            <div
+              className="text-lg font-semibold text-ink leading-7 flex flex-wrap"
               style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
             >
-              {line.korean}
-            </p>
+              {line.korean.split(' ').map((token, wi) => {
+                const key = `${i}-${wi}`;
+                const word = cleanWord(token);
+                const inBank = wordBank.some((e) => e.word === word);
+                return (
+                  <span key={wi} className="relative inline-block mr-[0.35em]">
+                    <span
+                      onClick={() => word && setPendingWord({ key, word, sentence: line.korean })}
+                      className={`cursor-pointer rounded transition-colors ${
+                        inBank ? 'text-ink' : 'hover:bg-cream'
+                      } ${addingWordKey === key ? 'opacity-50' : ''}`}
+                      style={inBank ? { background: '#FEF3C7' } : undefined}
+                    >
+                      {token}
+                    </span>
+
+                    {pendingWord?.key === key && (
+                      <div
+                        className="absolute z-20 top-full left-0 mt-1.5 bg-navy rounded-xl p-3 shadow-lg"
+                        style={{ width: 200 }}
+                      >
+                        <p className="text-cream text-xs font-semibold mb-2 leading-snug">
+                          Add "{word}" to word bank?
+                        </p>
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={handleConfirmAddWord}
+                            className="flex-1 py-1.5 rounded-lg bg-orange text-white text-xs font-bold"
+                          >
+                            Add
+                          </button>
+                          <button
+                            onClick={() => setPendingWord(null)}
+                            className="flex-1 py-1.5 rounded-lg text-xs font-bold"
+                            style={{ background: 'rgba(255,255,255,0.15)', color: '#F7F4EE' }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
             {showTranslation && (
               <p className="text-xs text-orange mt-1">{line.translation}</p>
             )}
-          </button>
+          </div>
         ))}
+      </div>
+
+      {/* Word bank */}
+      <div className="bg-white rounded-2xl p-4 mb-5 shadow-sm border border-border">
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-bold text-ink text-sm">📖 Word Bank</p>
+          {!wordBankLoading && wordBank.length > 0 && (
+            <span className="text-[11px] text-muted">{wordBank.length} saved</span>
+          )}
+        </div>
+
+        {wordBankLoading ? (
+          <p className="text-xs text-muted">Loading…</p>
+        ) : wordBank.length === 0 ? (
+          <p className="text-xs text-muted leading-relaxed">
+            Tap any word in the passage above to save it here with its meaning in context —
+            handy for the 1–2 words in a sentence you're not quite sure about.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {wordBank.map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between gap-2 bg-cream rounded-lg px-3 py-2 min-w-0">
+                <p className="text-xs font-semibold text-ink truncate" title={`${entry.word} — ${entry.definition}`}>
+                  <span style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{entry.word}</span>
+                  <span className="text-muted font-normal"> — {entry.definition}</span>
+                </p>
+                <button
+                  onClick={() => removeWord(entry.id)}
+                  aria-label="Remove word"
+                  className="text-muted hover:text-red transition-colors flex-shrink-0 text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quiz */}

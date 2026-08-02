@@ -56,6 +56,16 @@ export type UserPassageProgress = {
   completed_at: string;
 };
 
+export type WordBankEntry = {
+  id: string;
+  user_id: string;
+  passage_id: string;
+  word: string;
+  definition: string;
+  sentence: string;
+  created_at: string;
+};
+
 export type Profile = {
   id: string;
   username: string;

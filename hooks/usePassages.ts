@@ -8,11 +8,13 @@ import {
   doc,
   getDoc,
   setDoc,
+  addDoc,
+  deleteDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
-import { Passage, ComprehensionQuestion, UserPassageProgress } from '@/types';
+import { Passage, ComprehensionQuestion, UserPassageProgress, WordBankEntry } from '@/types';
 
 // Fetch all passages with user's completion status
 export function usePassages() {
@@ -127,4 +129,79 @@ export function useSavePassageProgress() {
       { merge: true }
     );
   };
+}
+
+// Per-passage word bank: tap a word in the passage, get a contextual
+// definition (via /api/read/define), save it here. Scoped to
+// user + passage — deliberately no global word bank across passages.
+export function useWordBank(passageId: string) {
+  const { user } = useAuth();
+  const [entries, setEntries] = useState<WordBankEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadEntries = useCallback(async () => {
+    if (!user || !passageId) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const snap = await getDocs(
+      query(
+        collection(db, 'user_wordbank_entries'),
+        where('user_id', '==', user.uid),
+        where('passage_id', '==', passageId)
+      )
+    );
+    setEntries(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as WordBankEntry));
+    setLoading(false);
+  }, [user, passageId]);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
+
+  const addWord = useCallback(
+    async (word: string, sentence: string): Promise<{ error?: string }> => {
+      if (!user) return { error: 'Not signed in' };
+      if (entries.some((e) => e.word === word)) return {};
+
+      try {
+        const res = await fetch('/api/read/define', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ word, sentence }),
+        });
+        if (!res.ok) throw new Error('Definition request failed');
+        const { definition } = await res.json();
+
+        const created_at = new Date().toISOString();
+        const docRef = await addDoc(collection(db, 'user_wordbank_entries'), {
+          user_id: user.uid,
+          passage_id: passageId,
+          word,
+          definition,
+          sentence,
+          created_at,
+        });
+
+        setEntries((prev) => [
+          ...prev,
+          { id: docRef.id, user_id: user.uid, passage_id: passageId, word, definition, sentence, created_at },
+        ]);
+        return {};
+      } catch (e) {
+        console.error('Failed to add word to word bank:', e);
+        return { error: 'Failed to add word' };
+      }
+    },
+    [user, passageId, entries]
+  );
+
+  const removeWord = useCallback(async (id: string) => {
+    await deleteDoc(doc(db, 'user_wordbank_entries', id));
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  }, []);
+
+  return { entries, loading, addWord, removeWord };
 }

@@ -57,34 +57,40 @@ export function playCorrect() {
   });
 }
 
-/** Bigger celebratory fanfare for finishing a whole lesson/session — a
+/** Bigger celebratory "ta-da!" for finishing a whole lesson/session — a
  *  step up from playCorrect's single ding, played once at the results
  *  screen rather than per-question. Not used on TOPIK tests, which stay
- *  silent throughout by design. */
+ *  silent throughout by design. Three layers: a punchy opening chord,
+ *  a rising run, and a quick high sparkle flourish at the end. */
 export function playLessonComplete() {
   if (isSoundMuted()) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
-  // C5 → E5 → G5 → C6, a bright ascending major arpeggio
-  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+  const note = (freq: number, start: number, duration: number, peak: number, type: OscillatorType = 'sine') => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-
-    osc.type = 'sine';
-    const start = ctx.currentTime + i * 0.12;
+    osc.type = type;
     osc.frequency.setValueAtTime(freq, start);
-
-    const peak = i === 3 ? 0.26 : 0.2;
     gain.gain.setValueAtTime(0, start);
-    gain.gain.linearRampToValueAtTime(peak, start + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
-
+    gain.gain.linearRampToValueAtTime(peak, start + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
     osc.start(start);
-    osc.stop(start + 0.6);
-  });
+    osc.stop(start + duration + 0.02);
+  };
+
+  const t0 = ctx.currentTime;
+
+  // Opening chord stab — C5 major triad, short and punchy for impact
+  [523.25, 659.25, 783.99].forEach((freq) => note(freq, t0, 0.22, 0.16, 'triangle'));
+
+  // Rising run — G5 → C6 → E6
+  [783.99, 1046.5, 1318.51].forEach((freq, i) => note(freq, t0 + 0.2 + i * 0.11, 0.4, 0.22));
+
+  // High sparkle flourish — quick shimmer at the very end
+  [1567.98, 2093.0, 2637.02].forEach((freq, i) => note(freq, t0 + 0.56 + i * 0.07, 0.18, 0.12));
 }
 
 /** Low dull thud for a wrong / still learning answer */
