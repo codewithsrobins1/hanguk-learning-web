@@ -27,6 +27,14 @@ For each question provide:
 - options: array of exactly 4 Korean slot words (the correct one + 3 plausible wrong ones from similar patterns or common mistakes)
 - answer_index: index of the correct answer in options array (0-3)
 
+CRITICAL: the correct option's text must appear verbatim inside full_sentence — it is literally the
+text that fills the blank, so it must already be in its correctly conjugated/particled form exactly as
+it appears in the sentence. NEVER use the bare dictionary/citation form (ending in unconjugated -다,
+e.g. "먹다", "가다") as the correct option unless the pattern's blank genuinely calls for the dictionary
+form itself. The 3 wrong options should be plausible near-misses (wrong tense, wrong conjugation,
+dictionary form, etc.) — but the correct one must be grammatically exact and literally present in the
+sentence.
+
 Wrong options should be from similar patterns or plausible mistakes, NOT random words.
 Make options challenging enough to require thinking, not obvious guesses.
 
@@ -37,12 +45,12 @@ Respond ONLY with valid JSON, no markdown:
       "round": 1,
       "questions": [
         {
-          "slot": "먹다",
-          "slot_translation": "eat",
+          "slot": "먹고 싶어요",
+          "slot_translation": "want to eat",
           "context": "You want to eat something",
-          "full_sentence": "먹고 싶어요",
-          "sentence_translation": "I want to eat",
-          "options": ["먹다", "먹어요", "먹었어요", "먹을게요"],
+          "full_sentence": "밥을 먹고 싶어요",
+          "sentence_translation": "I want to eat rice",
+          "options": ["먹고 싶어요", "먹었어요", "먹을 거예요", "먹다"],
           "answer_index": 0
         }
       ]
@@ -63,8 +71,12 @@ Respond ONLY with valid JSON, no markdown:
 }
 
 async function main() {
+  const onlyIds = process.argv.slice(2);
   const snap = await db.collection('patterns').get();
-  const patterns = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  let patterns = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  if (onlyIds.length) {
+    patterns = patterns.filter((p) => onlyIds.includes(p.id));
+  }
   console.log(`Generating questions for ${patterns.length} patterns...`);
 
   let i = 0;

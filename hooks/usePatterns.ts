@@ -28,8 +28,9 @@ export type PatternExample = {
 };
 
 export type PatternStemExample = {
-  base: string;
-  stem: string;
+  base:   string;
+  stem:   string;
+  result: string; // the base word fully conjugated with this pattern, e.g. "갈 수 없어요"
 };
 
 export type Pattern = {

@@ -227,9 +227,8 @@ function PatternIntro({
                     </span>
                     <span className="text-xs text-muted">→</span>
                     <span className="font-bold" style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 15, color: '#B45309' }}>
-                      {ex.stem}
+                      {ex.result}
                     </span>
-                    <span className="text-xs text-muted">+ {pattern.frame.replace('...', '').trim()}</span>
                   </div>
                 ))}
               </div>

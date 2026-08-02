@@ -20,17 +20,26 @@ Generate:
    - Any important exceptions or notes
    Keep it to 1-2 sentences, very clear and practical.
 
+   IMPORTANT: many Korean patterns require a euphonic connector that changes based on whether the
+   preceding stem ends in a consonant or vowel (e.g. -(으)ㄹ, -아/어/해, -았/었/했, -(으)면, -(으)려고).
+   Only claim "no consonant/vowel distinction" when that is actually true for THIS specific pattern
+   (e.g. -고 싶어요, -지만, -고 나서 genuinely never change). If the pattern's frame text shows one
+   worked-example conjugation (like "할" or "해도", which come from 하다 specifically), do not describe
+   that conjugated fragment as if it were a fixed, universal suffix — explain the real underlying rule
+   instead, with a correct example for both a vowel-ending and a consonant-ending stem where relevant.
+
 2. Four natural example sentences showing the pattern used correctly in everyday situations.
-   Each example should use different vocabulary to show variety.
+   Each example should use different vocabulary to show variety, correctly conjugated per the real rule
+   above (not just the frame's literal text pasted after each verb).
 
 Respond ONLY with valid JSON, no markdown:
 {
-  "rule": "Attach 고 싶어요 directly to the verb stem. No consonant/vowel distinction needed.",
+  "rule": "Attach -(으)면 to the verb/adjective stem: use -면 after vowel-ending stems (가다 -> 가면) and -으면 after consonant-ending stems (먹다 -> 먹으면).",
   "examples": [
-    { "korean": "커피를 마시고 싶어요", "translation": "I want to drink coffee" },
-    { "korean": "한국에 가고 싶어요", "translation": "I want to go to Korea" },
-    { "korean": "친구를 만나고 싶어요", "translation": "I want to meet a friend" },
-    { "korean": "영화를 보고 싶어요", "translation": "I want to watch a movie" }
+    { "korean": "날씨가 좋으면 산책해요", "translation": "If the weather is nice, I go for a walk" },
+    { "korean": "시간이 있으면 전화하세요", "translation": "Call me if you have time" },
+    { "korean": "한국에 가면 김치를 먹을 거예요", "translation": "If I go to Korea, I'll eat kimchi" },
+    { "korean": "일이 끝나면 집에 가요", "translation": "When work is over, I go home" }
   ]
 }`;
 
