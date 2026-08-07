@@ -29,8 +29,12 @@ export default function PassagePage() {
   const [submitted, setSubmitted] = useState(false);
   const [translatedQ, setTranslatedQ] = useState<Record<number, boolean>>({});
   const [xpEarned, setXpEarned] = useState(0);
-  const [pendingWord, setPendingWord] = useState<{ key: string; word: string; sentence: string } | null>(null);
-  const [addingWordKey, setAddingWordKey] = useState<string | null>(null);
+  // A "selection" is a contiguous span of word-tokens on one line — tapping a
+  // word starts it, tapping another word on the same line extends it (in
+  // either direction), letting you chain several words into one phrase
+  // before adding it to the word bank as a single entry.
+  const [pendingSelection, setPendingSelection] = useState<{ lineIndex: number; startIdx: number; endIdx: number } | null>(null);
+  const [addingKey, setAddingKey] = useState<string | null>(null);
 
   if (loading || !passage)
     return (
@@ -60,13 +64,18 @@ export default function PassagePage() {
     }
   };
 
-  const handleConfirmAddWord = async () => {
-    if (!pendingWord) return;
-    const { key, word, sentence } = pendingWord;
-    setPendingWord(null);
-    setAddingWordKey(key);
-    await addWord(word, sentence);
-    setAddingWordKey(null);
+  const handleConfirmAdd = async () => {
+    if (!pendingSelection) return;
+    const { lineIndex, startIdx, endIdx } = pendingSelection;
+    const lo = Math.min(startIdx, endIdx);
+    const hi = Math.max(startIdx, endIdx);
+    const line = passage.lines[lineIndex];
+    const phrase = cleanWord(line.korean.split(' ').slice(lo, hi + 1).join(' '));
+    setPendingSelection(null);
+    if (!phrase) return;
+    setAddingKey(`${lineIndex}-${lo}-${hi}`);
+    await addWord(phrase, line.korean);
+    setAddingKey(null);
   };
 
   return (
@@ -109,62 +118,100 @@ export default function PassagePage() {
 
       {/* Passage lines */}
       <div className="bg-white rounded-2xl p-4 mb-5 shadow-sm border border-border">
-        {passage.lines.map((line, i) => (
-          <div key={i} className="p-3 mb-1">
-            <div
-              className="text-lg font-semibold text-ink leading-7 flex flex-wrap"
-              style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
-            >
-              {line.korean.split(' ').map((token, wi) => {
-                const key = `${i}-${wi}`;
-                const word = cleanWord(token);
-                const inBank = wordBank.some((e) => e.word === word);
-                return (
-                  <span key={wi} className="relative inline-block mr-[0.35em]">
-                    <span
-                      onClick={() => word && setPendingWord({ key, word, sentence: line.korean })}
-                      className={`cursor-pointer rounded transition-colors ${
-                        inBank ? 'text-ink' : 'hover:bg-cream'
-                      } ${addingWordKey === key ? 'opacity-50' : ''}`}
-                      style={inBank ? { background: '#FEF3C7' } : undefined}
-                    >
-                      {token}
-                    </span>
+        {passage.lines.map((line, i) => {
+          const tokens = line.korean.split(' ');
+          const sel = pendingSelection?.lineIndex === i ? pendingSelection : null;
+          const lo = sel ? Math.min(sel.startIdx, sel.endIdx) : -1;
+          const hi = sel ? Math.max(sel.startIdx, sel.endIdx) : -1;
+          const phrase = sel ? cleanWord(tokens.slice(lo, hi + 1).join(' ')) : '';
 
-                    {pendingWord?.key === key && (
-                      <div
-                        className="absolute z-20 top-full left-0 mt-1.5 bg-navy rounded-xl p-3 shadow-lg"
-                        style={{ width: 200 }}
+          let addingRange: { lo: number; hi: number } | null = null;
+          if (addingKey) {
+            const [aLine, aLo, aHi] = addingKey.split('-').map(Number);
+            if (aLine === i) addingRange = { lo: aLo, hi: aHi };
+          }
+
+          return (
+            <div key={i} className="p-3 mb-1">
+              <div
+                className="text-lg font-semibold text-ink leading-7 flex flex-wrap"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif' }}
+              >
+                {tokens.map((token, wi) => {
+                  const word = cleanWord(token);
+                  const inBank = wordBank.some(
+                    (e) => e.word === word || (e.sentence === line.korean && e.word.split(' ').map(cleanWord).includes(word))
+                  );
+                  const isSelected = !!sel && wi >= lo && wi <= hi;
+                  const isAdding = !!addingRange && wi >= addingRange.lo && wi <= addingRange.hi;
+
+                  return (
+                    <span key={wi} className="relative inline-block mr-[0.35em]">
+                      <span
+                        onClick={() => {
+                          if (!word) return;
+                          if (!sel) {
+                            setPendingSelection({ lineIndex: i, startIdx: wi, endIdx: wi });
+                          } else if (lo === hi && lo === wi) {
+                            setPendingSelection(null);
+                          } else {
+                            setPendingSelection({ lineIndex: i, startIdx: sel.startIdx, endIdx: wi });
+                          }
+                        }}
+                        className={`cursor-pointer rounded transition-colors ${
+                          isSelected ? '' : inBank ? 'text-ink' : 'hover:bg-cream'
+                        } ${isAdding ? 'opacity-50' : ''}`}
+                        style={
+                          isSelected
+                            ? { background: '#FDE7C8' }
+                            : inBank
+                              ? { background: '#FEF3C7' }
+                              : undefined
+                        }
                       >
-                        <p className="text-cream text-xs font-semibold mb-2 leading-snug">
-                          Add "{word}" to word bank?
-                        </p>
-                        <div className="flex gap-1.5">
-                          <button
-                            onClick={handleConfirmAddWord}
-                            className="flex-1 py-1.5 rounded-lg bg-orange text-white text-xs font-bold"
-                          >
-                            Add
-                          </button>
-                          <button
-                            onClick={() => setPendingWord(null)}
-                            className="flex-1 py-1.5 rounded-lg text-xs font-bold"
-                            style={{ background: 'rgba(255,255,255,0.15)', color: '#F7F4EE' }}
-                          >
-                            Cancel
-                          </button>
+                        {token}
+                      </span>
+
+                      {sel && wi === hi && (
+                        <div
+                          className="absolute z-20 top-full left-0 mt-1.5 bg-navy rounded-xl p-3 shadow-lg"
+                          style={{ width: 220 }}
+                        >
+                          <p className="text-cream text-xs font-semibold mb-1 leading-snug">
+                            Add "{phrase}" to word bank?
+                          </p>
+                          {lo === hi && (
+                            <p className="text-[10px] mb-1.5 leading-snug" style={{ color: 'rgba(247,244,238,0.6)' }}>
+                              Tap another word to grab a phrase
+                            </p>
+                          )}
+                          <div className="flex gap-1.5 mt-1.5">
+                            <button
+                              onClick={handleConfirmAdd}
+                              className="flex-1 py-1.5 rounded-lg bg-orange text-white text-xs font-bold"
+                            >
+                              Add
+                            </button>
+                            <button
+                              onClick={() => setPendingSelection(null)}
+                              className="flex-1 py-1.5 rounded-lg text-xs font-bold"
+                              style={{ background: 'rgba(255,255,255,0.15)', color: '#F7F4EE' }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </span>
-                );
-              })}
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+              {showTranslation && (
+                <p className="text-xs text-orange mt-1">{line.translation}</p>
+              )}
             </div>
-            {showTranslation && (
-              <p className="text-xs text-orange mt-1">{line.translation}</p>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Word bank */}
@@ -180,8 +227,8 @@ export default function PassagePage() {
           <p className="text-xs text-muted">Loading…</p>
         ) : wordBank.length === 0 ? (
           <p className="text-xs text-muted leading-relaxed">
-            Tap any word in the passage above to save it here with its meaning in context —
-            handy for the 1–2 words in a sentence you're not quite sure about.
+            Tap any word in the passage above to save it here with its meaning in context — or
+            tap through a few words in a row to chain them into a phrase before saving.
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-2">
