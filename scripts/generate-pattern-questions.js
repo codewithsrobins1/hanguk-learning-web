@@ -31,12 +31,25 @@ CRITICAL: the correct option's text must appear verbatim inside full_sentence �
 text that fills the blank, so it must already be in its correctly conjugated/particled form exactly as
 it appears in the sentence. NEVER use the bare dictionary/citation form (ending in unconjugated -다,
 e.g. "먹다", "가다") as the correct option unless the pattern's blank genuinely calls for the dictionary
-form itself. The 3 wrong options should be plausible near-misses (wrong tense, wrong conjugation,
-dictionary form, etc.) — but the correct one must be grammatically exact and literally present in the
-sentence.
+form itself.
 
-Wrong options should be from similar patterns or plausible mistakes, NOT random words.
-Make options challenging enough to require thinking, not obvious guesses.
+CRITICAL — distractor design: at most ONE of the 3 wrong options may share the correct answer's verb.
+NEVER make 2 or 3 of the wrong options the same verb as the answer — if a learner can eliminate options
+just by noticing which ones "look like" the right verb, the question stops testing whether they
+understood the context at all, which defeats the point of a context-based exercise. Build the 3 wrong
+options exactly like this:
+  - AT MOST one wrong option: the SAME verb as the correct answer, but a different/incorrect ending
+    (tests whether the learner recognizes this pattern's correct form). It is fine to have zero of
+    these and use a different verb instead — just never more than one.
+  - The remaining wrong options (at least two): DIFFERENT verbs than the correct answer — each one a
+    distinct verb from each other too, not variants of one alternate verb — correctly conjugated with
+    the SAME pattern ending as the correct answer, but semantically wrong for this context. This forces
+    the learner to actually read and understand the English context to rule them out, not just spot the
+    right-looking suffix.
+Before finalizing each question, check: of the 3 wrong options, how many share the answer's verb? If
+the count is 2 or more, replace extras with different verbs until at most 1 remains.
+Make sure the different-verb distractors are plausible enough to require thinking (not absurd), but
+clearly wrong once you understand the context.
 
 Respond ONLY with valid JSON, no markdown:
 {
@@ -45,12 +58,12 @@ Respond ONLY with valid JSON, no markdown:
       "round": 1,
       "questions": [
         {
-          "slot": "먹고 싶어요",
-          "slot_translation": "want to eat",
-          "context": "You want to eat something",
-          "full_sentence": "밥을 먹고 싶어요",
-          "sentence_translation": "I want to eat rice",
-          "options": ["먹고 싶어요", "먹었어요", "먹을 거예요", "먹다"],
+          "slot": "이해할 수 없어요",
+          "slot_translation": "can't understand",
+          "context": "The explanation is confusing and you cannot understand it",
+          "full_sentence": "그 설명을 이해할 수 없어요",
+          "sentence_translation": "I can't understand that explanation",
+          "options": ["이해할 수 없어요", "이해했어요", "먹을 수 없어요", "갈 수 없어요"],
           "answer_index": 0
         }
       ]
