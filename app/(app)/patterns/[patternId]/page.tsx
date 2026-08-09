@@ -309,6 +309,20 @@ export default function PatternPracticePage() {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [optionOrder, setOptionOrder] = useState<number[]>(shuffledIndices);
 
+  // Round-passing gate: a round only fully clears with a perfect pass.
+  // `activeOverride` holds the retry subset (just the questions missed last
+  // pass) once the user retries — null means "use the full round". Missing
+  // any question adds its index to `wrongThisPass`; if that's non-empty when
+  // the pass ends, the round is blocked behind a gate screen instead of
+  // continuing on. The first blocked attempt only offers "try again"; a
+  // second consecutive miss on the retry unlocks a "move on anyway" escape
+  // hatch so nobody gets permanently stuck.
+  const [activeOverride, setActiveOverride] = useState<PatternQuestion[] | null>(null);
+  const [attemptCount, setAttemptCount] = useState(1);
+  const [wrongThisPass, setWrongThisPass] = useState<number[]>([]);
+  const [gateResult, setGateResult] = useState<{ score: number; total: number; escapeAvailable: boolean } | null>(null);
+  const [lastPassResult, setLastPassResult] = useState<{ score: number; total: number } | null>(null);
+
   useEffect(() => {
     setOptionOrder(shuffledIndices());
   }, [roundIndex, qIndex]);
@@ -349,7 +363,8 @@ export default function PatternPracticePage() {
 
   const rounds = pattern.rounds ?? [];
   const currentRound = rounds[roundIndex];
-  const currentQ = currentRound?.questions?.[qIndex];
+  const activeQuestions = activeOverride ?? currentRound?.questions ?? [];
+  const currentQ = activeQuestions[qIndex];
 
   if (!currentRound || !currentQ) {
     return (
@@ -394,18 +409,56 @@ export default function PatternPracticePage() {
   };
 
   const handleNext = async () => {
+    const updatedWrong =
+      answerState === 'wrong' ? [...wrongThisPass, qIndex] : wrongThisPass;
+
     const nextQ = qIndex + 1;
-    if (nextQ < currentRound.questions.length) {
+    if (nextQ < activeQuestions.length) {
+      setWrongThisPass(updatedWrong);
       setQIndex(nextQ);
       setSlotFilled(null);
       setAnswerState('idle');
-    } else {
+      return;
+    }
+
+    // Pass finished — every question must be correct to clear the round.
+    const passTotal = activeQuestions.length;
+    const passScore = passTotal - updatedWrong.length;
+    setLastPassResult({ score: passScore, total: passTotal });
+
+    if (updatedWrong.length === 0) {
       const completedRounds = roundIndex + 1;
       if (user) await savePatternProgress(user.uid, patternId, completedRounds);
       playLessonComplete();
       if (roundIndex + 1 >= rounds.length) setAllDone(true);
       else setRoundDone(true);
+    } else {
+      setWrongThisPass(updatedWrong);
+      setGateResult({ score: passScore, total: passTotal, escapeAvailable: attemptCount >= 2 });
     }
+  };
+
+  // Retry just the questions missed this pass, narrowing further each time.
+  const handleRetryFailedOnly = () => {
+    const failedQuestions = wrongThisPass.map((i) => activeQuestions[i]);
+    setActiveOverride(failedQuestions);
+    setAttemptCount((a) => a + 1);
+    setWrongThisPass([]);
+    setScore(0);
+    setQIndex(0);
+    setSlotFilled(null);
+    setAnswerState('idle');
+    setGateResult(null);
+  };
+
+  // Escape hatch after a second consecutive miss — advance anyway. Progress
+  // still saves so the user isn't stuck losing hub credit over one hard round.
+  const handleMoveOnAnyway = async () => {
+    const completedRounds = roundIndex + 1;
+    if (user) await savePatternProgress(user.uid, patternId, completedRounds);
+    setGateResult(null);
+    if (roundIndex + 1 >= rounds.length) setAllDone(true);
+    else setRoundDone(true);
   };
 
   const startNextRound = () => {
@@ -415,6 +468,10 @@ export default function PatternPracticePage() {
     setAnswerState('idle');
     setScore(0);
     setRoundDone(false);
+    setActiveOverride(null);
+    setAttemptCount(1);
+    setWrongThisPass([]);
+    setGateResult(null);
   };
 
   // ── All rounds complete ───────────────────────────────────────
@@ -441,6 +498,10 @@ export default function PatternPracticePage() {
               setScore(0);
               setAllDone(false);
               setRoundDone(false);
+              setActiveOverride(null);
+              setAttemptCount(1);
+              setWrongThisPass([]);
+              setGateResult(null);
             }}
             className="w-full py-3.5 rounded-2xl border-2 border-border font-bold text-sm text-ink hover:bg-cream transition-colors"
           >
@@ -466,7 +527,7 @@ export default function PatternPracticePage() {
           Round {roundIndex + 1} complete
         </h2>
         <p className="text-sm text-muted mb-6">
-          {score}/{currentRound.questions.length} correct · Last completed:{' '}
+          {lastPassResult?.score ?? score}/{lastPassResult?.total ?? currentRound.questions.length} correct · Last completed:{' '}
           {new Date().toLocaleDateString('en-US', {
             month: 'numeric',
             day: 'numeric',
@@ -479,6 +540,47 @@ export default function PatternPracticePage() {
               className="btn-press-orange w-full bg-orange text-white py-4 rounded-2xl font-quicksand font-bold text-base"
             >
               Start Round {roundIndex + 2} →
+            </button>
+          )}
+          <button
+            onClick={() => router.push('/patterns')}
+            className="w-full py-3.5 rounded-2xl border-2 border-border font-bold text-sm text-ink hover:bg-cream transition-colors"
+          >
+            Back to Patterns
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Gated: missed at least one question this pass ────────────────
+  if (gateResult) {
+    const isLastRound = roundIndex + 1 >= rounds.length;
+    const missedCount = gateResult.total - gateResult.score;
+    return (
+      <div className="max-w-xl mx-auto px-6 py-10 flex flex-col items-center text-center">
+        <p className="text-4xl mb-4">🔁</p>
+        <h2 className="font-quicksand font-bold text-ink text-2xl mb-1">
+          {gateResult.score}/{gateResult.total} correct
+        </h2>
+        <p className="text-sm text-muted mb-6">
+          {gateResult.escapeAvailable
+            ? 'Still a few tricky ones — try again, or move on.'
+            : "You'll need to get all of them to clear this round — try the ones you missed again."}
+        </p>
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <button
+            onClick={handleRetryFailedOnly}
+            className="btn-press-orange w-full bg-orange text-white py-4 rounded-2xl font-quicksand font-bold text-base"
+          >
+            🔄 Try Again ({missedCount} question{missedCount === 1 ? '' : 's'})
+          </button>
+          {gateResult.escapeAvailable && (
+            <button
+              onClick={handleMoveOnAnyway}
+              className="w-full py-3.5 rounded-2xl border-2 border-border font-bold text-sm text-ink hover:bg-cream transition-colors"
+            >
+              {isLastRound ? 'Finish pattern anyway →' : `Move on to Round ${roundIndex + 2} →`}
             </button>
           )}
           <button
@@ -575,7 +677,7 @@ export default function PatternPracticePage() {
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
-                width: `${(qIndex / currentRound.questions.length) * 100}%`,
+                width: `${(qIndex / activeQuestions.length) * 100}%`,
                 background: '#F97316',
               }}
             />
@@ -586,7 +688,7 @@ export default function PatternPracticePage() {
         <div className="flex-1 px-5 py-6 flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted font-semibold">
-              Question {qIndex + 1} of {currentRound.questions.length}
+              Question {qIndex + 1} of {activeQuestions.length}
             </span>
             <span className="text-xs text-muted">{score} correct so far</span>
           </div>
@@ -742,7 +844,7 @@ export default function PatternPracticePage() {
                 onClick={handleNext}
                 className="btn-press flex-1 py-4 rounded-2xl bg-navy text-cream font-quicksand font-bold text-sm"
               >
-                {qIndex + 1 >= currentRound.questions.length
+                {qIndex + 1 >= activeQuestions.length
                   ? 'Finish Round'
                   : 'Next →'}
               </button>
@@ -752,7 +854,7 @@ export default function PatternPracticePage() {
               onClick={handleNext}
               className="btn-press w-full py-4 rounded-2xl bg-navy text-cream font-quicksand font-bold text-base"
             >
-              {qIndex + 1 >= currentRound.questions.length
+              {qIndex + 1 >= activeQuestions.length
                 ? 'Finish Round ✓'
                 : 'Next →'}
             </button>
