@@ -48,12 +48,14 @@ async function main() {
   if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 
   const onlyMissing = process.argv.includes('--missing-only');
+  const onlyIds = process.argv.filter((a) => a.startsWith('card_'));
   const snap = await db.collection('flashcards').get();
-  console.log(`Found ${snap.size} flashcards${onlyMissing ? ' (regenerating missing audio only)' : ''}...\n`);
+  const docs = onlyIds.length ? snap.docs.filter((d) => onlyIds.includes(d.id)) : snap.docs;
+  console.log(`Found ${docs.length} flashcards${onlyMissing ? ' (regenerating missing audio only)' : ''}...\n`);
 
   let done = 0;
   let skipped = 0;
-  for (const doc of snap.docs) {
+  for (const doc of docs) {
     const card = doc.data();
     if (onlyMissing && card.audio_url) { skipped++; continue; }
     if (!card.cloze_sentence || !card.cloze_answer) {
@@ -67,7 +69,7 @@ async function main() {
     const localPath = path.join(tmpDir, fileName);
     const storagePath = `vocab/${fileName}`;
 
-    console.log(`[${++done}/${snap.size}] ${doc.id}: ${fullSentence}`);
+    console.log(`[${++done}/${docs.length}] ${doc.id}: ${fullSentence}`);
     try {
       await generateAudio(fullSentence, localPath);
       const url = await uploadToStorage(localPath, storagePath);

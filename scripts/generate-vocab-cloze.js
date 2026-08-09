@@ -23,6 +23,13 @@ Rules:
 - Distractors should be the same part of speech and similar grammatical form
 - Distractors should be plausible but obviously wrong once you understand the sentence
 - Keep sentences short — 6-12 words max
+- CRITICAL: the target word is already in its exact final conjugated form (e.g. "받았어요",
+  "운전해요") — you cannot change its ending to turn it into a connector (like "-어서"/"-고") to
+  attach a second clause. If a single clause using the target word as the sentence's only ending
+  is enough, stop there — do not bolt on extra words after it. If you genuinely want a second
+  clause for context (e.g. "...그래서 우산을 가져가세요"), end the first clause with a period before
+  starting the next one — never place two sentence-final endings back to back with just a space
+  between them, and never repeat/echo the target word again elsewhere in the sentence.
 
 Respond ONLY with valid JSON, no markdown:
 {
