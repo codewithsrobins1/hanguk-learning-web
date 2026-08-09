@@ -7,11 +7,12 @@ import {
   getDocs,
   doc,
   setDoc,
+  addDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
-import { FlashcardSet, Flashcard } from '@/types';
+import { FlashcardSet, Flashcard, FlashcardSession } from '@/types';
 
 // Fetch all flashcard sets with the user's mastery count
 export function useFlashcardSets() {
@@ -108,6 +109,57 @@ export function useSaveCardProgress() {
       { merge: true }
     );
   };
+}
+
+// Record a completed vocab session (full sessions only — call sites should
+// skip this in review mode). Append-only: no doc id reuse, one row per run.
+export function useSaveFlashcardSession() {
+  const { user } = useAuth();
+
+  return async (setId: string, score: number, total: number) => {
+    if (!user) return;
+    await addDoc(collection(db, 'user_flashcard_sessions'), {
+      user_id: user.uid,
+      set_id: setId,
+      score,
+      total,
+      completed_at: new Date().toISOString(),
+    });
+  };
+}
+
+// Fetch a user's session history for one set — sorted newest first. No
+// orderBy in the query itself (avoids needing a composite index); sorting
+// happens client-side same as the rest of this file's date-based logic.
+export function useFlashcardSessions(setId: string) {
+  const { user } = useAuth();
+  const [sessions, setSessions] = useState<FlashcardSession[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user || !setId) {
+      setSessions([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getDocs(
+      query(
+        collection(db, 'user_flashcard_sessions'),
+        where('user_id', '==', user.uid),
+        where('set_id', '==', setId)
+      )
+    ).then((snap) => {
+      const data = snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as FlashcardSession
+      );
+      data.sort((a, b) => (a.completed_at < b.completed_at ? 1 : -1));
+      setSessions(data);
+      setLoading(false);
+    });
+  }, [user, setId]);
+
+  return { sessions, loading };
 }
 
 // Fetch a single random card (for Word of the Day)

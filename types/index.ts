@@ -17,6 +17,18 @@ export type Flashcard = {
   sort_order: number;
 };
 
+// A completed vocab session (full "Start Session" runs only — review-mode
+// sessions aren't logged here). Append-only: one doc per completed session,
+// used to show a "last 5 attempts" log and the all-time highest score.
+export type FlashcardSession = {
+  id: string;
+  user_id: string;
+  set_id: string;
+  score: number;
+  total: number;
+  completed_at: string; // ISO string
+};
+
 export type Passage = {
   id: string;
   title: string;

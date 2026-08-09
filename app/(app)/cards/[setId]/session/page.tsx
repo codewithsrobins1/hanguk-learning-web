@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useFlashcards, useSaveCardProgress } from '@/hooks/useFlashcards';
+import { useFlashcards, useSaveCardProgress, useSaveFlashcardSession } from '@/hooks/useFlashcards';
 import { useAuth } from '@/lib/auth';
 import { addXp } from '@/lib/xp';
 import ProgressBar from '@/components/ProgressBar';
@@ -123,6 +123,7 @@ export default function VocabSessionPage() {
   const { user, refreshProfile } = useAuth();
   const { cards, loading } = useFlashcards(setId);
   const saveProgress = useSaveCardProgress();
+  const saveSession = useSaveFlashcardSession();
 
   const [index, setIndex] = useState(0);
   const [answerState, setAnswerState] = useState<AnswerState>('idle');
@@ -289,6 +290,12 @@ export default function VocabSessionPage() {
         setXpEarned(xp);
         await addXp(user.uid, xp);
         await refreshProfile();
+        // Only full sessions count toward score history — review-mode runs
+        // are a smaller, self-selected subset of already-known cards, so
+        // mixing them in would make "highest score" easy to game.
+        if (!isReviewMode) {
+          await saveSession(setId, known.length, shuffledCards.length);
+        }
       }
       playLessonComplete();
       setDone(true);
