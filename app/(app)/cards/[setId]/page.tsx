@@ -16,7 +16,7 @@ function WordListModal({
   cards,
   onClose,
 }: {
-  cards: { id: string; sentence_parts: string[]; key_index: number; translation: string }[];
+  cards: { id: string; sentence_parts: string[]; key_index: number; translation: string; base_form?: string; gloss?: string }[];
   onClose: () => void;
 }) {
   return (
@@ -45,9 +45,9 @@ function WordListModal({
                 className="font-bold text-ink"
                 style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 16 }}
               >
-                {c.sentence_parts[c.key_index]}
+                {c.base_form ?? c.sentence_parts[c.key_index]}
               </p>
-              <p className="text-xs text-muted mt-0.5">{c.translation}</p>
+              <p className="text-xs text-muted mt-0.5">{c.gloss ?? c.translation}</p>
             </div>
           ))}
         </div>
@@ -107,10 +107,11 @@ export default function VocabDetailPage() {
         <h1 className="font-quicksand font-bold text-ink text-xl flex-1">{set.title}</h1>
         <button
           onClick={() => setShowWordList(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cream border border-border hover:border-ink transition-colors flex-shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity flex-shrink-0"
+          style={{ background: '#1A1F36' }}
         >
           <span className="text-sm">📖</span>
-          <span className="text-xs font-bold text-ink">Preview words</span>
+          <span className="text-xs font-bold text-cream">Preview words</span>
         </button>
       </div>
 

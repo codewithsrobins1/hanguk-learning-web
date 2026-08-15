@@ -15,6 +15,13 @@ export type Flashcard = {
   key_index: number;
   translation: string;
   sort_order: number;
+  // Dictionary/citation form of the target word (infinitive -다 form for
+  // verbs/adjectives, unchanged for nouns) and a short word-level gloss —
+  // used for the set-preview glossary, kept separate from the conjugated
+  // quiz word (sentence_parts[key_index]/cloze_answer) so previewing a set
+  // doesn't hand the learner the exact quiz answer.
+  base_form?: string;
+  gloss?: string;
 };
 
 // A completed vocab session (full "Start Session" runs only — review-mode
