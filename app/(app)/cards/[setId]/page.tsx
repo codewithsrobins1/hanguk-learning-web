@@ -1,6 +1,7 @@
 'use client';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useFlashcardSets, useFlashcardSessions } from '@/hooks/useFlashcards';
+import { useFlashcardSets, useFlashcardSessions, useFlashcards } from '@/hooks/useFlashcards';
 import { categoryColor } from '@/lib/category-colors';
 import ProgressBar from '@/components/ProgressBar';
 
@@ -8,13 +9,62 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+// Quick glossary modal — lets a learner glance over every target word in
+// the set (and its meaning in context) before starting the quiz, rather
+// than only meeting each word cold mid-session.
+function WordListModal({
+  cards,
+  onClose,
+}: {
+  cards: { id: string; sentence_parts: string[]; key_index: number; translation: string }[];
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-md rounded-3xl p-5 shadow-2xl max-h-[80vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
+          <h2 className="font-extrabold text-ink text-base">Words in this set</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-muted hover:text-ink text-lg flex-shrink-0"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="flex flex-col gap-2 overflow-y-auto">
+          {cards.map((c) => (
+            <div key={c.id} className="bg-cream rounded-xl px-4 py-3">
+              <p
+                className="font-bold text-ink"
+                style={{ fontFamily: 'Noto Sans KR, sans-serif', fontSize: 16 }}
+              >
+                {c.sentence_parts[c.key_index]}
+              </p>
+              <p className="text-xs text-muted mt-0.5">{c.translation}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function VocabDetailPage() {
   const { setId } = useParams<{ setId: string }>();
   const router = useRouter();
   const { sets, loading: setsLoading } = useFlashcardSets();
   const { sessions, loading: sessionsLoading } = useFlashcardSessions(setId);
+  const { cards, loading: cardsLoading } = useFlashcards(setId);
+  const [showWordList, setShowWordList] = useState(false);
 
-  if (setsLoading || sessionsLoading) return (
+  if (setsLoading || sessionsLoading || cardsLoading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" />
     </div>
@@ -45,6 +95,8 @@ export default function VocabDetailPage() {
 
   return (
     <div className="max-w-xl mx-auto px-6 py-8">
+      {showWordList && <WordListModal cards={cards} onClose={() => setShowWordList(false)} />}
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <button onClick={() => router.push('/cards')} className="text-2xl text-muted hover:text-ink transition-colors">←</button>
@@ -52,7 +104,14 @@ export default function VocabDetailPage() {
           style={{ backgroundColor: categoryColor(set.category) }}>
           {set.icon}
         </div>
-        <h1 className="font-quicksand font-bold text-ink text-xl">{set.title}</h1>
+        <h1 className="font-quicksand font-bold text-ink text-xl flex-1">{set.title}</h1>
+        <button
+          onClick={() => setShowWordList(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cream border border-border hover:border-ink transition-colors flex-shrink-0"
+        >
+          <span className="text-sm">📖</span>
+          <span className="text-xs font-bold text-ink">Preview words</span>
+        </button>
       </div>
 
       {/* Stats card */}
