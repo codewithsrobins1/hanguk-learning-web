@@ -13,10 +13,18 @@ Pattern: "${pattern.frame}" — ${pattern.frame_translation}
 Explanation: ${pattern.explanation}
 
 Generate 4 rounds of practice. Each round has 5 questions.
-Round 1: very common everyday vocabulary (food, places, basic verbs)
-Round 2: slightly more varied vocabulary, different situations
-Round 3: mix of round 1+2 vocab, requires distinguishing this pattern from similar ones
-Round 4: challenging vocabulary, nuanced contexts, tests deeper understanding
+
+CRITICAL — vocabulary level: this app is for BEGINNER learners, roughly a 1st-3rd grade reading
+level in their own language. ALL FOUR ROUNDS must use simple, everyday, concrete vocabulary — do
+NOT escalate difficulty across rounds. Every question across every round should be drawn from the
+same basic pool: food, drinks, family, common objects, places (school, home, store, park), daily
+routine actions (eat, drink, go, sleep, meet, watch, read, buy, study, play), simple feelings (happy,
+tired, hungry). Contexts should be simple, concrete, one-sentence situations a child could picture —
+"you are hungry and want to eat," "you are meeting a friend at school" — never abstract or conceptual
+topics (e.g. nothing about adapting to a new culture, workplace/business scenarios, policy, academic
+or professional contexts, negotiations, or nuanced emotional/social situations). Vary the vocabulary
+and context between the 5 questions within each round so they don't feel repetitive, but keep every
+single one at this same easy level — rounds exist for repetition/practice, not to get harder.
 
 For each question provide:
 - slot: the Korean word/phrase that fills the blank (in Korean)
@@ -50,6 +58,24 @@ Before finalizing each question, check: of the 3 wrong options, how many share t
 the count is 2 or more, replace extras with different verbs until at most 1 remains.
 Make sure the different-verb distractors are plausible enough to require thinking (not absurd), but
 clearly wrong once you understand the context.
+
+CRITICAL — stay on pattern: full_sentence must actually contain and correctly apply THIS pattern's own
+distinctive grammar marker, not drift into a generic fallback that happens to be simpler. For example,
+if the pattern is "...랑 비슷한 것 같아요" (seems similar to X), every sentence must include an actual
+comparison target with 랑/이랑 + 비슷한 — a sentence that's just "...는 것 같아요" with no comparison
+at all is WRONG, even though it's shorter/simpler, because it no longer tests this pattern. The same
+applies to any pattern with its own required piece (은/는 좀 아닌, 같은 느낌, 에 동의해요, 을/를 잘해요,
+처럼, etc.) — keeping vocabulary simple must never mean dropping the pattern's actual grammar structure.
+Before finalizing, re-read the pattern's frame and confirm every single question genuinely uses it.
+
+CRITICAL — sentence formation: full_sentence must be either ONE grammatically complete clause, or (if
+you genuinely need two) two full sentences properly separated by a period — NEVER two sentence-final
+endings glued together with just a space (e.g. "엄마가 물을 샀어요 몰랐어요." is WRONG; it must be
+"엄마가 물을 샀다는 걸 몰랐어요." as one clause, or "엄마가 물을 샀어요. 몰랐어요." as two). Also
+double-check spacing: a noun/object is a separate word from the verb that follows it and needs a space
+(e.g. "물 주세요" is correct, "물주세요" is NOT — same for "밥 주세요", "이름이 뭐예요", etc.). Watch
+irregular conjugations carefully (르-irregular: 부르다 → 부를 수 있어요, not 부르 수 있어요; ㄷ-irregular:
+듣다 → 들어요; ㅂ-irregular: 어렵다 → 어려워요) — get these exactly right.
 
 Respond ONLY with valid JSON, no markdown:
 {
