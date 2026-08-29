@@ -231,17 +231,17 @@ export default function PassagePage() {
             tap through a few words in a row to chain them into a phrase before saving.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-2">
             {wordBank.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between gap-2 bg-cream rounded-lg px-3 py-2 min-w-0">
-                <p className="text-xs font-semibold text-ink truncate" title={`${entry.word} — ${entry.definition}`}>
+              <div key={entry.id} className="flex items-start justify-between gap-2 bg-cream rounded-lg px-3 py-2 min-w-0">
+                <p className="text-xs font-semibold text-ink leading-relaxed">
                   <span style={{ fontFamily: 'Noto Sans KR, sans-serif' }}>{entry.word}</span>
                   <span className="text-muted font-normal"> — {entry.definition}</span>
                 </p>
                 <button
                   onClick={() => removeWord(entry.id)}
                   aria-label="Remove word"
-                  className="text-muted hover:text-red transition-colors flex-shrink-0 text-xs"
+                  className="text-muted hover:text-red transition-colors flex-shrink-0 text-xs mt-0.5"
                 >
                   ✕
                 </button>
