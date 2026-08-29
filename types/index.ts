@@ -36,6 +36,16 @@ export type FlashcardSession = {
   completed_at: string; // ISO string
 };
 
+// One doc per favorited set, id `${userId}_${setId}` — mirrors the
+// user_card_progress storage pattern so a favorite toggle is a single
+// create/delete rather than an array field on a shared user doc.
+export type FavoriteSet = {
+  id: string;
+  user_id: string;
+  set_id: string;
+  created_at: string;
+};
+
 export type Passage = {
   id: string;
   title: string;

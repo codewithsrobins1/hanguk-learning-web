@@ -8,6 +8,7 @@ import {
   doc,
   setDoc,
   addDoc,
+  deleteDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -160,6 +161,57 @@ export function useFlashcardSessions(setId: string) {
   }, [user, setId]);
 
   return { sessions, loading };
+}
+
+// Track/toggle a user's favorited flashcard sets.
+// Stored as: /user_favorite_sets/{userId}_{setId}
+export function useFavoriteSets() {
+  const { user } = useAuth();
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+
+  const fetch = useCallback(async () => {
+    if (!user) {
+      setFavoriteIds(new Set());
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const snap = await getDocs(
+      query(collection(db, 'user_favorite_sets'), where('user_id', '==', user.uid))
+    );
+    setFavoriteIds(new Set(snap.docs.map((d) => d.data().set_id as string)));
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
+  const toggleFavorite = useCallback(
+    async (setId: string, isFavorited: boolean) => {
+      if (!user) return;
+      const docId = `${user.uid}_${setId}`;
+      if (isFavorited) {
+        setFavoriteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(setId);
+          return next;
+        });
+        await deleteDoc(doc(db, 'user_favorite_sets', docId));
+      } else {
+        setFavoriteIds((prev) => new Set(prev).add(setId));
+        await setDoc(doc(db, 'user_favorite_sets', docId), {
+          user_id: user.uid,
+          set_id: setId,
+          created_at: new Date().toISOString(),
+        });
+      }
+    },
+    [user]
+  );
+
+  return { favoriteIds, loading, toggleFavorite };
 }
 
 // Fetch a single random card (for Word of the Day)

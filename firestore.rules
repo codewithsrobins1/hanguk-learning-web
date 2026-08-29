@@ -75,5 +75,9 @@ service cloud.firestore {
       allow read, write: if request.auth != null && resource.data.user_id == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
     }
+    match /user_favorite_sets/{docId} {
+      allow read, write: if request.auth != null && resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
+    }
   }
 }
