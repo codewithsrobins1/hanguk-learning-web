@@ -4,6 +4,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import { toMillis, countInRange, daysSinceLast } from '@/lib/weekly';
+import { getWeekStartISO } from '@/lib/weekly';
 
 export type WeeklyProgress = {
   cardsReviewed: number;
@@ -42,12 +43,16 @@ export function useWeeklyProgress() {
   const [weekly, setWeekly] = useState<WeeklyProgress>(DEFAULT_WEEKLY);
   const [daysSince, setDaysSince] = useState<DaysSinceActivity>(DEFAULT_DAYS_SINCE);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const resetAt = profile?.weekly_reset_at;
 
   const fetch = useCallback(async () => {
     if (!user) { setLoading(false); return; }
     setLoading(true);
+    setError(null);
+    try {
 
-    const weekStart = profile?.weekly_reset_at ? toMillis(profile.weekly_reset_at) : 0;
+    const weekStart = Math.max(toMillis(getWeekStartISO()), toMillis(resetAt));
 
     const [cardSnap, passageSnap, dialogueSnap, listeningSnap, patternSnap, grammarSnap] = await Promise.all([
       getDocs(query(collection(db, 'user_card_progress'), where('user_id', '==', user.uid))),
@@ -78,10 +83,14 @@ export function useWeeklyProgress() {
       patterns: daysSinceLast(patternSnap.docs, 'last_completed'),
       grammar: daysSinceLast(grammarSnap.docs, 'completed_at'),
     });
-
-    setLoading(false);
-  }, [user, profile?.weekly_reset_at]);
+    } catch (error) {
+      console.error('Weekly progress unavailable:', error);
+      setError('Could not load weekly progress. Please reload to try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [user, resetAt]);
 
   useEffect(() => { fetch(); }, [fetch]);
-  return { weekly, daysSince, loading, refresh: fetch };
+  return { weekly, daysSince, loading, error, refresh: fetch };
 }

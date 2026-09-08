@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, runTransaction } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 // XP needed to go from level N to N+1
@@ -38,14 +38,20 @@ export function xpProgress(xp: number) {
 
 // Add XP to a user profile and recalculate level
 export async function addXp(userId: string, amount: number): Promise<void> {
+  if (!Number.isFinite(amount) || amount < 0) throw new Error('Invalid XP award');
   const ref = doc(db, 'profiles', userId);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return;
-  const currentXp: number = snap.data().xp ?? 0;
-  const newXp = currentXp + amount;
-  const oldLevel = levelFromXp(currentXp);
-  const newLevel = levelFromXp(newXp);
-  await updateDoc(ref, { xp: newXp, level: newLevel });
+  const result = await runTransaction(db, async transaction => {
+    const snap = await transaction.get(ref);
+    if (!snap.exists()) return;
+    const currentXp: number = snap.data().xp ?? 0;
+    const newXp = currentXp + amount;
+    const oldLevel = levelFromXp(currentXp);
+    const newLevel = levelFromXp(newXp);
+    transaction.update(ref, { xp: newXp, level: newLevel });
+    return { oldLevel, newLevel };
+  });
+  if (!result) return;
+  const { oldLevel, newLevel } = result;
 
   if (newLevel > oldLevel && typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('hanguk:levelup', { detail: { level: newLevel } }));

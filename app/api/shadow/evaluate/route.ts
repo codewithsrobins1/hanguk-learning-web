@@ -11,7 +11,9 @@ export async function POST(req: NextRequest) {
     const audio    = formData.get('audio') as Blob;
     const expected = formData.get('expected') as string;
 
-    if (!audio || !expected) {
+    if (!(audio instanceof Blob) || audio.size === 0 || audio.size > 10 * 1024 * 1024
+      || !['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav', 'audio/mpeg'].includes(audio.type.split(';')[0])
+      || typeof expected !== 'string' || !expected.trim() || expected.length > 2000) {
       return NextResponse.json({ error: 'Missing audio or expected text' }, { status: 400 });
     }
 
@@ -54,6 +56,9 @@ Score guide: 90-100 near perfect · 75-89 good · 60-74 needs work · 0-59 try a
     const raw   = message.content[0].type === 'text' ? message.content[0].text : '{}';
     const clean = raw.replace(/```json|```/g, '').trim();
     const { score, feedback } = JSON.parse(clean);
+    if (!Number.isFinite(score) || score < 0 || score > 100 || typeof feedback !== 'string') {
+      throw new Error('Malformed evaluation response');
+    }
 
     return NextResponse.json({ score, feedback, transcript });
   } catch (err) {

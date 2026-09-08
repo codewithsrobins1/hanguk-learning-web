@@ -33,6 +33,7 @@ type Profile = {
   nav_preferences?: Record<string, boolean>;
   weekly_reset_at?: string | null;
   ai_insight?: {
+    version?: number;
     summary: string;
     recommendations: string[];
     categories: string[];

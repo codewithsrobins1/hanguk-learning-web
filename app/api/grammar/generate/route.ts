@@ -7,7 +7,8 @@ export async function POST(req: NextRequest) {
   try {
     const { titleKo, titleEn, explanation, interest } = await req.json();
 
-    if (!titleKo || !interest) {
+    if (![titleKo, titleEn, explanation, interest].every(value => typeof value === 'string' && value.length <= 4000)
+      || !titleKo.trim() || !interest.trim()) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
     }
 

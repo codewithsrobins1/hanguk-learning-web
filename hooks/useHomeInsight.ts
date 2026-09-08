@@ -1,15 +1,14 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
-import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { collection, query, where, getDocs, getCountFromServer, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import { useUserStats } from './useUserStats';
 import { toMillis, countInRange, daysSinceLast } from '@/lib/weekly';
+import { getWeekStartISO } from '@/lib/weekly';
 import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
 
 export type HomeInsight = { summary: string; recommendations: string[] };
-
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 type CategoryConfig = { href: string; label: string; field: string; collectionName: string; target: number };
 
@@ -29,6 +28,8 @@ export function useHomeInsight() {
   const { stats, loading: statsLoading } = useUserStats();
   const [insight, setInsight] = useState<HomeInsight | null>(null);
   const [loading, setLoading] = useState(false);
+  const attempted = useRef<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const isNavEnabled = useCallback((href: string) => {
     const item = NAV_ITEMS.find(n => n.href === href);
@@ -54,19 +55,27 @@ export function useHomeInsight() {
 
     setLoading(true);
     try {
-      const weekStart = toMillis(profile.weekly_reset_at);
-      const prevWeekStart = weekStart - WEEK_MS;
+      const weekStart = toMillis(getWeekStartISO());
+      const previousMonday = new Date(weekStart);
+      previousMonday.setDate(previousMonday.getDate() - 7);
+      const prevWeekStart = previousMonday.getTime();
 
       const snaps = await Promise.all(
         enabledConfig.map(c => getDocs(query(collection(db, c.collectionName), where('user_id', '==', user.uid))))
       );
 
+      const patternIndex = enabledConfig.findIndex(c => c.label === 'Patterns');
+      const patternLifetime = patternIndex < 0 ? { done: 0, total: 0 } : {
+        done: snaps[patternIndex].docs.filter(d => d.data().last_completed).length,
+        total: (await getCountFromServer(collection(db, 'patterns'))).data().count,
+      };
       const categories = enabledConfig.map((c, i) => ({
         label: c.label,
         doneLastWeek: countInRange(snaps[i].docs, c.field, prevWeekStart, weekStart),
         target: c.target,
         daysSinceLastActivity: daysSinceLast(snaps[i].docs, c.field),
-        ...lifetimeFor(c.label),
+        lifetimeDone: c.label === 'Patterns' ? patternLifetime.done : lifetimeFor(c.label).done,
+        lifetimeTotal: c.label === 'Patterns' ? patternLifetime.total : lifetimeFor(c.label).total,
       }));
 
       const res = await fetch('/api/home/insights', {
@@ -82,7 +91,8 @@ export function useHomeInsight() {
           summary: data.summary,
           recommendations: data.recommendations,
           categories: categories.map(c => c.label),
-          week_start: profile.weekly_reset_at,
+          week_start: new Date(weekStart).toISOString(),
+          version: 2,
           generated_at: serverTimestamp(),
         },
       });
@@ -90,6 +100,7 @@ export function useHomeInsight() {
       setInsight(data);
     } catch (e) {
       console.error('Failed to generate home insight:', e);
+      setError('Your recap could not be generated. Try again later.');
     } finally {
       setLoading(false);
     }
@@ -109,15 +120,20 @@ export function useHomeInsight() {
     const sameCategories = cached
       && cached.categories?.length === currentLabels.length
       && cached.categories.every(c => currentLabels.includes(c));
-    const sameWeek = cached && cached.week_start === profile.weekly_reset_at;
+    const sameWeek = cached && cached.week_start === getWeekStartISO() && cached.version === 2;
 
     if (cached && sameCategories && sameWeek) {
       setInsight({ summary: cached.summary, recommendations: cached.recommendations });
     } else {
-      generate();
+      const key = `${user.uid}:${getWeekStartISO()}:${currentLabels.join(',')}`;
+      if (attempted.current !== key) {
+        attempted.current = key;
+        setError(null);
+        generate();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile?.ai_insight, profile?.weekly_reset_at, profile?.nav_preferences, statsLoading, stats.xp, loading]);
 
-  return { insight, loading };
+  return { insight, loading, error };
 }

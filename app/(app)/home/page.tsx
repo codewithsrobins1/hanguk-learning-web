@@ -15,8 +15,8 @@ import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
 export default function HomePage() {
   const { user, profile, refreshProfile } = useAuth();
   const { stats } = useUserStats();
-  const { weekly, refresh: refreshWeekly } = useWeeklyProgress();
-  const { insight, loading: insightLoading } = useHomeInsight();
+  const { weekly, error: weeklyError, refresh: refreshWeekly } = useWeeklyProgress();
+  const { insight, loading: insightLoading, error: insightError } = useHomeInsight();
   const { progress: topikProgress, placement: topikPlacement } = useTopikProgress();
   const topikLevel = topikProgress?.highest_level_passed ?? 0;
   const hasAttemptedTopik = !!topikPlacement
@@ -120,6 +120,7 @@ export default function HomePage() {
             Reset
           </button>
         </div>
+        {weeklyError && <p role="alert" className="text-sm text-muted mb-3">{weeklyError}</p>}
         {weeklyMetrics.length > 0 ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {weeklyMetrics.map((m) => (
@@ -137,7 +138,8 @@ export default function HomePage() {
             All sections are hidden in your nav settings — enable some from Profile to track progress here.
           </p>
         )}
-        <p className="text-[11px] text-muted mt-6">Resets every Monday</p>
+        <p className="text-[11px] text-muted mt-6">Resets every Monday. Counts distinct items by their latest saved activity; repeat sessions aren’t counted separately.</p>
+        {insightError && <p role="alert" className="text-sm text-muted mt-3">{insightError}</p>}
       </div>
 
       {/* AI progress summary */}

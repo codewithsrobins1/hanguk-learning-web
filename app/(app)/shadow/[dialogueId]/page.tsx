@@ -104,6 +104,7 @@ export default function ShadowSessionPage() {
           method: 'POST',
           body: fd,
         });
+        if (!res.ok) throw new Error('Evaluation unavailable');
         const data = await res.json();
         setResults((prev) => ({
           ...prev,

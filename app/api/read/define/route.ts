@@ -7,7 +7,8 @@ export async function POST(req: NextRequest) {
   try {
     const { word, sentence } = await req.json();
 
-    if (!word || !sentence) {
+    if (typeof word !== 'string' || !word.trim() || word.length > 200
+      || typeof sentence !== 'string' || !sentence.trim() || sentence.length > 4000) {
       return NextResponse.json({ error: 'Missing word or sentence' }, { status: 400 });
     }
 
