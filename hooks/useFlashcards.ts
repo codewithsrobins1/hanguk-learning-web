@@ -14,6 +14,7 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import { FlashcardSet, Flashcard, FlashcardSession } from '@/types';
+import { applyCalendarQuestion } from '@/data/calendar-flashcards';
 
 // Fetch all flashcard sets with the user's mastery count
 export function useFlashcardSets() {
@@ -80,7 +81,7 @@ export function useFlashcards(setId: string) {
         orderBy('sort_order')
       )
     ).then((snap) => {
-      setCards(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Flashcard));
+      setCards(snap.docs.map((d) => applyCalendarQuestion({ ...d.data(), id: d.id } as Flashcard)));
       setLoading(false);
     });
   }, [setId]);
