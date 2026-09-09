@@ -17,6 +17,7 @@ import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEma
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { getWeekStartISO } from './weekly';
+import type { WeeklyGoals, WeeklyHistory } from './weekly-goals';
 
 type Profile = {
   id: string;
@@ -32,8 +33,11 @@ type Profile = {
   premium?: boolean;
   nav_preferences?: Record<string, boolean>;
   weekly_reset_at?: string | null;
+  weekly_goals?: WeeklyGoals;
+  weekly_history?: WeeklyHistory;
   ai_insight?: {
     version?: number;
+    settings_key?: string;
     summary: string;
     recommendations: string[];
     categories: string[];

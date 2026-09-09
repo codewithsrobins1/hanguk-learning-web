@@ -428,7 +428,7 @@ export default function PatternPracticePage() {
 
     if (updatedWrong.length === 0) {
       const completedRounds = roundIndex + 1;
-      if (user) await savePatternProgress(user.uid, patternId, completedRounds);
+      if (user) await savePatternProgress(user.uid, patternId, completedRounds, completedRounds >= rounds.length);
       playLessonComplete();
       if (roundIndex + 1 >= rounds.length) setAllDone(true);
       else setRoundDone(true);
@@ -455,7 +455,7 @@ export default function PatternPracticePage() {
   // still saves so the user isn't stuck losing hub credit over one hard round.
   const handleMoveOnAnyway = async () => {
     const completedRounds = roundIndex + 1;
-    if (user) await savePatternProgress(user.uid, patternId, completedRounds);
+    if (user) await savePatternProgress(user.uid, patternId, completedRounds, completedRounds >= rounds.length);
     setGateResult(null);
     if (roundIndex + 1 >= rounds.length) setAllDone(true);
     else setRoundDone(true);

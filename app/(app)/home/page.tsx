@@ -3,19 +3,19 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useUserStats } from '@/hooks/useUserStats';
-import { useWeeklyProgress, WEEKLY_TARGETS } from '@/hooks/useWeeklyProgress';
+import { useWeeklyProgress } from '@/hooks/useWeeklyProgress';
 import { useHomeInsight } from '@/hooks/useHomeInsight';
 import { useTopikProgress } from '@/hooks/useTopik';
 import TopikSeal from '@/components/TopikSeal';
 import ProgressBar from '@/components/ProgressBar';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
+import WeeklyGoalsModal from '@/components/WeeklyGoalsModal';
+import { WEEKLY_CATEGORIES, weeklyGoals } from '@/lib/weekly-goals';
+import { configureWeeklyGoals, resetWeeklyProgress } from '@/lib/save-weekly-progress';
 
 export default function HomePage() {
   const { user, profile, refreshProfile } = useAuth();
   const { stats } = useUserStats();
-  const { weekly, error: weeklyError, refresh: refreshWeekly } = useWeeklyProgress();
+  const { weekly, error: weeklyError } = useWeeklyProgress();
   const { insight, loading: insightLoading, error: insightError } = useHomeInsight();
   const { progress: topikProgress, placement: topikPlacement } = useTopikProgress();
   const topikLevel = topikProgress?.highest_level_passed ?? 0;
@@ -24,28 +24,24 @@ export default function HomePage() {
 
   const router = useRouter();
   const [showWeeklyResetConfirm, setShowWeeklyResetConfirm] = useState(false);
+  const [configureOpen, setConfigureOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState('');
 
-  const isNavEnabled = (href: string) => {
-    const item = NAV_ITEMS.find(n => n.href === href);
-    if (!item) return false;
-    return profile?.nav_preferences?.[navPrefKey(href)] ?? item.enabled;
-  };
-
-  const weeklyMetrics = [
-    { href: '/cards',    label: 'Vocab',     done: weekly.cardsReviewed,  total: WEEKLY_TARGETS.cards,     color: '#F97316' },
-    { href: '/read',     label: 'Reading',   done: weekly.passagesDone,   total: WEEKLY_TARGETS.passages,  color: '#1A1F36' },
-    { href: '/shadow',   label: 'Speaking',  done: weekly.dialoguesDone,  total: WEEKLY_TARGETS.dialogues, color: '#F97316' },
-    { href: '/listen',   label: 'Listening', done: weekly.listeningDone,  total: WEEKLY_TARGETS.listening, color: '#1A1F36' },
-    { href: '/patterns', label: 'Patterns',  done: weekly.patternsDone,   total: WEEKLY_TARGETS.patterns,  color: '#F97316' },
-    { href: '/grammar',  label: 'Grammar',   done: weekly.grammarDone,    total: WEEKLY_TARGETS.grammar,   color: '#1A1F36' },
-  ].filter(m => isNavEnabled(m.href));
+  const goals = weeklyGoals(profile?.weekly_goals);
+  const weeklyMetrics = WEEKLY_CATEGORIES.filter(c => goals[c.key].enabled).map((c, i) => ({
+    ...c, done: weekly[c.field], total: goals[c.key].target, color: i % 2 === 0 ? '#F97316' : '#1A1F36',
+  }));
 
   const handleResetWeeklyProgress = async () => {
-    if (!user) return;
-    await updateDoc(doc(db, 'profiles', user.uid), { weekly_reset_at: new Date().toISOString() });
-    await refreshProfile();
-    await refreshWeekly();
-    setShowWeeklyResetConfirm(false);
+    if (!user || resetting) return;
+    setResetting(true); setResetError('');
+    try {
+      await resetWeeklyProgress(user.uid);
+      await refreshProfile();
+      setShowWeeklyResetConfirm(false);
+    } catch { setResetError('Could not reset progress. Please try again.'); }
+    finally { setResetting(false); }
   };
 
   const displayName = profile?.display_name || profile?.username || 'Learner';
@@ -113,12 +109,15 @@ export default function HomePage() {
 
       {/* Weekly Progress — the main event */}
       <div className="bg-white rounded-3xl p-6 lg:p-8" style={{ boxShadow: '0 6px 20px rgba(26,31,54,0.06)' }}>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap gap-3 items-center justify-between mb-6">
           <p className="font-quicksand font-bold text-ink text-xl">Weekly Progress</p>
+          <div className="flex items-center gap-4">
+          <button onClick={() => setConfigureOpen(true)} className="text-xs font-semibold text-muted hover:text-ink transition-colors">Configure</button>
           <button onClick={() => setShowWeeklyResetConfirm(true)}
             className="text-xs font-semibold text-muted hover:text-ink transition-colors">
             Reset
           </button>
+          </div>
         </div>
         {weeklyError && <p role="alert" className="text-sm text-muted mb-3">{weeklyError}</p>}
         {weeklyMetrics.length > 0 ? (
@@ -135,10 +134,10 @@ export default function HomePage() {
           </div>
         ) : (
           <p className="text-sm text-muted">
-            All sections are hidden in your nav settings — enable some from Profile to track progress here.
+            Nothing is tracked yet. Choose Configure to turn on your weekly goals.
           </p>
         )}
-        <p className="text-[11px] text-muted mt-6">Resets every Monday. Counts distinct items by their latest saved activity; repeat sessions aren’t counted separately.</p>
+        <p className="text-[11px] text-muted mt-6">Resets every Monday. Vocab counts distinct cards reviewed; lessons count each completion, including repeats.</p>
         {insightError && <p role="alert" className="text-sm text-muted mt-3">{insightError}</p>}
       </div>
 
@@ -186,9 +185,10 @@ export default function HomePage() {
             <p className="text-sm text-muted text-center mb-6">
               This starts a fresh week now. Your actual vocab, reading, speaking, and listening progress is never deleted — only the weekly bars reset.
             </p>
-            <button onClick={handleResetWeeklyProgress}
+            {resetError && <p role="alert" className="text-sm text-red-600 mb-3">{resetError}</p>}
+            <button onClick={handleResetWeeklyProgress} disabled={resetting}
               className="btn-press-orange w-full bg-orange text-white py-3.5 rounded-2xl font-quicksand font-bold text-sm mb-2">
-              Yes, reset weekly progress
+              {resetting ? 'Resetting…' : 'Yes, reset weekly progress'}
             </button>
             <button onClick={() => setShowWeeklyResetConfirm(false)}
               className="w-full py-3 rounded-2xl border-2 border-border font-bold text-sm text-ink hover:bg-cream transition-colors">
@@ -197,6 +197,11 @@ export default function HomePage() {
           </div>
         </div>
       )}
+      {configureOpen && <WeeklyGoalsModal initial={goals} onClose={() => setConfigureOpen(false)} onSave={async next => {
+        if (!user) throw new Error('Please sign in');
+        await configureWeeklyGoals(user.uid, next);
+        await refreshProfile();
+      }} />}
     </div>
   );
 }

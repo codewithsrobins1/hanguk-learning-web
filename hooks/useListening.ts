@@ -1,8 +1,9 @@
 'use client';
+import { saveWeeklyCompletion } from '@/lib/save-weekly-progress';
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection, query, orderBy, where,
-  getDocs, doc, getDoc, setDoc, serverTimestamp,
+  getDocs, doc, getDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
@@ -110,11 +111,11 @@ export async function saveListeningProgress(
   total:      number
 ) {
   const docId = `${userId}_${exerciseId}`;
-  await setDoc(doc(db, 'user_listening_progress', docId), {
+  await saveWeeklyCompletion(doc(db, 'user_listening_progress', docId), {
     user_id:     userId,
     exercise_id: exerciseId,
     score,
     total,
     completed_at: serverTimestamp(),
-  }, { merge: true });
+  }, 'listening');
 }

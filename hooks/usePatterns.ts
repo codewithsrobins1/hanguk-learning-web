@@ -1,4 +1,5 @@
 'use client';
+import { saveWeeklyCompletion } from '@/lib/save-weekly-progress';
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection, query, orderBy, where,
@@ -114,13 +115,19 @@ export function usePattern(patternId: string) {
 export async function savePatternProgress(
   userId:           string,
   patternId:        string,
-  roundsCompleted:  number
+  roundsCompleted:  number,
+  completed = true,
 ) {
   const docId = `${userId}_${patternId}`;
-  await setDoc(doc(db, 'user_pattern_progress', docId), {
+  const ref = doc(db, 'user_pattern_progress', docId);
+  if (!completed) {
+    await setDoc(ref, { user_id: userId, pattern_id: patternId, rounds_completed: roundsCompleted }, { merge: true });
+    return;
+  }
+  await saveWeeklyCompletion(ref, {
     user_id:          userId,
     pattern_id:       patternId,
     rounds_completed: roundsCompleted,
     last_completed:   serverTimestamp(),
-  }, { merge: true });
+  }, 'patterns');
 }

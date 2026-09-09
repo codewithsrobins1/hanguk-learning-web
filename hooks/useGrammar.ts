@@ -1,4 +1,5 @@
 'use client';
+import { saveWeeklyCompletion } from '@/lib/save-weekly-progress';
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection, query, orderBy, where,
@@ -123,13 +124,13 @@ export async function saveGrammarProgress(
   total: number
 ) {
   const docId = `${userId}_${lessonId}`;
-  await setDoc(doc(db, 'user_grammar_progress', docId), {
+  await saveWeeklyCompletion(doc(db, 'user_grammar_progress', docId), {
     user_id: userId,
     lesson_id: lessonId,
     score,
     total,
     completed_at: serverTimestamp(),
-  }, { merge: true });
+  }, 'grammar');
 }
 
 // ── Milestone hooks ──────────────────────────────────────────────

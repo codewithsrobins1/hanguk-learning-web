@@ -1,8 +1,9 @@
 'use client';
+import { saveWeeklyCompletion } from '@/lib/save-weekly-progress';
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection, query, orderBy, getDocs,
-  doc, getDoc, setDoc, where, serverTimestamp, increment, updateDoc,
+  doc, getDoc, where, serverTimestamp, increment, updateDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
@@ -83,12 +84,12 @@ export async function saveDialogueProgress(
   const currentBest: number = snap.exists() ? (snap.data().best_score ?? 0) : 0;
   const updatedBest = newScore != null ? Math.max(currentBest, newScore) : currentBest;
 
-  await setDoc(ref, {
+  await saveWeeklyCompletion(ref, {
     user_id:      userId,
     dialogue_id:  dialogueId,
     completed_at: serverTimestamp(),
     best_score:   updatedBest,
-  }, { merge: true });
+  }, 'dialogues');
 
   // Increment total session counter on profile for goal tracking
   await updateDoc(doc(db, 'profiles', userId), {

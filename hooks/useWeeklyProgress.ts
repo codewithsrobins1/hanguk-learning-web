@@ -1,10 +1,12 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import { toMillis, countInRange, daysSinceLast } from '@/lib/weekly';
 import { getWeekStartISO } from '@/lib/weekly';
+import { WEEKLY_CATEGORIES } from '@/lib/weekly-goals';
+export { WEEKLY_TARGETS } from '@/lib/weekly-goals';
 
 export type WeeklyProgress = {
   cardsReviewed: number;
@@ -28,7 +30,6 @@ export type DaysSinceActivity = {
 
 // Bars fill toward these as activity happens — not user-facing "goals",
 // just a sensible weekly pace so the bar has something to fill toward.
-export const WEEKLY_TARGETS = { cards: 15, passages: 3, dialogues: 2, listening: 3, patterns: 5, grammar: 3 };
 
 const DEFAULT_WEEKLY: WeeklyProgress = {
   cardsReviewed: 0, passagesDone: 0, dialoguesDone: 0, listeningDone: 0, patternsDone: 0, grammarDone: 0,
@@ -45,6 +46,7 @@ export function useWeeklyProgress() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const resetAt = profile?.weekly_reset_at;
+  const history = profile?.weekly_history;
 
   const fetch = useCallback(async () => {
     if (!user) { setLoading(false); return; }
@@ -66,14 +68,22 @@ export function useWeeklyProgress() {
     const countSince = (docs: { data: () => any }[], field: string) =>
       countInRange(docs, field, weekStart, Infinity);
 
-    setWeekly({
+    const counts = {
       cardsReviewed: countSince(cardSnap.docs, 'last_reviewed'),
       passagesDone: countSince(passageSnap.docs, 'completed_at'),
       dialoguesDone: countSince(dialogueSnap.docs, 'completed_at'),
       listeningDone: countSince(listeningSnap.docs, 'completed_at'),
       patternsDone: countSince(patternSnap.docs, 'last_completed'),
       grammarDone: countSince(grammarSnap.docs, 'completed_at'),
-    });
+    };
+    const freshProfile = (await getDoc(doc(db, 'profiles', user.uid))).data();
+    const recorded = freshProfile?.weekly_history?.[getWeekStartISO()] ?? history?.[getWeekStartISO()];
+    for (const { key, field } of WEEKLY_CATEGORIES) {
+      if (key !== 'cards' && recorded?.counts[key] !== undefined) {
+        counts[field] = Math.max(0, recorded.counts[key]! - (recorded.baseline[key] ?? 0));
+      }
+    }
+    setWeekly(counts);
 
     setDaysSince({
       cards: daysSinceLast(cardSnap.docs, 'last_reviewed'),
@@ -89,7 +99,7 @@ export function useWeeklyProgress() {
     } finally {
       setLoading(false);
     }
-  }, [user, resetAt]);
+  }, [user, resetAt, history]);
 
   useEffect(() => { fetch(); }, [fetch]);
   return { weekly, daysSince, loading, error, refresh: fetch };

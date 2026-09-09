@@ -1,27 +1,20 @@
 'use client';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { collection, query, where, getDocs, getCountFromServer, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, getCountFromServer, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import { useUserStats } from './useUserStats';
 import { toMillis, countInRange, daysSinceLast } from '@/lib/weekly';
 import { getWeekStartISO } from '@/lib/weekly';
-import { NAV_ITEMS, navPrefKey } from '@/lib/nav-config';
+import { WEEKLY_CATEGORIES, weeklyGoals, type WeeklyKey } from '@/lib/weekly-goals';
 
 export type HomeInsight = { summary: string; recommendations: string[] };
 
-type CategoryConfig = { href: string; label: string; field: string; collectionName: string; target: number };
+type CategoryConfig = { key: WeeklyKey; label: string; field: string; collectionName: string };
 
 // Same modest weekly pace as the Weekly Progress widget — kept local since
 // this hook does its own last-week windowed count, not the live current-week one.
-const CATEGORY_CONFIG: CategoryConfig[] = [
-  { href: '/cards',    label: 'Vocab',     field: 'last_reviewed', collectionName: 'user_card_progress',      target: 15 },
-  { href: '/read',     label: 'Reading',   field: 'completed_at',  collectionName: 'user_passage_progress',   target: 3 },
-  { href: '/shadow',   label: 'Speaking',  field: 'completed_at',  collectionName: 'user_dialogue_progress',  target: 2 },
-  { href: '/listen',   label: 'Listening', field: 'completed_at',  collectionName: 'user_listening_progress', target: 3 },
-  { href: '/patterns', label: 'Patterns',  field: 'last_completed',collectionName: 'user_pattern_progress',   target: 5 },
-  { href: '/grammar',  label: 'Grammar',   field: 'completed_at',  collectionName: 'user_grammar_progress',   target: 3 },
-];
+const CATEGORY_CONFIG: CategoryConfig[] = WEEKLY_CATEGORIES.map(c => ({ key: c.key, label: c.label, field: c.date, collectionName: c.collection }));
 
 export function useHomeInsight() {
   const { user, profile, refreshProfile } = useAuth();
@@ -31,15 +24,13 @@ export function useHomeInsight() {
   const attempted = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const isNavEnabled = useCallback((href: string) => {
-    const item = NAV_ITEMS.find(n => n.href === href);
-    if (!item) return false;
-    return profile?.nav_preferences?.[navPrefKey(href)] ?? item.enabled;
-  }, [profile?.nav_preferences]);
+  const goals = weeklyGoals(profile?.weekly_goals);
+  const settingsKey = JSON.stringify(goals);
+  const isTracked = useCallback((key: WeeklyKey) => weeklyGoals(profile?.weekly_goals)[key].enabled, [profile?.weekly_goals]);
 
   const lifetimeFor = (label: string) => {
     switch (label) {
-      case 'Vocab':     return { done: stats.cardsKnown, total: stats.totalCards };
+      case 'Vocab Cards': return { done: stats.cardsKnown, total: stats.totalCards };
       case 'Reading':   return { done: stats.passagesDone, total: stats.totalPassages };
       case 'Speaking':  return { done: stats.dialoguesDone, total: stats.totalDialogues };
       case 'Listening': return { done: stats.listeningDone, total: stats.totalListening };
@@ -50,7 +41,7 @@ export function useHomeInsight() {
 
   const generate = useCallback(async () => {
     if (!user || !profile?.weekly_reset_at) return;
-    const enabledConfig = CATEGORY_CONFIG.filter(c => isNavEnabled(c.href));
+    const enabledConfig = CATEGORY_CONFIG.filter(c => isTracked(c.key));
     if (enabledConfig.length === 0) { setInsight(null); return; }
 
     setLoading(true);
@@ -59,6 +50,9 @@ export function useHomeInsight() {
       const previousMonday = new Date(weekStart);
       previousMonday.setDate(previousMonday.getDate() - 7);
       const prevWeekStart = previousMonday.getTime();
+      const freshProfile = (await getDoc(doc(db, 'profiles', user.uid))).data();
+      const previous = freshProfile?.weekly_history?.[previousMonday.toISOString()];
+      const previousGoals = weeklyGoals(previous?.goals ?? freshProfile?.weekly_goals);
 
       const snaps = await Promise.all(
         enabledConfig.map(c => getDocs(query(collection(db, c.collectionName), where('user_id', '==', user.uid))))
@@ -71,8 +65,11 @@ export function useHomeInsight() {
       };
       const categories = enabledConfig.map((c, i) => ({
         label: c.label,
-        doneLastWeek: countInRange(snaps[i].docs, c.field, prevWeekStart, weekStart),
-        target: c.target,
+        doneLastWeek: c.key !== 'cards' && previous?.counts[c.key] !== undefined
+          ? previous.counts[c.key] : countInRange(snaps[i].docs, c.field, prevWeekStart, weekStart),
+        repeatCounting: c.key !== 'cards' && previous?.counts[c.key] !== undefined,
+        target: previousGoals[c.key].target,
+        targetThisWeek: goals[c.key].target,
         daysSinceLastActivity: daysSinceLast(snaps[i].docs, c.field),
         lifetimeDone: c.label === 'Patterns' ? patternLifetime.done : lifetimeFor(c.label).done,
         lifetimeTotal: c.label === 'Patterns' ? patternLifetime.total : lifetimeFor(c.label).total,
@@ -92,7 +89,8 @@ export function useHomeInsight() {
           recommendations: data.recommendations,
           categories: categories.map(c => c.label),
           week_start: new Date(weekStart).toISOString(),
-          version: 2,
+          version: 3,
+          settings_key: settingsKey,
           generated_at: serverTimestamp(),
         },
       });
@@ -105,7 +103,7 @@ export function useHomeInsight() {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profile?.weekly_reset_at, isNavEnabled, stats, profile?.current_streak]);
+  }, [user, profile?.weekly_reset_at, isTracked, stats, profile?.current_streak, settingsKey]);
 
   useEffect(() => {
     if (!user || !profile?.weekly_reset_at) return;
@@ -113,19 +111,21 @@ export function useHomeInsight() {
     if (stats.xp <= 0) return; // nothing to say yet for brand-new accounts
     if (loading) return;
 
-    const currentLabels = CATEGORY_CONFIG.filter(c => isNavEnabled(c.href)).map(c => c.label);
+    const currentLabels = CATEGORY_CONFIG.filter(c => isTracked(c.key)).map(c => c.label);
     if (currentLabels.length === 0) { setInsight(null); return; }
 
     const cached = profile.ai_insight;
     const sameCategories = cached
       && cached.categories?.length === currentLabels.length
       && cached.categories.every(c => currentLabels.includes(c));
-    const sameWeek = cached && cached.week_start === getWeekStartISO() && cached.version === 2;
+    const sameWeek = cached && cached.week_start === getWeekStartISO() && cached.version === 3 && cached.settings_key === settingsKey;
 
     if (cached && sameCategories && sameWeek) {
+      setError(null);
       setInsight({ summary: cached.summary, recommendations: cached.recommendations });
     } else {
-      const key = `${user.uid}:${getWeekStartISO()}:${currentLabels.join(',')}`;
+      setInsight(null);
+      const key = `${user.uid}:${getWeekStartISO()}:${settingsKey}`;
       if (attempted.current !== key) {
         attempted.current = key;
         setError(null);
@@ -133,7 +133,7 @@ export function useHomeInsight() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profile?.ai_insight, profile?.weekly_reset_at, profile?.nav_preferences, statsLoading, stats.xp, loading]);
+  }, [user, profile?.ai_insight, profile?.weekly_reset_at, settingsKey, statsLoading, stats.xp, loading]);
 
   return { insight, loading, error };
 }

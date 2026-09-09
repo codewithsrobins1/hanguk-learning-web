@@ -1,4 +1,5 @@
 'use client';
+import { saveWeeklyCompletion } from '@/lib/save-weekly-progress';
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection,
@@ -7,7 +8,6 @@ import {
   getDocs,
   doc,
   getDoc,
-  setDoc,
   addDoc,
   deleteDoc,
   where,
@@ -117,7 +117,7 @@ export function useSavePassageProgress() {
     if (!user) return;
 
     const docId = `${user.uid}_${passageId}`;
-    await setDoc(
+    await saveWeeklyCompletion(
       doc(db, 'user_passage_progress', docId),
       {
         user_id: user.uid,
@@ -126,7 +126,7 @@ export function useSavePassageProgress() {
         total_questions: totalQuestions,
         completed_at: new Date().toISOString(),
       },
-      { merge: true }
+      'passages'
     );
   };
 }

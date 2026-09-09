@@ -10,6 +10,8 @@ type CategorySignal = {
   daysSinceLastActivity: number | null;
   lifetimeDone: number;
   lifetimeTotal: number;
+  repeatCounting?: boolean;
+  targetThisWeek?: number;
 };
 
 export async function POST(req: NextRequest) {
@@ -19,6 +21,8 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(categories) || categories.length === 0 || categories.length > 6
       || !categories.every(c => c && typeof c.label === 'string' && c.label.length <= 40
         && ['doneLastWeek', 'target', 'lifetimeDone', 'lifetimeTotal'].every(key => Number.isFinite(c[key]) && c[key] >= 0)
+        && (c.targetThisWeek === undefined || (Number.isInteger(c.targetThisWeek) && c.targetThisWeek >= 1 && c.targetThisWeek <= 999))
+        && (c.repeatCounting === undefined || typeof c.repeatCounting === 'boolean')
         && (c.daysSinceLastActivity === null || (Number.isFinite(c.daysSinceLastActivity) && c.daysSinceLastActivity >= 0)))
       || ![level, xp, currentStreak].every(value => Number.isFinite(value) && value >= 0)) {
       return NextResponse.json({ error: 'Missing categories' }, { status: 400 });
@@ -30,7 +34,7 @@ export async function POST(req: NextRequest) {
         : c.daysSinceLastActivity === 0
           ? 'practiced today'
           : `last practiced ${c.daysSinceLastActivity} day${c.daysSinceLastActivity === 1 ? '' : 's'} ago`;
-      return `- ${c.label}: ${c.doneLastWeek}/${c.target} distinct items with a last saved activity date in the previous week, ${c.lifetimeDone}/${c.lifetimeTotal} distinct items all-time, ${last}`;
+      return `- ${c.label}: ${c.doneLastWeek}/${c.target} ${c.repeatCounting ? 'lesson completions including repeats' : 'distinct items with a last saved activity date'} in the previous week, ${c.lifetimeDone}/${c.lifetimeTotal} distinct items all-time, ${last}. This week's target: ${c.targetThisWeek ?? c.target}.`;
     }).join('\n');
 
     const prompt = `You are an encouraging Korean-learning coach writing a short personalized weekly progress recap for a student's home screen dashboard. This runs once, every Monday, looking back at the week that just ended.
@@ -40,7 +44,7 @@ Student: Level ${level}, ${xp} total XP, ${currentStreak}-day study streak.
 Last week's activity by category:
 ${categoryLines}
 
-These counts come from each item's latest saved progress, not a full session history. Repeating an item replaces its previous date. Describe the numbers as recorded distinct items, never as total sessions or an exhaustive history. Patterns may include partial practice. Do not infer exact session totals.
+Counts labeled lesson completions include repeated lessons. Other counts come from each item's latest saved progress, not a full session history: describe those as recorded distinct items, never as total sessions. Older pattern records may include partial practice. Do not infer missing history. Compare last week's progress to last week's targets; use this week's targets for recommendations. Recommend only categories listed above.
 
 Write a warm, specific, honest 2-3 sentence recap of last week. Call out one thing they did well (a real strength based on the numbers) and one thing they neglected (using the actual days-since-practiced number), referencing real category names and numbers — don't be generic. Keep the tone encouraging, never scolding. Phrase it as a look back at the week that just finished, not "today."
 
